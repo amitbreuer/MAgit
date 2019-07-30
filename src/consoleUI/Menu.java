@@ -2,7 +2,7 @@ package consoleUI;
 
 public class Menu {
 
-    public void Show()
+    public static void Show()
     {
         System.out.println("Please choose an option");
         System.out.println("1.Update user name");
@@ -16,6 +16,7 @@ public class Menu {
         System.out.println("9.Delete branch");
         System.out.println("10.Checkout");
         System.out.println("11.Show history of active branch");
-        System.out.println("12.Exit");
+        System.out.println("12.Create new repository");
+        System.out.println("13.Exit");
     }
 }
