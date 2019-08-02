@@ -26,6 +26,12 @@ public class Folder {
     }
 
     protected static class FolderComponent implements Comparable<FolderComponent> {
+        private String name;
+        private String sh1;
+        private eType type;
+        private String lastModifier;
+        private String lastModifiedDate;
+
         public FolderComponent(String name, String sha1, String type, String username, String date) {
             this.name = name;
             this.sh1 = sha1;
@@ -42,12 +48,6 @@ public class Folder {
         private enum eType {
             FOLDER, BLOB
         }
-
-        private String name;
-        private String sh1;
-        private eType type;
-        private String lastModifier;
-        private String lastModifiedDate;
 
         @Override
         public String toString() {
@@ -67,6 +67,4 @@ public class Folder {
             return resultString;
         }
     }
-
-
 }

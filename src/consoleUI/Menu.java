@@ -1,22 +1,167 @@
 package consoleUI;
 
-public class Menu {
+import engine.Commit;
+import engine.Manager;
 
-    public static void Show()
-    {
-        System.out.println("Please choose an option");
-        System.out.println("1.Update user name");
-        System.out.println("2.Load repository");
-        System.out.println("3.Switch repository");
-        System.out.println("4.Show all files of current repository");
-        System.out.println("5.Show status");
-        System.out.println("6.Commit");
-        System.out.println("7.Show all branches");
-        System.out.println("8.create new branch");
-        System.out.println("9.Delete branch");
-        System.out.println("10.Checkout");
-        System.out.println("11.Show history of active branch");
-        System.out.println("12.Create new repository");
-        System.out.println("13.Exit");
+import java.io.FileNotFoundException;
+import java.nio.file.FileAlreadyExistsException;
+import java.util.ArrayList;
+import java.util.Scanner;
+
+public class Menu {
+    private ArrayList<MenuItem> menuItems;
+    private Scanner scanner;
+    private Manager magitManager;
+
+    public Menu() {
+        this.menuItems = new ArrayList<MenuItem>();
+        this.scanner = new Scanner(System.in);
+        magitManager = new Manager();
+        buildMenu();
+    }
+
+    public void addMenuItem(String key, String name, Runnable runnable) {
+        MenuItem menuItem = new MenuItem(key, name, runnable);
+        menuItems.add(menuItem);
+    }
+
+    private void printMenuItems() {
+        for (MenuItem menuItem : menuItems) {
+            System.out.println(menuItem.getKey() + "] " + menuItem.getName());
+        }
+    }
+
+    private void runCommand(String key) throws Exception {
+        for (MenuItem i : menuItems) {
+            if (i.getKey().equals(key)) {
+                i.getRunnable().run();
+                return;
+            }
+        }
+        throw new Exception("No valid option for '" + key + "' found, try again.");
+    }
+
+    public void run() {
+        Boolean quit = false;
+        String option = "";
+        while (!quit) {
+            System.out.println("Please choose an option:");
+            printMenuItems();
+            option = scanner.nextLine();
+
+            if (option != "13") {
+                try {
+                    runCommand(option);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+                System.out.println();
+            } else {
+                quit = true;
+            }
+        }
+    }
+
+    public void buildMenu() {
+
+        addMenuItem("1", "Update user name", new Runnable() {
+            @Override
+            public void run() {
+                //magitManager.UpdateUserName();
+            }
+        });
+
+        addMenuItem("2", "Load repository", new Runnable() {
+            @Override
+            public void run() {
+                //magitManager.Load repository();
+            }
+        });
+
+        addMenuItem("3", "Switch repository", new Runnable() {
+            @Override
+            public void run() {
+                System.out.println("Enter the path of the repository you would like to switch to:");
+                String repositoryPath = scanner.nextLine();
+                try {
+                    magitManager.switchRepository(repositoryPath);
+                } catch (FileNotFoundException e) {
+                    System.out.println(e.getMessage());
+                }
+            }
+        });
+
+        addMenuItem("4", "Show all files of current repository", new Runnable() {
+            @Override
+            public void run() {
+                //magitManager.Show all files of current repository();
+            }
+        });
+
+        addMenuItem("5", "Show status", new Runnable() {
+            @Override
+            public void run() {
+                //magitManager.Show status();
+            }
+        });
+
+        addMenuItem("6", "Commit", new Runnable() {
+            @Override
+            public void run() {
+                System.out.println("Enter a message for the commit: ");
+                String message = scanner.nextLine();
+                magitManager.ExcecuteCommit(message);
+            }
+        });
+
+        addMenuItem("7", "Show all branches", new Runnable() {
+            @Override
+            public void run() {
+                //magitManager.Show all branches();
+            }
+        });
+
+        addMenuItem("8", "create new branch", new Runnable() {
+            @Override
+            public void run() {
+                //magitManager.Show all files of current repository();
+            }
+        });
+
+        addMenuItem("9", "Delete branch", new Runnable() {
+            @Override
+            public void run() {
+                //magitManager.Switch repository();
+            }
+        });
+
+        addMenuItem("10", "Checkout", new Runnable() {
+            @Override
+            public void run() {
+                //magitManager.Show all files of current repository();
+            }
+        });
+
+
+        addMenuItem("11", "Show history of active branch", new Runnable() {
+            @Override
+            public void run() {
+                //magitManager.Switch repository();
+            }
+        });
+
+
+        addMenuItem("12", "Create new repository", new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    System.out.println("Enter the path of the new repository:");
+                    String repositoryPath = scanner.nextLine();
+                    magitManager.CreateEmptyRepository(repositoryPath);
+                } catch (FileAlreadyExistsException e) {
+                    System.out.println(e.getMessage());
+                }
+            }
+        });
     }
 }
