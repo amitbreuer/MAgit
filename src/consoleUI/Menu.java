@@ -53,7 +53,7 @@ public class Menu {
                 try {
                     runCommand(option);
                 } catch (Exception ex) {
-                    ex.printStackTrace();
+                    System.out.println(ex.getMessage());
                 }
                 System.out.println();
             } else {
@@ -81,11 +81,15 @@ public class Menu {
         addMenuItem("3", "Switch repository", new Runnable() {
             @Override
             public void run() {
+                String repositoryPath;
+                String repositoryName;
                 System.out.println("Enter the path of the repository you would like to switch to:");
-                String repositoryPath = scanner.nextLine();
+                repositoryPath = scanner.nextLine();
+                System.out.println("Enter the name of the repository you would like to switch to:");
+                repositoryName = scanner.nextLine();
                 try {
-                    magitManager.switchRepository(repositoryPath);
-                } catch (FileNotFoundException e) {
+                    magitManager.switchRepository(repositoryPath+":/"+repositoryName);
+                } catch (Exception e) {
                     System.out.println(e.getMessage());
                 }
             }
@@ -154,10 +158,14 @@ public class Menu {
         addMenuItem("12", "Create new repository", new Runnable() {
             @Override
             public void run() {
+                String repositoryPath;
+                String repositoryName;
                 try {
                     System.out.println("Enter the path of the new repository:");
-                    String repositoryPath = scanner.nextLine();
-                    magitManager.CreateEmptyRepository(repositoryPath);
+                    repositoryPath = scanner.nextLine();
+                    System.out.println("Enter the name of the new repository:");
+                    repositoryName = scanner.nextLine();
+                    magitManager.CreateEmptyRepository(repositoryPath+":/"+ repositoryName);
                 } catch (FileAlreadyExistsException e) {
                     System.out.println(e.getMessage());
                 }

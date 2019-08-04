@@ -1,17 +1,20 @@
 package engine;
 
+import org.apache.commons.codec.digest.DigestUtils;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringTokenizer;
 
-public class Folder {
+public class Folder implements FolderComponent{
 
-    private List<FolderComponent> components = new ArrayList<>();
+    private List<Component> components = new ArrayList<>();
 
-    public List<FolderComponent> getComponents() {
+    public List<Component> getComponents() {
         return components;
     }
 
-    public void setComponents(List<FolderComponent> components) {
+    public void setComponents(List<Component> components) {
         this.components = components;
     }
 
@@ -19,30 +22,63 @@ public class Folder {
     public String toString() {
         String folderToString = new String();
 
-        for (FolderComponent f : components) {
-            folderToString += f.toString()+"\r\n";
+        for (Component c : components) {
+            folderToString += c.toString() + "\r\n";
         }
-        return  folderToString;
+        return folderToString;
     }
 
-    protected static class FolderComponent implements Comparable<FolderComponent> {
+    public String sha1Folder() {
+        return DigestUtils.sha1Hex(this.toString());
+    }
+
+    protected static class Component implements Comparable<Component> {
         private String name;
-        private String sh1;
-        private eType type;
+        private String sha1;
+        private FolderComponent folderComponent;
         private String lastModifier;
         private String lastModifiedDate;
 
-        public FolderComponent(String name, String sha1, String type, String username, String date) {
+        public String getName() {
+            return name;
+        }
+
+        public String getSha1() {
+            return sha1;
+        }
+
+        public FolderComponent getFolderComponent() {
+            return folderComponent;
+        }
+
+        public Component(String name, String sha1, FolderComponent folderComponent, String username, String date) {
             this.name = name;
-            this.sh1 = sha1;
-            this.type = eType.valueOf(type);
+            this.sha1 = sha1;
+            this.folderComponent = folderComponent;
             this.lastModifier = username;
             this.lastModifiedDate = date;
         }
 
+        /*public static Component createComponentFromString(String str) {
+            Component newComponent = null;
+
+            StringTokenizer tokenizer = new StringTokenizer(str, ",");
+
+            newComponent = new Component(
+                    tokenizer.nextToken(),
+                    tokenizer.nextToken(),
+                    tokenizer.nextToken(),
+                    tokenizer.nextToken(),
+                    tokenizer.nextToken()
+            );
+            Class.
+            return newComponent;
+        }*/
+
+
         @Override
-        public int compareTo(FolderComponent folderComponent) {
-            return this.name.compareTo(folderComponent.name);
+        public int compareTo(Component component) {
+            return this.name.compareTo(component.name);
         }
 
         private enum eType {
@@ -56,9 +92,9 @@ public class Folder {
 
             resultString = this.name +
                     delimiter +
-                    this.sh1 +
+                    this.sha1 +
                     delimiter +
-                    this.type.toString() +
+                    this.folderComponent.getClass().getSimpleName() +
                     delimiter +
                     this.lastModifier +
                     delimiter +
@@ -67,4 +103,5 @@ public class Folder {
             return resultString;
         }
     }
+
 }

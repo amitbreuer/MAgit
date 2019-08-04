@@ -6,40 +6,30 @@ import java.util.List;
 
 public class Commit {
     private String message;
-    //private List<String> commitsHistory;
-    private Commit prevCommit;
+    private String prevCommitSha1;
     private String dateCreated;
     private String creator;
-    private String mainFolderSh1;
+    private String mainFolderSha1;
+    private Folder mainFolder;
 
-    public Commit getPrevCommit() {
-        return prevCommit;
+    public String getPrevCommitSha1() {
+        return prevCommitSha1;
     }
 
-    public void setPrevCommit(Commit prevCommit) {
-        this.prevCommit = prevCommit;
+    public void setPrevCommitSha1(String prevCommitSha1) {
+        this.prevCommitSha1 = prevCommitSha1;
     }
 
     public String getMainFolderSh1() {
-        return mainFolderSh1;
+        return mainFolderSha1;
     }
 
-    public Commit(String message){//, String creator,Commit prevCommit) {
+    public Commit(String message) { // add parameters
         this.message = message;
-        //this.prevCommit = null;
         this.dateCreated = getDate();
-        //this.creator = creator
-    //this.prevCommit = prevCommit;
-    }
-/*
-    public void setCommitsHistory(List<String> commitsHistory) {
-        this.commitsHistory = commitsHistory;
+        //this.creator = creator;
     }
 
-    public List<String> getCommitsHistory() {
-        return commitsHistory;
-    }
-*/
     public String getDateCreated() {
         return dateCreated;
     }
@@ -49,6 +39,10 @@ public class Commit {
     }
 
     public void setMainFolderSh1(String mainFolderSh1) {
-        this.mainFolderSh1 = mainFolderSh1;
+        this.mainFolderSha1 = mainFolderSh1;
+    }
+
+    public Folder getMainFolder() {
+        return mainFolder;
     }
 }
