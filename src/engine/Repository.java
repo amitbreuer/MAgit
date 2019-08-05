@@ -5,13 +5,11 @@ import java.nio.file.Paths;
 
 public class Repository {
     private Path path;
-    private Folder mainFolder;
-    private Commit lastCommit;
+    private Folder mainFolderInLastCommit;
 
     public Repository(String path) {
         this.path = Paths.get(path);
-        this.mainFolder = new Folder();
-        this.lastCommit = null;
+        this.mainFolderInLastCommit = new Folder();
     }
 
     public Path getPath() {
@@ -23,18 +21,11 @@ public class Repository {
     }
 
     public Folder getMainFolder() {
-        return mainFolder;
+        return mainFolderInLastCommit;
     }
 
     public void setMainFolder(Folder mainFolder) {
-        this.mainFolder = mainFolder;
+        this.mainFolderInLastCommit = mainFolder;
     }
 
-    public Commit getLastCommit() {
-        return lastCommit;
-    }
-
-    public void setLastCommit(Commit lastCommit) {
-        this.lastCommit = lastCommit;
-    }
 }

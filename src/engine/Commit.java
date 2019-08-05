@@ -1,5 +1,8 @@
 package engine;
 
+import org.apache.commons.codec.cli.Digest;
+import org.apache.commons.codec.digest.DigestUtils;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -10,7 +13,12 @@ public class Commit {
     private String dateCreated;
     private String creator;
     private String mainFolderSha1;
-    private Folder mainFolder;
+
+    public Commit(String message, String creator) { // add parameters
+        this.message = message;
+        this.dateCreated = getDate();
+        this.creator = creator;
+    }
 
     public String getPrevCommitSha1() {
         return prevCommitSha1;
@@ -24,10 +32,14 @@ public class Commit {
         return mainFolderSha1;
     }
 
-    public Commit(String message) { // add parameters
-        this.message = message;
-        this.dateCreated = getDate();
-        //this.creator = creator;
+    @Override
+    public String toString() {
+        return
+                prevCommitSha1 + '\r' + '\n' +
+                        mainFolderSha1 + '\r' + '\n' +
+                        dateCreated + '\r' + '\n' +
+                        creator + '\r' + '\n' +
+                        message + '\r' + '\n';
     }
 
     public String getDateCreated() {
@@ -42,7 +54,7 @@ public class Commit {
         this.mainFolderSha1 = mainFolderSh1;
     }
 
-    public Folder getMainFolder() {
-        return mainFolder;
+    private String Sha1Commit() {
+        return DigestUtils.sha1Hex(this.toString());
     }
 }

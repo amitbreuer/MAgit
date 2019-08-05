@@ -67,7 +67,8 @@ public class Menu {
         addMenuItem("1", "Update user name", new Runnable() {
             @Override
             public void run() {
-                //magitManager.UpdateUserName();
+                System.out.println("Enter the user name:");
+                magitManager.UpdateUserName(scanner.nextLine());
             }
         });
 
@@ -105,7 +106,7 @@ public class Menu {
         addMenuItem("5", "Show status", new Runnable() {
             @Override
             public void run() {
-                //magitManager.Show status();
+                System.out.println(magitManager.getStatus());
             }
         });
 

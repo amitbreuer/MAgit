@@ -8,4 +8,9 @@ public class Blob implements FolderComponent{
     public Blob(String content) {
         this.content = content;
     }
+
+    @Override
+    public String toString() {
+        return content;
+    }
 }

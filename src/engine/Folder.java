@@ -8,13 +8,13 @@ import java.util.StringTokenizer;
 
 public class Folder implements FolderComponent{
 
-    private List<Component> components = new ArrayList<>();
+    private List<ComponentData> components = new ArrayList<>();
 
-    public List<Component> getComponents() {
+    public List<ComponentData> getComponents() {
         return components;
     }
 
-    public void setComponents(List<Component> components) {
+    public void setComponents(List<ComponentData> components) {
         this.components = components;
     }
 
@@ -22,7 +22,7 @@ public class Folder implements FolderComponent{
     public String toString() {
         String folderToString = new String();
 
-        for (Component c : components) {
+        for (ComponentData c : components) {
             folderToString += c.toString() + "\r\n";
         }
         return folderToString;
@@ -32,7 +32,7 @@ public class Folder implements FolderComponent{
         return DigestUtils.sha1Hex(this.toString());
     }
 
-    protected static class Component implements Comparable<Component> {
+    protected static class ComponentData implements Comparable<ComponentData> {
         private String name;
         private String sha1;
         private FolderComponent folderComponent;
@@ -51,7 +51,7 @@ public class Folder implements FolderComponent{
             return folderComponent;
         }
 
-        public Component(String name, String sha1, FolderComponent folderComponent, String username, String date) {
+        public ComponentData(String name, String sha1, FolderComponent folderComponent, String username, String date) {
             this.name = name;
             this.sha1 = sha1;
             this.folderComponent = folderComponent;
@@ -77,12 +77,8 @@ public class Folder implements FolderComponent{
 
 
         @Override
-        public int compareTo(Component component) {
+        public int compareTo(ComponentData component) {
             return this.name.compareTo(component.name);
-        }
-
-        private enum eType {
-            FOLDER, BLOB
         }
 
         @Override
