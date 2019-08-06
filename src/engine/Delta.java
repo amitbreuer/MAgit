@@ -52,9 +52,10 @@ public class Delta {
 
     public String convertDeltaComponentsListToString(List<DeltaComponent> list){
         StringBuilder sb = new StringBuilder();
+        int dcNumber = 1;
         for(DeltaComponent dc : list){
-            sb.append(String.format("File's name: %s\r\n" +
-                    "File's Path: %s\r\n",dc.getName(),dc.getPath().toString()));
+            sb.append(String.format("%d. name: %s: " +"Type:%s  "+"Path: %s\r\n\r\n",dcNumber,dc.getName(),dc.getType(),dc.getPath().toString()));
+       dcNumber++;
         }
         return  sb.toString();
     }

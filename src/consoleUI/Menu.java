@@ -143,7 +143,7 @@ public class Menu {
         addMenuItem("10", "Checkout", new Runnable() {
             @Override
             public void run() {
-                //magitManager.Show all files of current repository();
+                //magitManager.checkOut();
             }
         });
 
@@ -173,4 +173,6 @@ public class Menu {
             }
         });
     }
+
+
 }
