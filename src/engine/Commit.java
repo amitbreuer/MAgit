@@ -35,8 +35,8 @@ public class Commit {
     @Override
     public String toString() {
         return
-                prevCommitSha1 + '\r' + '\n' +
-                        mainFolderSha1 + '\r' + '\n' +
+                mainFolderSha1 + '\r' + '\n' +
+                        prevCommitSha1+ '\r' + '\n' +
                         dateCreated + '\r' + '\n' +
                         creator + '\r' + '\n' +
                         message + '\r' + '\n';

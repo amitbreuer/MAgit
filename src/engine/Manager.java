@@ -13,15 +13,15 @@ import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 public class Manager {
-    String username;
-    Repository repository;
+    private String username;
+    private Repository repository;
 
     public Manager() {
-        username = new String();
+        username = new String("Administrator");
     }
 
-    public void UpdateUserName(String userName) {
-        this.username = userName;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public void CreateEmptyRepository(String repositoryPath) throws FileAlreadyExistsException {
@@ -39,7 +39,7 @@ public class Manager {
         }
     }
 
-    private void createFileInBranches(String fileName, String fileContent) {
+    private void createFileInBranches(String fileName, String fileContent) {//////////merge with createTextFile??
         Writer out = null;
         Path path = Paths.get(this.repository.getPath().toString() + "/.magit/branches");
 
@@ -82,32 +82,8 @@ public class Manager {
         return file.list().length == 0;
     }
 
-    /*
-        private Folder createFolderFromObjectFile(File textFile) {
-            Folder folder = new Folder();
 
-            FileReader file;
-            String line = "";
-            try {
-                file = new FileReader(textFile);
-                BufferedReader reader = new BufferedReader(file);
-                try {
-                    while ((line = reader.readLine()) != null) {
-                        folder.getComponents().add(Folder.FolderComponent.createFolderComponentFromString(line));
-                    }
-                    Collections.sort(folder.getComponents());
-                } finally {
-                    reader.close();
-                }
-            } catch (FileNotFoundException e) {
-                throw new RuntimeException("File not found");
-            } catch (IOException e) {
-                throw new RuntimeException("IO Error occured");
-            }
-            return folder;
-        }
-    */
-    public void ExcecuteCommit(String message) {
+    public void ExecuteCommit(String message) {
         Path objectsFolderPath = Paths.get(repository.getPath().toString() + "/.magit/objects");
         Folder currentWC;
         Commit newCommit = new Commit(message, username);
@@ -132,7 +108,6 @@ public class Manager {
             createNewObjectFile(repository.getMainFolder().toString());//create object file that contains the new main folder
             createNewObjectFile(newCommit.toString());//create object file that contains the new commit
         }
-
     }
 
     private void createNewObjectFileFromDelta(Delta delta) {
@@ -203,8 +178,11 @@ public class Manager {
 
                 WChasNext = WCIterator.hasNext();
                 comparedFileHasNext = componentsIterator.hasNext();
-                if (WChasNext && comparedFileHasNext) {
+
+                if (WChasNext) {
                     currentWCFile = WCIterator.next();
+                }
+                if (comparedFileHasNext) {
                     currentComparedFile = componentsIterator.next();
                 }
             } else if (nameDiff < 0) { //file added
@@ -268,7 +246,6 @@ public class Manager {
         }
     }
 
-
     private void addFolderComponentToDeletedFilesList(Folder.ComponentData fc, Path path, Delta delta) {
 
         if (fc.getFolderComponent() instanceof Folder) {
@@ -280,7 +257,6 @@ public class Manager {
         }
         delta.getDeletedFiles().add(new DeltaComponent(fc.getFolderComponent(), path, fc.getName()));
     }
-
 
     private File findFileInDirectory(String fileName, String directoryPath) throws NoSuchFileException {
         File fileToFind = null;
@@ -352,34 +328,40 @@ public class Manager {
         bos.close();
     }
 
+    private void createTextFile(String newFileName, String content) throws Exception {
+        File newFile = new File(newFileName);
+        newFile.createNewFile();
+        BufferedWriter writer = null;
+        writer = new BufferedWriter(new FileWriter(newFileName));
+        writer.write(content);
+        writer.close();
+    }
+
+    private void createZipFile(String zipFileName, String entryName, String content) throws Exception {
+        File zipFile = new File(zipFileName);
+        ZipOutputStream out = new ZipOutputStream(new FileOutputStream(zipFile));
+        ZipEntry entry = new ZipEntry(entryName);
+        out.putNextEntry(entry);
+
+        byte[] data = content.getBytes();
+        out.write(data, 0, data.length);
+        out.closeEntry();
+        out.close();
+    }
+
     private void createNewObjectFile(String content) {//creates a zip for objects
         String Sha1 = DigestUtils.sha1Hex(content);
         String fileName = this.repository.getPath().toString() + "/.magit/objects/" + Sha1 + ".txt";
         String zipFileName = this.repository.getPath().toString() + "/.magit/objects/" + Sha1 + ".zip";
-        File file = new File(fileName);
+
         try {
-            file.createNewFile();
-            BufferedWriter writer = null;
-            writer = new BufferedWriter(new FileWriter(fileName));
-            writer.write(content);
-            writer.close();
+            createTextFile(fileName, content);
+            createZipFile(zipFileName, Sha1 + ".txt", content);
+            new File(fileName).delete();
 
-            File zipFile = new File(zipFileName);
-            ZipOutputStream out = new ZipOutputStream(new FileOutputStream(zipFile));
-            ZipEntry e = new ZipEntry(Sha1 + ".txt");
-            out.putNextEntry(e);
-
-            byte[] data = content.getBytes();
-            out.write(data, 0, data.length);
-            out.closeEntry();
-            out.close();
-
-            file.delete();
-        } catch (IOException e) {
+        } catch (Exception e) {
         }
-
     }
-
 
     private String convertTextFileToString(String fileName) {
         String returnValue = "";
@@ -423,14 +405,50 @@ public class Manager {
         return deltaToString;
     }
 
+    public void spanWCFromFolder(Folder folder) {
+        Path pathOfRepository = this.repository.getPath();
 
-    public void createWCFromFolder(Folder folder){
+        File repositoryToDelete = pathOfRepository.toFile();
+        deleteFileFromDirectory(repositoryToDelete);
 
-        Path RepositoryToClear =this.repository.getPath();
+        for (Folder.ComponentData fc : this.repository.getMainFolder().getComponents()) {
+            addFolderComponentToDirectory(pathOfRepository, fc.getFolderComponent(), fc.getName());
+        }
+    }
 
+    private void addFolderComponentToDirectory(Path pathOfDirectory, FolderComponent folderComponent, String folderComponentName) {
+        if (folderComponent instanceof Folder) {
+            createDirectory(pathOfDirectory.toString() + '/' + folderComponentName);
+            Path componentPath;
 
+            for (Folder.ComponentData componentData : ((Folder) folderComponent).getComponents()) {
+                componentPath = Paths.get(pathOfDirectory.toString() + "/" + folderComponentName);
+                addFolderComponentToDirectory(componentPath, componentData.getFolderComponent(), componentData.getName());
+            }
+
+        } else {
+            try {
+                createTextFile(pathOfDirectory.toString() + '/' + folderComponentName, folderComponent.toString());
+            } catch (Exception ex) {
+            }
+        }
 
     }
 
-}
+    private void createDirectory(String folderName) {
+        File newDirectory = new File(folderName);
+        newDirectory.mkdir();///////check if did't worked?
+    }
 
+    private void deleteFileFromDirectory(File fileToDelete) {
+        if (!fileToDelete.isFile()) {
+            List<File> allfolderFiles = Arrays.asList(fileToDelete.listFiles());
+            for (File file : allfolderFiles) {
+                if (!file.getName().equals(".magit")) {
+                    deleteFileFromDirectory(file);
+                }
+            }
+        }
+        fileToDelete.delete();
+    }
+}

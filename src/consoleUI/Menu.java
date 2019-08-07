@@ -68,7 +68,7 @@ public class Menu {
             @Override
             public void run() {
                 System.out.println("Enter the user name:");
-                magitManager.UpdateUserName(scanner.nextLine());
+                magitManager.setUsername(scanner.nextLine());
             }
         });
 
@@ -89,7 +89,7 @@ public class Menu {
                 System.out.println("Enter the name of the repository you would like to switch to:");
                 repositoryName = scanner.nextLine();
                 try {
-                    magitManager.switchRepository(repositoryPath+":/"+repositoryName);
+                    magitManager.switchRepository(repositoryPath + ":/" + repositoryName);
                 } catch (Exception e) {
                     System.out.println(e.getMessage());
                 }
@@ -115,7 +115,7 @@ public class Menu {
             public void run() {
                 System.out.println("Enter a message for the commit: ");
                 String message = scanner.nextLine();
-                magitManager.ExcecuteCommit(message);
+                magitManager.ExecuteCommit(message);
             }
         });
 
@@ -166,7 +166,7 @@ public class Menu {
                     repositoryPath = scanner.nextLine();
                     System.out.println("Enter the name of the new repository:");
                     repositoryName = scanner.nextLine();
-                    magitManager.CreateEmptyRepository(repositoryPath+":/"+ repositoryName);
+                    magitManager.CreateEmptyRepository(repositoryPath + ":/" + repositoryName);
                 } catch (FileAlreadyExistsException e) {
                     System.out.println(e.getMessage());
                 }
