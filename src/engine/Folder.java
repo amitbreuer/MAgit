@@ -39,6 +39,26 @@ public class Folder implements FolderComponent{
         private String lastModifier;
         private String lastModifiedDate;
 
+        public ComponentData(String name, String sha1, FolderComponent folderComponent, String username, String date) {
+            this.name = name;
+            this.sha1 = sha1;
+            this.folderComponent = folderComponent;
+            this.lastModifier = username;
+            this.lastModifiedDate = date;
+        }
+
+        public ComponentData(String name, String sha1, String type, String username, String date) {
+            this.name = name;
+            this.sha1 = sha1;
+            if(type.equals("Blob")){
+                this.folderComponent = new Blob("");
+            }else{
+                this.folderComponent = new Folder();
+            }
+            this.lastModifier = username;
+            this.lastModifiedDate = date;
+        }
+
         public String getName() {
             return name;
         }
@@ -51,30 +71,9 @@ public class Folder implements FolderComponent{
             return folderComponent;
         }
 
-        public ComponentData(String name, String sha1, FolderComponent folderComponent, String username, String date) {
-            this.name = name;
-            this.sha1 = sha1;
+        public void setFolderComponent(FolderComponent folderComponent) {
             this.folderComponent = folderComponent;
-            this.lastModifier = username;
-            this.lastModifiedDate = date;
         }
-
-        /*public static Component createComponentFromString(String str) {
-            Component newComponent = null;
-
-            StringTokenizer tokenizer = new StringTokenizer(str, ",");
-
-            newComponent = new Component(
-                    tokenizer.nextToken(),
-                    tokenizer.nextToken(),
-                    tokenizer.nextToken(),
-                    tokenizer.nextToken(),
-                    tokenizer.nextToken()
-            );
-            Class.
-            return newComponent;
-        }*/
-
 
         @Override
         public int compareTo(ComponentData component) {
@@ -90,13 +89,17 @@ public class Folder implements FolderComponent{
                     delimiter +
                     this.sha1 +
                     delimiter +
-                    this.folderComponent.getClass().getSimpleName() +
+                    this.getType() +
                     delimiter +
-                    this.lastModifier +
+                    this.lastModifier + "administrator" +
                     delimiter +
                     this.lastModifiedDate;
 
             return resultString;
+        }
+
+        public String getType() {
+            return this.folderComponent.getClass().getSimpleName();
         }
     }
 
