@@ -82,8 +82,7 @@ public class Manager {
         return file.list().length == 0;
     }
 
-
-    public void ExecuteCommit(String message) {
+    public void ExcecuteCommit(String message) {
         Path objectsFolderPath = Paths.get(repository.getPath().toString() + "/.magit/objects");
         Folder currentWC;
         Commit newCommit = new Commit(message, username);
@@ -108,6 +107,10 @@ public class Manager {
             createNewObjectFile(repository.getMainFolder().toString());//create object file that contains the new main folder
             createNewObjectFile(newCommit.toString());//create object file that contains the new commit
         }
+
+
+        Folder newMainFolder = createMainFolderFromObjectFile(DigestUtils.sha1Hex(newCommit.toString()));
+
     }
 
     private void createNewObjectFileFromDelta(Delta delta) {
@@ -258,39 +261,13 @@ public class Manager {
         delta.getDeletedFiles().add(new DeltaComponent(fc.getFolderComponent(), path, fc.getName()));
     }
 
-    private File findFileInDirectory(String fileName, String directoryPath) throws NoSuchFileException {
-        File fileToFind = null;
-        Path directory = Paths.get(directoryPath);
-        File[] files;
-
-        if (directoryIsEmpty(directory)) {
-            throw new NoSuchFileException("There is no such file in this directory");
-        } else {
-            files = directory.toFile().listFiles();
-            for (File f : files) {
-                if (f.getName().equals(fileName)) {
-                    fileToFind = f;
-                    break;
-                }
-            }
-            if (fileToFind == null) {
-                throw new NoSuchFileException("There is no such file in this directory");
-            }
-        }
-
-        return fileToFind;
-    }
-
-    public File getTextFileFromObjectsFolder(String fileName) {
+    public File getTextFileFromObjectsDirectory(String fileName,String objectsFolderPath) {
         File textFile = null;
-        File fileToUnzip;
-        Path objectsPath = Paths.get(this.repository.getPath().toString() + "/.magit/objects");
+        String fileToUnzipPath = objectsFolderPath + "/" + fileName + ".zip";
 
         try {
-            fileToUnzip = findFileInDirectory(fileName + ".zip", objectsPath.toString()); //לא משווה טוב שמות של קבצים
-            unzip(fileToUnzip.getPath(), objectsPath.toString());
-            textFile = findFileInDirectory(fileName + ".txt", objectsPath.toString());
-        } catch (NoSuchFileException e) {
+            unzip(fileToUnzipPath, objectsFolderPath);
+            textFile = new File(objectsFolderPath + "/" + fileName + ".txt");
         } catch (IOException e) {
         }
 
@@ -342,7 +319,6 @@ public class Manager {
         ZipOutputStream out = new ZipOutputStream(new FileOutputStream(zipFile));
         ZipEntry entry = new ZipEntry(entryName);
         out.putNextEntry(entry);
-
         byte[] data = content.getBytes();
         out.write(data, 0, data.length);
         out.closeEntry();
@@ -353,12 +329,10 @@ public class Manager {
         String Sha1 = DigestUtils.sha1Hex(content);
         String fileName = this.repository.getPath().toString() + "/.magit/objects/" + Sha1 + ".txt";
         String zipFileName = this.repository.getPath().toString() + "/.magit/objects/" + Sha1 + ".zip";
-
         try {
             createTextFile(fileName, content);
             createZipFile(zipFileName, Sha1 + ".txt", content);
             new File(fileName).delete();
-
         } catch (Exception e) {
         }
     }
@@ -407,40 +381,108 @@ public class Manager {
 
     public void spanWCFromFolder(Folder folder) {
         Path pathOfRepository = this.repository.getPath();
-
         File repositoryToDelete = pathOfRepository.toFile();
         deleteFileFromDirectory(repositoryToDelete);
-
         for (Folder.ComponentData fc : this.repository.getMainFolder().getComponents()) {
             addFolderComponentToDirectory(pathOfRepository, fc.getFolderComponent(), fc.getName());
-        }
-    }
+        }}
 
     private void addFolderComponentToDirectory(Path pathOfDirectory, FolderComponent folderComponent, String folderComponentName) {
         if (folderComponent instanceof Folder) {
-            createDirectory(pathOfDirectory.toString() + '/' + folderComponentName);
+            createDirectory(pathOfDirectory.toString() + "/" + folderComponentName);
             Path componentPath;
-
             for (Folder.ComponentData componentData : ((Folder) folderComponent).getComponents()) {
                 componentPath = Paths.get(pathOfDirectory.toString() + "/" + folderComponentName);
                 addFolderComponentToDirectory(componentPath, componentData.getFolderComponent(), componentData.getName());
             }
-
         } else {
             try {
-                createTextFile(pathOfDirectory.toString() + '/' + folderComponentName, folderComponent.toString());
+                createTextFile(pathOfDirectory.toString() + "/" + folderComponentName, folderComponent.toString());
             } catch (Exception ex) {
             }
         }
-
     }
 
     private void createDirectory(String folderName) {
         File newDirectory = new File(folderName);
-        newDirectory.mkdir();///////check if did't worked?
+        newDirectory.mkdir();}///////check if did't worked?
+
+    public Folder createMainFolderFromObjectFile(String commitSha1){
+        String objectsFolderPath = repository.getPath().toString()+"/.magit/objects";
+        String commitTextFileContent;
+        String mainFolderSha1;
+        List<String> mainFolderTextFileContent = null;
+        FolderComponent mainFolder;
+        File mainFolderTextFile;
+        StringTokenizer tokenizer;
+        File commitTextFile;
+
+        commitTextFile = getTextFileFromObjectsDirectory(commitSha1,objectsFolderPath);
+        commitTextFileContent = convertTextFileToString(commitTextFile.getPath());
+        tokenizer = new StringTokenizer(commitTextFileContent, "\r\n");
+        mainFolderSha1 = tokenizer.nextToken(); // get first line of the content - the line of the main folder sha1
+        mainFolderTextFile = getTextFileFromObjectsDirectory(mainFolderSha1,objectsFolderPath);
+        try {
+            mainFolderTextFileContent = Files.readAllLines(mainFolderTextFile.toPath());
+        } catch (IOException e) {
+        }
+
+        mainFolder = createFolderComponentFromTextFileLines(true,mainFolderTextFileContent,objectsFolderPath);
+
+        commitTextFile.delete();
+        mainFolderTextFile.delete();
+        return (Folder)mainFolder;
     }
 
-    private void deleteFileFromDirectory(File fileToDelete) {
+    public FolderComponent createFolderComponentFromTextFileLines(Boolean isFolder,List<String> contentLines,String objectsFolderPath){
+        FolderComponent newFolderComponent = null;
+        FolderComponent subFolderComonent = null;
+        List<String> subComponentContentLines = null;
+        Folder.ComponentData newComponentData;
+        File subComponentTextFile;
+        String contentString;
+
+        if(!isFolder){
+            contentString = createStringFromListOfStrings(contentLines);
+            Blob newblob = new Blob(contentString);
+            newFolderComponent = newblob;
+        }else {
+            Folder newFolder = new Folder();
+            for (String line : contentLines) {
+                newComponentData = getComponentDataFromString(line);
+                subComponentTextFile = getTextFileFromObjectsDirectory(newComponentData.getSha1(), objectsFolderPath);
+                try {
+                    subComponentContentLines = Files.readAllLines(subComponentTextFile.toPath());
+                } catch (IOException e) {
+                }
+
+                subFolderComonent = createFolderComponentFromTextFileLines(newComponentData.getType().equals("Folder"), subComponentContentLines, objectsFolderPath);
+                newComponentData.setFolderComponent(subFolderComonent);
+                newFolder.getComponents().add(newComponentData);
+                subComponentTextFile.delete();
+            }
+            newFolderComponent = newFolder;
+        }
+
+        return newFolderComponent;
+    }
+
+    private Folder.ComponentData getComponentDataFromString(String str) {
+        StringTokenizer tokenizer;
+        tokenizer = new StringTokenizer(str, ",");
+        Folder.ComponentData newComponentData;
+
+        String name = tokenizer.nextToken();
+        String sha1 = tokenizer.nextToken();
+        String type = tokenizer.nextToken();
+        String creator = tokenizer.nextToken();
+        String date = tokenizer.nextToken();
+        newComponentData = new Folder.ComponentData(name,sha1,type,creator,date);
+
+        return newComponentData;
+    }
+
+    private void deleteFileFromDirectory (File fileToDelete){
         if (!fileToDelete.isFile()) {
             List<File> allfolderFiles = Arrays.asList(fileToDelete.listFiles());
             for (File file : allfolderFiles) {
@@ -451,4 +493,15 @@ public class Manager {
         }
         fileToDelete.delete();
     }
+
+    private String createStringFromListOfStrings(List<String> stringLines) {
+        StringBuilder sb = new StringBuilder();
+        for(String s : stringLines){
+            sb.append(s);
+        }
+
+        return sb.toString();
+    }
+
 }
+

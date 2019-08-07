@@ -91,7 +91,7 @@ public class Folder implements FolderComponent{
                     delimiter +
                     this.getType() +
                     delimiter +
-                    this.lastModifier + "administrator" +
+                    this.lastModifier +
                     delimiter +
                     this.lastModifiedDate;
 
@@ -102,5 +102,4 @@ public class Folder implements FolderComponent{
             return this.folderComponent.getClass().getSimpleName();
         }
     }
-
 }
