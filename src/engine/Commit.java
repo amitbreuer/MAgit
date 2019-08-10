@@ -1,23 +1,32 @@
 package engine;
 
-import org.apache.commons.codec.cli.Digest;
 import org.apache.commons.codec.digest.DigestUtils;
-
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
 
 public class Commit {
-    private String message;
     private String prevCommitSha1;
     private String dateCreated;
     private String creator;
-    private String mainFolderSha1;
+    private String message;
+    private Folder mainFolder;
 
-    public Commit(String message, String creator) { // add parameters
-        this.message = message;
+    public String getMessage() {
+        return message;
+    }
+
+    public Commit(String creator, String message) {
         this.dateCreated = getDate();
         this.creator = creator;
+        this.message = message;
+    }
+
+    public Folder getMainFolder() {
+        return mainFolder;
+    }
+
+    public void setMainFolder(Folder mainFolder) {
+        this.mainFolder = mainFolder;
     }
 
     public String getPrevCommitSha1() {
@@ -28,33 +37,33 @@ public class Commit {
         this.prevCommitSha1 = prevCommitSha1;
     }
 
-    public String getMainFolderSh1() {
-        return mainFolderSha1;
-    }
-
-    @Override
-    public String toString() {
-        return
-                mainFolderSha1 + '\r' + '\n' +
-                        prevCommitSha1+ '\r' + '\n' +
-                        dateCreated + '\r' + '\n' +
-                        creator + '\r' + '\n' +
-                        message + '\r' + '\n';
-    }
-
     public String getDateCreated() {
         return dateCreated;
+    }
+
+    public void setDateCreated(String dateCreated) {
+        this.dateCreated = dateCreated;
     }
 
     private String getDate() {
         return LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss.SSS"));
     }
 
-    public void setMainFolderSh1(String mainFolderSh1) {
-        this.mainFolderSha1 = mainFolderSh1;
+    @Override
+    public String toString() {
+        return
+                prevCommitSha1 + "\r\n" +
+                        mainFolder.sha1Folder() + "\r\n" +
+                        dateCreated + "\r\n" +
+                        creator + "\r\n" +
+                        message + "\r\n";
     }
 
-    private String Sha1Commit() {
+    String Sha1Commit() {
         return DigestUtils.sha1Hex(this.toString());
+    }
+
+    public String getCreator() {
+        return creator;
     }
 }

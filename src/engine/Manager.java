@@ -1,12 +1,8 @@
 package engine;
 
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.collections4.iterators.PushbackIterator;
-
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
-import java.sql.SQLOutput;
 import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -17,52 +13,39 @@ public class Manager {
     private Repository repository;
 
     public Manager() {
-        username = new String("Administrator");
+        username = "Administrator";
     }
 
-    public void setUsername(String username) {
+    public void SetUsername(String username) {
         this.username = username;
     }
 
-    public void CreateEmptyRepository(String repositoryPath) throws FileAlreadyExistsException {
+    public void CreateEmptyRepository(String repositoryPath) throws Exception {
         if (Files.exists(Paths.get(repositoryPath))) {
             throw new FileAlreadyExistsException("The path you have entered already exists");
         } else {
+            this.repository = new Repository(repositoryPath);
+
             new File(repositoryPath).mkdirs();
             new File(repositoryPath + "/.magit").mkdir();
-            new File(repositoryPath + "/.magit/objects").mkdir();
-            new File(repositoryPath + "/.magit/branches").mkdir();
+            new File(this.repository.GetBranchesDirPath()).mkdir();
+            new File(this.repository.GetObjectsDirPath()).mkdir();
 
-            this.repository = new Repository(repositoryPath);
-            createFileInBranches("HEAD.txt", "master");
-            createFileInBranches("master.txt", "");
+            createTextFile(this.repository.GetBranchesDirPath() + File.separator +"HEAD.txt", "master");
+            createTextFile(this.repository.GetBranchesDirPath() + File.separator +"master.txt", "");
+            Branch masterBranch = new Branch("master", null);
+            this.repository.setHeadBranch(masterBranch);
+            this.repository.getBranches().add(masterBranch);
         }
     }
 
-    private void createFileInBranches(String fileName, String fileContent) {//////////merge with createTextFile??
-        Writer out = null;
-        Path path = Paths.get(this.repository.getPath().toString() + "/.magit/branches");
-
-        File writeTo = new File(path + "\\" + fileName);
-        try {
-            out = new BufferedWriter(
-                    new OutputStreamWriter(
-                            new FileOutputStream(writeTo)));
-            out.write(fileContent);
-        } catch (IOException e) {
-        } finally {
-            if (out != null) {
-                try {
-                    out.close();
-                } catch (IOException e) {
-                }
-            }
-        }
-    }
-
-    public void switchRepository(String repositoryPath) throws Exception {
+    public void SwitchRepository(String repositoryPath) throws Exception {
         Path path = Paths.get(repositoryPath);
-        boolean isRepository = false;
+        boolean isRepository;
+        String headBranchContent;
+        String headBranchName;
+        Branch headBranch;
+        Commit prevCommit = null;
 
         if (this.repository != null && this.repository.getPath().equals(path)) {
             throw new Exception("You already working with the repository - " + path.toString());
@@ -71,6 +54,14 @@ public class Manager {
 
             if (isRepository) {
                 this.repository = new Repository(repositoryPath);
+                headBranchName = this.repository.getHeadBranchNameFromBranchesDir();
+                headBranchContent = convertTextFileToString(this.repository.GetBranchesDirPath() + File.separator + headBranchName + ".txt");
+                if (!headBranchContent.equals("")) {
+                    prevCommit = createCommitFromObjectFile(headBranchContent);
+                }
+                headBranch = new Branch(headBranchName, prevCommit);
+                this.repository.setHeadBranch(headBranch);
+                this.repository.getBranches().add(headBranch);
             } else {
                 throw new Exception("This folder is not a repository in M.A.git");
             }
@@ -82,35 +73,40 @@ public class Manager {
         return file.list().length == 0;
     }
 
-    public void ExcecuteCommit(String message) {
-        Path objectsFolderPath = Paths.get(repository.getPath().toString() + "/.magit/objects");
+    public void ExecuteCommit(String message) {
         Folder currentWC;
-        Commit newCommit = new Commit(message, username);
+        Commit newCommit = new Commit(username, message);
         Delta delta = new Delta();
         String currentMainFolderSha1;
         String lastCommitMainFolderSha1 = "";
+        String headBranchFilePath = this.repository.GetBranchesDirPath() + File.separator + repository.getHeadBranch().getName() + ".txt";
 
-        if (directoryIsEmpty(Paths.get(objectsFolderPath.toString()))) {//it's the first commit
+        if (this.repository.getHeadBranch().getLastCommit() == null) {//it's the first commit
             currentWC = calculateDeltaAndWC(repository.getPath(), new Folder(), newCommit.getDateCreated(), delta);
         } else {
-            lastCommitMainFolderSha1 = repository.getMainFolder().sha1Folder();
-            currentWC = calculateDeltaAndWC(repository.getPath(), repository.getMainFolder(), newCommit.getDateCreated(), delta);
+            lastCommitMainFolderSha1 = repository.getHeadBranch().getLastCommit().getMainFolder().sha1Folder();
+            currentWC = calculateDeltaAndWC(repository.getPath(), repository.getHeadBranch().getLastCommit().getMainFolder(), newCommit.getDateCreated(), delta);
         }
 
         currentMainFolderSha1 = currentWC.sha1Folder();
         if (!lastCommitMainFolderSha1.equals(currentMainFolderSha1)) {//if there are changes since the last commit
-            repository.setMainFolder(currentWC);
-            newCommit.setMainFolderSh1(currentMainFolderSha1);
-            newCommit.setPrevCommitSha1(lastCommitMainFolderSha1);
+            if (repository.getHeadBranch().getLastCommit() != null) { //if it's not the first commit
+                newCommit.setPrevCommitSha1(repository.getHeadBranch().getLastCommit().Sha1Commit()); //point the new commit to the previous commit
+            }
+            repository.getHeadBranch().setLastCommit(newCommit);
+            repository.getHeadBranch().getLastCommit().setMainFolder(currentWC);
+            repository.getRecentlyUsedCommits().put(newCommit.Sha1Commit(),newCommit);
 
             createNewObjectFileFromDelta(delta);//create new object files for all new/updated files
-            createNewObjectFile(repository.getMainFolder().toString());//create object file that contains the new main folder
+            createNewObjectFile(currentWC.toString());//create object file that contains the new main folder
             createNewObjectFile(newCommit.toString());//create object file that contains the new commit
         }
 
-
-        Folder newMainFolder = createMainFolderFromObjectFile(DigestUtils.sha1Hex(newCommit.toString()));
-
+        try {
+            writeToFile(headBranchFilePath, newCommit.Sha1Commit());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void createNewObjectFileFromDelta(Delta delta) {
@@ -131,12 +127,7 @@ public class Manager {
         File currentWCFile = null;
         Folder.ComponentData currentComparedFile = null;
         Folder currentFolder = new Folder();
-        Collections.sort(wCFiles, new Comparator<File>() {
-            @Override
-            public int compare(File o1, File o2) {
-                return o1.getName().compareTo(o2.getName());
-            }
-        });
+        Collections.sort(wCFiles, (o1, o2) -> o1.getName().compareTo(o2.getName()));
         Iterator<File> WCIterator = wCFiles.iterator();
         Iterator<Folder.ComponentData> componentsIterator = folderToCompare.getComponents().iterator();
         if (currentPath.equals(repository.getPath())) {
@@ -245,15 +236,15 @@ public class Manager {
                 folderToUpdate.getComponents().add(new Folder.ComponentData(
                         addedFile.getName(), sha1, subFolder, username, dateModified));
             }
-            delta.getAddedFiles().add(new DeltaComponent(subFolder, newFilePath, addedFile.getName()));/////////////////new file path or f.getPath?
+            delta.getAddedFiles().add(new DeltaComponent(subFolder, newFilePath, addedFile.getName()));
         }
     }
 
-    private void addFolderComponentToDeletedFilesList(Folder.ComponentData fc, Path path, Delta delta) {
+    private void addFolderComponentToDeletedFilesList(Folder.ComponentData fc, Path path, Delta delta)  {
 
         if (fc.getFolderComponent() instanceof Folder) {
             List<Folder.ComponentData> components = ((Folder) fc.getFolderComponent()).getComponents();
-            Path subPath = Paths.get(path.toString() + "/" + fc.getName());
+            Path subPath = Paths.get(path.toString() + File.separator + fc.getName());
             for (Folder.ComponentData c : components) {
                 addFolderComponentToDeletedFilesList(c, subPath, delta);
             }
@@ -261,13 +252,13 @@ public class Manager {
         delta.getDeletedFiles().add(new DeltaComponent(fc.getFolderComponent(), path, fc.getName()));
     }
 
-    public File getTextFileFromObjectsDirectory(String fileName,String objectsFolderPath) {
+    private File getTextFileFromObjectsDirectory(String fileName, String objectsFolderPath) {
         File textFile = null;
-        String fileToUnzipPath = objectsFolderPath + "/" + fileName + ".zip";
+        String fileToUnzipPath = objectsFolderPath + File.separator + fileName + ".zip";
 
         try {
             unzip(fileToUnzipPath, objectsFolderPath);
-            textFile = new File(objectsFolderPath + "/" + fileName + ".txt");
+            textFile = new File(objectsFolderPath + File.separator + fileName + ".txt");
         } catch (IOException e) {
         }
 
@@ -305,11 +296,17 @@ public class Manager {
         bos.close();
     }
 
-    private void createTextFile(String newFileName, String content) throws Exception {
-        File newFile = new File(newFileName);
+    private void createTextFile(String filePath, String content) throws Exception {
+        File newFile = new File(filePath);
         newFile.createNewFile();
-        BufferedWriter writer = null;
-        writer = new BufferedWriter(new FileWriter(newFileName));
+        writeToFile(filePath, content);
+    }
+
+    private void writeToFile(String filePath, String content) throws Exception {
+        File fileToEdit = new File(filePath);
+        BufferedWriter writer = new BufferedWriter(new FileWriter(fileToEdit));
+        writer.write("");
+        writer.flush();
         writer.write(content);
         writer.close();
     }
@@ -327,8 +324,8 @@ public class Manager {
 
     private void createNewObjectFile(String content) {//creates a zip for objects
         String Sha1 = DigestUtils.sha1Hex(content);
-        String fileName = this.repository.getPath().toString() + "/.magit/objects/" + Sha1 + ".txt";
-        String zipFileName = this.repository.getPath().toString() + "/.magit/objects/" + Sha1 + ".zip";
+        String fileName = this.repository.GetObjectsDirPath() + File.separator + Sha1 + ".txt";
+        String zipFileName = this.repository.GetObjectsDirPath() + File.separator + Sha1 + ".zip";
         try {
             createTextFile(fileName, content);
             createZipFile(zipFileName, Sha1 + ".txt", content);
@@ -337,67 +334,66 @@ public class Manager {
         }
     }
 
-    private String convertTextFileToString(String fileName) {
-        String returnValue = "";
-        FileReader file;
-        String line = "";
+    static String convertTextFileToString(String filePath) {
+        String returnValue = null;
+        File fileToRead = new File(filePath);
         try {
-            file = new FileReader(fileName);
-            BufferedReader reader = new BufferedReader(file);
-            try {
-                while ((line = reader.readLine()) != null) {
-                    returnValue += line + "\r\n";
-                }
-            } finally {
-                reader.close();
-            }
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException("File not found");
+            List<String> contentLines = Files.readAllLines(fileToRead.toPath());
+            returnValue = createStringFromListOfStrings(contentLines);
         } catch (IOException e) {
-            throw new RuntimeException("IO Error occured");
+            e.printStackTrace();
         }
+
         return returnValue;
     }
 
-    public String getStatus() {
+    private Delta getDelta(){
         Folder currentWC;
-        Path objectsFolderPath = Paths.get(repository.getPath().toString() + "/.magit/objects");
+        Path objectsDirPath = Paths.get(repository.GetObjectsDirPath());
         Delta delta = new Delta();
-        String deltaToString;
 
-        if (directoryIsEmpty(Paths.get(objectsFolderPath.toString()))) {//it's the first commit
+        if (directoryIsEmpty(Paths.get(objectsDirPath.toString()))) {//it's the first commit
             currentWC = calculateDeltaAndWC(repository.getPath(), new Folder(), new Commit("", "").getDateCreated(), delta);
         } else {
-            currentWC = calculateDeltaAndWC(repository.getPath(), repository.getMainFolder(), new Commit("", "").getDateCreated(), delta);
+            currentWC = calculateDeltaAndWC(repository.getPath(), repository.getHeadBranch().getLastCommit().getMainFolder(), new Commit("", "").getDateCreated(), delta);
         }
 
+        return delta;
+    }
+
+    public String GetStatus() {
+        Delta delta = getDelta();
+        String deltaToString;
+
         if (delta.isEmpty()) {
-            deltaToString = "there are no changes since the last commit";
+            deltaToString = "There are no changes since the last commit";
         } else {
             deltaToString = delta.toString();
         }
         return deltaToString;
     }
 
-    public void spanWCFromFolder(Folder folder) {
+    public void spanWCFromCommit(Commit commitToSpan) {
         Path pathOfRepository = this.repository.getPath();
         File repositoryToDelete = pathOfRepository.toFile();
-        deleteFileFromDirectory(repositoryToDelete);
-        for (Folder.ComponentData fc : this.repository.getMainFolder().getComponents()) {
+        deleteFileFromWorkingCopy(repositoryToDelete);
+        List<Folder.ComponentData> componentDataList = commitToSpan.getMainFolder().getComponents();
+        for (Folder.ComponentData fc : componentDataList) {
             addFolderComponentToDirectory(pathOfRepository, fc.getFolderComponent(), fc.getName());
-        }}
+        }
+    }
 
     private void addFolderComponentToDirectory(Path pathOfDirectory, FolderComponent folderComponent, String folderComponentName) {
         if (folderComponent instanceof Folder) {
-            createDirectory(pathOfDirectory.toString() + "/" + folderComponentName);
+            createDirectory(pathOfDirectory.toString() + File.separator + folderComponentName);
             Path componentPath;
             for (Folder.ComponentData componentData : ((Folder) folderComponent).getComponents()) {
-                componentPath = Paths.get(pathOfDirectory.toString() + "/" + folderComponentName);
+                componentPath = Paths.get(pathOfDirectory.toString() + File.separator + folderComponentName);
                 addFolderComponentToDirectory(componentPath, componentData.getFolderComponent(), componentData.getName());
             }
         } else {
             try {
-                createTextFile(pathOfDirectory.toString() + "/" + folderComponentName, folderComponent.toString());
+                createTextFile(pathOfDirectory.toString() + File.separator + folderComponentName, folderComponent.toString());
             } catch (Exception ex) {
             }
         }
@@ -405,36 +401,52 @@ public class Manager {
 
     private void createDirectory(String folderName) {
         File newDirectory = new File(folderName);
-        newDirectory.mkdir();}///////check if did't worked?
+        newDirectory.mkdir();
+    }
 
-    public Folder createMainFolderFromObjectFile(String commitSha1){
-        String objectsFolderPath = repository.getPath().toString()+"/.magit/objects";
-        String commitTextFileContent;
-        String mainFolderSha1;
-        List<String> mainFolderTextFileContent = null;
+    private Commit createCommitFromObjectFile(String commitSha1) {
+        String objectsFolderPath = repository.GetObjectsDirPath();
+        List<String> commitTextFileContent;
         FolderComponent mainFolder;
-        File mainFolderTextFile;
-        StringTokenizer tokenizer;
-        File commitTextFile;
+        List<String> mainFolderTextFileContent = null;
+        File mainFolderTextFile = null;
+        File commitTextFile = null;
+        String prevCommitSha1 = null;
+        String mainFolderSha1 = null;
+        String dateCreated = null;
+        String creator = null;
+        String message = null;
+        Commit newCommit;
 
-        commitTextFile = getTextFileFromObjectsDirectory(commitSha1,objectsFolderPath);
-        commitTextFileContent = convertTextFileToString(commitTextFile.getPath());
-        tokenizer = new StringTokenizer(commitTextFileContent, "\r\n");
-        mainFolderSha1 = tokenizer.nextToken(); // get first line of the content - the line of the main folder sha1
-        mainFolderTextFile = getTextFileFromObjectsDirectory(mainFolderSha1,objectsFolderPath);
         try {
+            commitTextFile = getTextFileFromObjectsDirectory(commitSha1, objectsFolderPath);
+            commitTextFileContent = Files.readAllLines(commitTextFile.toPath());
+            prevCommitSha1 = commitTextFileContent.get(0);
+            if(prevCommitSha1.equals("null")){
+                prevCommitSha1 = null;
+            }
+            mainFolderSha1 = commitTextFileContent.get(1);
+            dateCreated = commitTextFileContent.get(2);
+            creator = commitTextFileContent.get(3);
+            message = commitTextFileContent.get(4);
+            mainFolderTextFile = getTextFileFromObjectsDirectory(mainFolderSha1, objectsFolderPath);
             mainFolderTextFileContent = Files.readAllLines(mainFolderTextFile.toPath());
         } catch (IOException e) {
         }
 
-        mainFolder = createFolderComponentFromTextFileLines(true,mainFolderTextFileContent,objectsFolderPath);
+        mainFolder = createFolderComponentFromTextFileLines(true, mainFolderTextFileContent, objectsFolderPath);
+
+        newCommit = new Commit(creator, message);
+        newCommit.setPrevCommitSha1(prevCommitSha1);
+        newCommit.setDateCreated(dateCreated);
+        newCommit.setMainFolder((Folder)mainFolder);
 
         commitTextFile.delete();
         mainFolderTextFile.delete();
-        return (Folder)mainFolder;
+        return newCommit;
     }
 
-    public FolderComponent createFolderComponentFromTextFileLines(Boolean isFolder,List<String> contentLines,String objectsFolderPath){
+    private FolderComponent createFolderComponentFromTextFileLines(Boolean isFolder, List<String> contentLines, String objectsFolderPath) {
         FolderComponent newFolderComponent = null;
         FolderComponent subFolderComonent = null;
         List<String> subComponentContentLines = null;
@@ -442,11 +454,11 @@ public class Manager {
         File subComponentTextFile;
         String contentString;
 
-        if(!isFolder){
+        if (!isFolder) {
             contentString = createStringFromListOfStrings(contentLines);
             Blob newblob = new Blob(contentString);
             newFolderComponent = newblob;
-        }else {
+        } else {
             Folder newFolder = new Folder();
             for (String line : contentLines) {
                 newComponentData = getComponentDataFromString(line);
@@ -477,31 +489,223 @@ public class Manager {
         String type = tokenizer.nextToken();
         String creator = tokenizer.nextToken();
         String date = tokenizer.nextToken();
-        newComponentData = new Folder.ComponentData(name,sha1,type,creator,date);
+        newComponentData = new Folder.ComponentData(name, sha1, type, creator, date);
 
         return newComponentData;
     }
 
-    private void deleteFileFromDirectory (File fileToDelete){
+    private void deleteFileFromWorkingCopy(File fileToDelete) { // "clear WC" instead of "deleteFileFromDirectory"?
         if (!fileToDelete.isFile()) {
-            List<File> allfolderFiles = Arrays.asList(fileToDelete.listFiles());
-            for (File file : allfolderFiles) {
+            List<File> allFolderFiles = Arrays.asList(fileToDelete.listFiles());
+            for (File file : allFolderFiles) {
                 if (!file.getName().equals(".magit")) {
-                    deleteFileFromDirectory(file);
+                    deleteFileFromWorkingCopy(file);
                 }
             }
         }
         fileToDelete.delete();
     }
 
-    private String createStringFromListOfStrings(List<String> stringLines) {
+    private static String createStringFromListOfStrings(List<String> stringLines) {
         StringBuilder sb = new StringBuilder();
-        for(String s : stringLines){
-            sb.append(s);
+        int i = 0;
+        for (; i < stringLines.size() - 1; i++) {
+            sb.append(stringLines.get(i));
+            sb.append("\r\n");
+        }
+        if (stringLines.size() > 0) {
+            sb.append(stringLines.get(i));
         }
 
         return sb.toString();
     }
 
-}
+    public boolean commitsWereExecuted(){
+        return this.repository.getHeadBranch().getLastCommit() != null;
+    }
 
+    public List<String> GetDataOfAllFilesOfCurrentCommit(){
+        return getComponentsDataInStringList(this.repository.getHeadBranch().getLastCommit().getMainFolder(), this.repository.getPath().toString());
+    }
+
+    private List<String> getComponentsDataInStringList(Folder currentFolder, String currentPathString) {
+        List<String> allComponentsdata = new ArrayList<>();
+
+        String addedString;
+        for (Folder.ComponentData fcd : currentFolder.getComponents()) {
+
+            addedString = "Full name: " + currentPathString + "/" + fcd.getName() + "\r\n" +
+                    "Type: " + fcd.getType() + "\r\n" +
+                    "SHA-1: " + fcd.getSha1() + "\r\n" +
+                    "Last modifier:" + fcd.getLastModifier() + "\r\n" +
+                    "Last modified date:" + fcd.getLastModifiedDate() + "\r\n";
+            allComponentsdata.add(addedString);
+
+            if (fcd.getType().equals("Folder")) {
+                allComponentsdata.addAll(getComponentsDataInStringList((Folder) fcd.getFolderComponent(), currentPathString + "/" + fcd.getName()));
+            }
+        }
+        return allComponentsdata;
+    }
+
+    public String GetRepositoryDetails() {
+        String repositoryDetails = new String();
+        repositoryDetails += "Repository's full name: " + this.repository.getPath() + "\r\n" +
+                "Active user: " + username;
+        return repositoryDetails;
+    }
+
+    private void updateRepositoryBranchesList() {
+        Path branchesPath = Paths.get(this.repository.GetBranchesDirPath());
+        File[] branchesFiles = branchesPath.toFile().listFiles();
+        StringTokenizer tokenizer;
+        for (File f : branchesFiles) {
+            if (!f.getName().equals("HEAD.txt")) {
+                tokenizer = new StringTokenizer(f.getName(),".");
+                if (!this.repository.branchExistsInList(tokenizer.nextToken())) {
+                    this.repository.getBranches().add(createBranchFromObjectFileSha1(f.getName(), convertTextFileToString(branchesPath + "/" + f.getName())));
+                }
+            }
+        }
+    }
+
+    public List<String> GetAllBranchesDetails() {
+        List<String> allBranchesDetails = new ArrayList<>();
+        List<Branch> branches = this.repository.getBranches();
+        updateRepositoryBranchesList();
+        for (Branch branch : branches) {
+            if (this.repository.getHeadBranch().equals(branch)){
+                allBranchesDetails.add("head branch: ");
+            }
+            allBranchesDetails.add(branch.getDetails());
+        }
+        return allBranchesDetails;
+    }
+
+    private Branch createBranchFromObjectFileSha1(String branchName, String sha1) {
+        Commit newCommit = createCommitFromObjectFile(sha1);
+        StringTokenizer tokenizer = new StringTokenizer(branchName,"."); // to cut the extention ".txt"
+        Branch newBranch = new Branch(tokenizer.nextToken(), newCommit);
+        return newBranch;
+    }
+
+    public void CreateNewBranch(String branchName,Boolean checkoutNewBranch) throws Exception {
+        String branchesDirPath = this.repository.GetBranchesDirPath();
+        if(Files.exists(Paths.get(branchesDirPath + File.separator + branchName + ".txt"))){
+            throw new Exception("The branch " + branchName + "already exists");
+        }
+        Branch newBranch = new Branch(branchName,this.repository.getHeadBranch().getLastCommit());
+        createTextFile(branchesDirPath + File.separator + branchName + ".txt",newBranch.getLastCommit().Sha1Commit());
+        this.repository.getBranches().add(newBranch);
+        if(checkoutNewBranch) {
+            if (thereAreUncommittedChanges()) {
+                throw new Exception("Checkout failed. There are uncommitted changes");
+            } else {
+                setHeadBranch(newBranch);
+            }
+        }
+    }
+
+    public Boolean thereAreUncommittedChanges() {
+        Delta delta = getDelta();
+        return !delta.isEmpty();
+    }
+
+    public void DeleteBranch(String branchName) throws Exception {
+        String branchToDeleteFilePath = this.repository.GetBranchesDirPath() + File.separator + branchName + ".txt";
+        if (this.repository.getHeadBranch().getName().equals(branchName)) { // if this branch is the head branch
+            throw new Exception("This is the head branch\r\nPlease checkout another branch before deleting this one");
+        }
+        if (!Files.exists(Paths.get(branchToDeleteFilePath))) {
+            throw new Exception("There is no branch with the name " + branchName);
+        }
+        if (this.repository.branchExistsInList(branchName)) {
+            Branch branchToDelete = this.repository.FindBranchByName(branchName);
+            this.repository.getBranches().remove(branchToDelete);
+        }
+        Files.delete(Paths.get(branchToDeleteFilePath));
+    }
+
+    private void setHeadBranch(Branch newHeadBranch) throws Exception {
+        String HEADFilePath = this.repository.getPath().toString() + "/.magit/branches/HEAD.txt";
+        if(this.repository.getHeadBranch().equals(newHeadBranch)){
+            throw new Exception("This branch is already the head branch");
+        }
+        this.repository.setHeadBranch(newHeadBranch);
+        writeToFile(HEADFilePath,newHeadBranch.getName());
+    }
+
+    public void CheckOut(String branchToCheckout) throws Exception {
+        Branch newHeadBranch;
+        String branchToCheckoutFilePath = this.repository.GetBranchesDirPath() + File.separator + branchToCheckout + ".txt";
+        if (!this.repository.branchExistsInList(branchToCheckout)) {
+            if (!Files.exists(Paths.get(branchToCheckoutFilePath))) {
+                throw new Exception("There is no branch with the name " + branchToCheckout);
+            } else {
+                String branchToCheckoutCommitSha1 = convertTextFileToString(branchToCheckoutFilePath);
+                newHeadBranch = createBranchFromObjectFileSha1(branchToCheckout, branchToCheckoutCommitSha1);
+                this.repository.getBranches().add(newHeadBranch);
+            }
+        } else {
+            newHeadBranch = this.repository.FindBranchByName(branchToCheckout);
+        }
+
+        if (!this.repository.getHeadBranch().getLastCommit().equals(newHeadBranch.getLastCommit())) { // if the branch points to different commit
+            spanWCFromCommit(newHeadBranch.getLastCommit());
+        }
+        setHeadBranch(newHeadBranch);
+    }
+
+    public String GetActiveBranchHistory() {
+        StringBuilder branchHistory = new StringBuilder();
+
+        if (this.repository.getHeadBranch().getLastCommit() == null) {
+            branchHistory.append("There are no commits in current branch");
+        } else {
+            List<Commit> activeBranchCommits = getAllCommitsOfActiveBrnach();
+
+            branchHistory.append("All the commits in this branch: \r\n");
+            for (Commit currentCommit : activeBranchCommits) {
+                branchHistory.append( "Sha1: ");
+                branchHistory.append(currentCommit.Sha1Commit());
+                branchHistory.append("\r\n");
+
+                branchHistory.append("message: ");
+                branchHistory.append(currentCommit.getMessage());
+                branchHistory.append("\r\n");
+
+                branchHistory.append("Date created: ");
+                branchHistory.append(currentCommit.getDateCreated());
+                branchHistory.append("\r\n");
+
+                branchHistory.append("Creator: ");
+                branchHistory.append(currentCommit.getCreator());
+                branchHistory.append("\r\n\r\n");
+            }
+        }
+        return branchHistory.toString();
+    }
+
+    List<Commit> getAllCommitsOfActiveBrnach() {
+        List<Commit> allCommits = new ArrayList<>();
+        Commit currentCommit = this.repository.getHeadBranch().getLastCommit();
+        String prevCommitSha1;
+
+        if (currentCommit != null) {
+            allCommits.add(currentCommit);
+            prevCommitSha1 = currentCommit.getPrevCommitSha1();
+
+            while (prevCommitSha1 != null) {
+                if (this.repository.getRecentlyUsedCommits().containsKey(prevCommitSha1)) {
+                    currentCommit =this.repository.getRecentlyUsedCommits().get(prevCommitSha1);
+                } else {
+                    currentCommit =createCommitFromObjectFile(prevCommitSha1);
+                    this.repository.getRecentlyUsedCommits().put(prevCommitSha1,currentCommit);
+                }
+                allCommits.add(currentCommit);
+                prevCommitSha1 = currentCommit.getPrevCommitSha1();
+            }
+        }
+        return allCommits;
+    }
+}

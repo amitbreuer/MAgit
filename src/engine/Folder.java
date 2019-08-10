@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 
-public class Folder implements FolderComponent{
+public class Folder implements FolderComponent {
 
     private List<ComponentData> components = new ArrayList<>();
 
@@ -37,6 +37,15 @@ public class Folder implements FolderComponent{
         private String sha1;
         private FolderComponent folderComponent;
         private String lastModifier;
+
+        public String getLastModifier() {
+            return lastModifier;
+        }
+
+        public String getLastModifiedDate() {
+            return lastModifiedDate;
+        }
+
         private String lastModifiedDate;
 
         public ComponentData(String name, String sha1, FolderComponent folderComponent, String username, String date) {
@@ -50,9 +59,9 @@ public class Folder implements FolderComponent{
         public ComponentData(String name, String sha1, String type, String username, String date) {
             this.name = name;
             this.sha1 = sha1;
-            if(type.equals("Blob")){
+            if (type.equals("Blob")) {
                 this.folderComponent = new Blob("");
-            }else{
+            } else {
                 this.folderComponent = new Folder();
             }
             this.lastModifier = username;
@@ -101,5 +110,7 @@ public class Folder implements FolderComponent{
         public String getType() {
             return this.folderComponent.getClass().getSimpleName();
         }
+
     }
+
 }
