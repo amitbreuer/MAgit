@@ -48,11 +48,11 @@ public class Folder implements FolderComponent {
 
         private String lastModifiedDate;
 
-        public ComponentData(String name, String sha1, FolderComponent folderComponent, String username, String date) {
+        public ComponentData(String name, String sha1, FolderComponent folderComponent, String lastModifier, String date) {
             this.name = name;
             this.sha1 = sha1;
             this.folderComponent = folderComponent;
-            this.lastModifier = username;
+            this.lastModifier = lastModifier;
             this.lastModifiedDate = date;
         }
 

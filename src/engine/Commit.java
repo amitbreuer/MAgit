@@ -20,6 +20,11 @@ public class Commit {
         this.creator = creator;
         this.message = message;
     }
+    public Commit(String creator,String message,String dateCreated){
+        this.creator = creator;
+        this.message = message;
+        this.dateCreated = dateCreated;
+    }
 
     public Folder getMainFolder() {
         return mainFolder;
@@ -28,6 +33,7 @@ public class Commit {
     public void setMainFolder(Folder mainFolder) {
         this.mainFolder = mainFolder;
     }
+
 
     public String getPrevCommitSha1() {
         return prevCommitSha1;

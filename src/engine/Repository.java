@@ -1,6 +1,7 @@
 package engine;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -15,6 +16,12 @@ public class Repository {
     private Branch headBranch;
 
 
+    public Repository(String path) {
+        this.path = Paths.get(path);
+        this.recentlyUsedCommits = new HashMap<>();
+        this.branches = new ArrayList<>();
+    }
+
     public Branch getHeadBranch() {
         return headBranch;
     }
@@ -25,12 +32,6 @@ public class Repository {
 
     public void setHeadBranch(Branch headBranch) {
         this.headBranch = headBranch;
-    }
-
-    public Repository(String path) {
-        this.path = Paths.get(path);
-        this.recentlyUsedCommits = new HashMap<>();
-        this.branches = new ArrayList<>();
     }
 
     public Map<String, Commit> getRecentlyUsedCommits() {
@@ -46,7 +47,7 @@ public class Repository {
         this.headBranch.setLastCommit(commitToAdd);
     }
 
-    String getHeadBranchNameFromBranchesDir() {
+    String getHeadBranchNameFromBranchesDir() throws IOException {
         String headBranchPath = this.path.toString() + "/.magit/branches/HEAD.txt";
         File headFile = new File(headBranchPath);
         String headBranchName = Manager.convertTextFileToString(headFile.getPath());
