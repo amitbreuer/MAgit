@@ -35,5 +35,6 @@
       </library>
     </orderEntry>
     <orderEntry type="library" name="jars" level="project" />
+    <orderEntry type="library" name="commons-codec-1.121" level="project" />
   </component>
 </module>
