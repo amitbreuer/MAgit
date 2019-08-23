@@ -1,25 +1,32 @@
 package engine;
 
+import app.AppController;
 import exceptions.XmlPathContainsNonRepositoryObjectsException;
 import exceptions.XmlRepositoryAlreadyExistsException;
+import generated.*;
+import org.apache.commons.codec.digest.DigestUtils;
 import java.io.*;
-import java.nio.file.*;
+import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-import generated.*;
-import org.apache.commons.codec.digest.DigestUtils;
-
-
-public class Manager {
+public class MagitManager {
+    private AppController controller;
     private String username;
     private Repository repository;
     private XmlManager xmlManager;
 
-    public Manager() {
+    public MagitManager() {
         username = "Administrator";
+    }
+
+    public void setController(AppController controller) {
+        this.controller = controller;
     }
 
     public void SetUsername(String username) {
@@ -558,7 +565,7 @@ public class Manager {
             repository.getRecentlyUsedCommits().put(newCommit.Sha1Commit(), newCommit);
 
             createNewObjectFileFromDelta(delta);//create new object files for all new/updated files
-            createNewObjectFile(currentWC.toString());//create object file that contains the new main folder
+            createNewObjectFile(currentWC.toString());//create object file that contains the new app folder
             createNewObjectFile(newCommit.toString());//create object file that contains the new commit
         }
 

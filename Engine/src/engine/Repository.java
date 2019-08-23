@@ -50,7 +50,7 @@ public class Repository {
     String getHeadBranchNameFromBranchesDir() throws IOException {
         String headBranchPath = this.path.toString() + "/.magit/branches/HEAD.txt";
         File headFile = new File(headBranchPath);
-        String headBranchName = Manager.convertTextFileToString(headFile.getPath());
+        String headBranchName = MagitManager.convertTextFileToString(headFile.getPath());
         return headBranchName;
     }
 

@@ -1,7 +1,7 @@
 package ui;
 
 import exceptions.*;
-import engine.Manager;
+import engine.MagitManager;
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
 import java.util.ArrayList;
@@ -11,12 +11,12 @@ import java.util.Scanner;
 public class Menu {
     private ArrayList<MenuItem> menuItems;
     private Scanner scanner;
-    private Manager magitManager;
+    private MagitManager magitManager;
 
     public Menu() {
         this.menuItems = new ArrayList<>();
         this.scanner = new Scanner(System.in);
-        magitManager = new Manager();
+        magitManager = new MagitManager();
         buildMenu();
     }
 
