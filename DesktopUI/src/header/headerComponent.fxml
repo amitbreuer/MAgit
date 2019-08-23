@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
+
+<ScrollPane fitToWidth="true" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="header.HeaderController">
+   <content>
+      <VBox fx:id="topVBOX">
+         <children>
+            <MenuBar fx:id="topMenuBar" prefHeight="25.0" prefWidth="600.0">
+               <menus>
+                  <Menu fx:id="repositoryMenu" mnemonicParsing="false" text="Repository">
+                     <items>
+                        <MenuItem fx:id="updateUsernameButton" mnemonicParsing="false" onAction="#updateUsernameButtonAction" text="Update Username" />
+                        <MenuItem fx:id="newRepositoryButton" mnemonicParsing="false" onAction="#newRepositoryButtonAction" text="Create New Repository" />
+                        <MenuItem fx:id="switchRepositoryButton" mnemonicParsing="false" onAction="#switchRepositoryButtonAction" text="Switch Repository" />
+                        <MenuItem fx:id="loadRepositoryFromXmlButton" mnemonicParsing="false" onAction="#loadRepositoryFromXmlButtonAction" text="Load Via XML" />
+                     </items>
+                  </Menu>
+                  <Menu fx:id="branchesMenu" mnemonicParsing="false" text="Branches">
+                     <items>
+                        <MenuItem fx:id="showAllBranchesButton" mnemonicParsing="false" onAction="#showAllBranchesButtonAction" text="Show All Brnaches" />
+                        <MenuItem fx:id="newBranchButton" mnemonicParsing="false" onAction="#newBranchButtonAction" text="Create New Branch" />
+                        <MenuItem fx:id="deleteBranchButton" mnemonicParsing="false" onAction="#deleteBranchButtonAction" text="Delete Brnach" />
+                        <MenuItem fx:id="checkoutButton" mnemonicParsing="false" onAction="#checkoutButtonAction" text="Checkout" />
+                        <MenuItem fx:id="resetHeadButton" mnemonicParsing="false" onAction="#resetHeadButtonAction" text="Reset Head" />
+                     </items>
+                  </Menu>
+                  <Menu mnemonicParsing="false" text="Commit">
+                     <items>
+                        <MenuItem mnemonicParsing="false" text="Delete" />
+                     </items>
+                  </Menu>
+               </menus>
+            </MenuBar>
+            <AnchorPane>
+               <children>
+                  <Label id="currentusernameLabel" layoutX="6.0" layoutY="2.0" text="Current User:" />
+                  <Label fx:id="usernameLabel" layoutX="139.0" text="......" />
+               </children>
+            </AnchorPane>
+            <AnchorPane>
+               <children>
+                  <Label layoutX="6.0" text="Current Repository:" />
+                  <Label layoutX="149.0" text="...." />
+               </children>
+            </AnchorPane>
+         </children>
+      </VBox>
+   </content>
+</ScrollPane>
