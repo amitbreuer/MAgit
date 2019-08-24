@@ -47,7 +47,7 @@
             <AnchorPane>
                <children>
                   <Label layoutX="6.0" text="Current Repository:" />
-                  <Label layoutX="149.0" text="...." />
+                  <Label fx:id="currentRepositoryLabel" layoutX="149.0" text="......" />
                </children>
             </AnchorPane>
          </children>

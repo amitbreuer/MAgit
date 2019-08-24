@@ -2,6 +2,7 @@ package app;
 
 import engine.MagitManager;
 import header.HeaderController;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -25,9 +26,6 @@ public class AppController {
         FXMLLoader loader = new FXMLLoader();
         URL headerUrl = getClass().getResource(MagitResourcesConstants.HEADER_FXML_PATH);
         loader.setLocation(headerUrl);
-        ScrollPane headerComponent = loader.load();
-        HeaderController headerController = loader.getController();
-        setHeaderComponentController(headerController);
         headerComponentController.setMainController(this);
     }
 
@@ -39,7 +37,11 @@ public class AppController {
         this.headerComponentController = headerComponentController;
     }
 
-    public void setUsername(String text) {
-        magitManager.SetUsername(text);
+    public void setUsername(SimpleStringProperty text) {
+        magitManager.SetUsername(text.getValue());
+    }
+
+    public void createNewRepository(SimpleStringProperty currentRepository) throws Exception {
+        magitManager.CreateEmptyRepository(currentRepository.getValue());
     }
 }
