@@ -1,6 +1,5 @@
 package engine;
 
-import org.apache.commons.codec.digest.DigestUtils;
 
 public class Blob implements FolderComponent{
     private String content;

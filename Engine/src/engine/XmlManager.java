@@ -143,7 +143,7 @@ public class XmlManager {
     }
 
     private MagitRepository deserializeFrom(InputStream inputStream) throws JAXBException {
-        JAXBContext jc = JAXBContext.newInstance("jaxb.schema.generated");
+        JAXBContext jc = JAXBContext.newInstance("generated");
         Unmarshaller u = jc.createUnmarshaller();
         return (MagitRepository) u.unmarshal(inputStream);
     }

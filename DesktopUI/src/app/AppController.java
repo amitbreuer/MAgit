@@ -25,9 +25,6 @@ public class AppController {
         FXMLLoader loader = new FXMLLoader();
         URL headerUrl = getClass().getResource(MagitResourcesConstants.HEADER_FXML_PATH);
         loader.setLocation(headerUrl);
-        ScrollPane headerComponent = loader.load();
-        HeaderController headerController = loader.getController();
-        setHeaderComponentController(headerController);
         headerComponentController.setMainController(this);
     }
 
@@ -41,5 +38,21 @@ public class AppController {
 
     public void setUsername(String text) {
         magitManager.SetUsername(text);
+    }
+
+    public void loadRepositoryFromXml(String absolutePath) throws Exception {
+            magitManager.ValidateAndLoadXMLRepository(absolutePath);
+    }
+
+    public String getRepositoryName() {
+        return magitManager.getRepositoryName();
+    }
+
+    public void replaceExistingRepositoryWithXmlRepository() {
+        try {
+            magitManager.createRepositoryFromMagitRepository();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

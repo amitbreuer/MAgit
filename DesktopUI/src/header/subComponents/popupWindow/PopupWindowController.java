@@ -1,4 +1,4 @@
-package header.common;
+package header.subComponents.popupWindow;
 
 import header.HeaderController;
 import javafx.beans.property.SimpleStringProperty;

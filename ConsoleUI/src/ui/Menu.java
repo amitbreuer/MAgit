@@ -79,7 +79,7 @@ public class Menu {
                 System.out.println("Enter the XML file's full path:");
                 fileFullPath = scanner.nextLine();
                 try {
-                    magitManager.ValidateXMLRepository(fileFullPath);
+                    magitManager.ValidateAndLoadXMLRepository(fileFullPath);
                     System.out.println("The xml file was loaded successfully");
                 } catch (XmlRepositoryAlreadyExistsException ex) {
                     System.out.println("The path is already a repository. please choose one of the following options: \r\n" +

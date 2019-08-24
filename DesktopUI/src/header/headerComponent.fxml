@@ -19,7 +19,7 @@
                         <MenuItem fx:id="updateUsernameButton" mnemonicParsing="false" onAction="#updateUsernameButtonAction" text="Update Username" />
                         <MenuItem fx:id="newRepositoryButton" mnemonicParsing="false" onAction="#newRepositoryButtonAction" text="Create New Repository" />
                         <MenuItem fx:id="switchRepositoryButton" mnemonicParsing="false" onAction="#switchRepositoryButtonAction" text="Switch Repository" />
-                        <MenuItem fx:id="loadRepositoryFromXmlButton" mnemonicParsing="false" onAction="#loadRepositoryFromXmlButtonAction" text="Load Via XML" />
+                        <MenuItem fx:id="loadViaXMLButton" mnemonicParsing="false" onAction="#loadViaXMLButtonAction" text="Load Via XML" />
                      </items>
                   </Menu>
                   <Menu fx:id="branchesMenu" mnemonicParsing="false" text="Branches">
@@ -40,14 +40,14 @@
             </MenuBar>
             <AnchorPane>
                <children>
-                  <Label id="currentusernameLabel" layoutX="6.0" layoutY="2.0" text="Current User:" />
+                  <Label id="currentusernameLabel" fx:id="currentUsernameLabel" layoutX="6.0" layoutY="2.0" text="Current User:" />
                   <Label fx:id="usernameLabel" layoutX="139.0" text="......" />
                </children>
             </AnchorPane>
             <AnchorPane>
                <children>
-                  <Label layoutX="6.0" text="Current Repository:" />
-                  <Label layoutX="149.0" text="...." />
+                  <Label fx:id="currentRepositoryLabel" layoutX="6.0" text="Current Repository:" />
+                  <Label fx:id="repositoryLabel" layoutX="149.0" text="...." />
                </children>
             </AnchorPane>
          </children>
