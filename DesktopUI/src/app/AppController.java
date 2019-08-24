@@ -60,4 +60,8 @@ public class AppController {
             e.printStackTrace();
         }
     }
+
+    public void SwitchRepository(String repositoryPath) throws Exception {
+        magitManager.SwitchRepository(repositoryPath);
+    }
 }

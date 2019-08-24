@@ -19,6 +19,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.beans.binding.Bindings;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -73,6 +74,7 @@ public class HeaderController {
     private void initialize() {
         username = new SimpleStringProperty();
         usernameLabel.textProperty().bind(username);
+        username.setValue("Administrator");
         currentRepository = new SimpleStringProperty();
         repositoryLabel.textProperty().bind(currentRepository);
         URL url = getClass().getResource("/header/subComponents/textPopupWindow/textPopupWindow.fxml");
@@ -131,25 +133,47 @@ public class HeaderController {
     }
 
     @FXML
-    public void newRepositoryButtonAction(ActionEvent actionEvent) throws Exception {
+    public void newRepositoryButtonAction(ActionEvent actionEvent) {
         DirectoryChooser directoryChooser = new DirectoryChooser();
         directoryChooser.setTitle("Select location for repository");
         File f = directoryChooser.showDialog(new Stage());
-        if(f != null){
+        if (f != null) {
             Stage stage = new Stage();
             stage.setTitle("New Repository's Name:");
             popupWindowController.setLabel("Enter Name Of Repository:");
             stage.setScene(popupWindowScene);
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.showAndWait();
-            currentRepository.bind(Bindings.concat(f.getPath(),File.separator,popupWindowController.getText()));
-            mainController.createNewRepository(currentRepository);
+            currentRepository.bind(Bindings.concat(f.getPath(), File.separator, popupWindowController.getText()));
+
+            try {
+                mainController.createNewRepository(currentRepository);
+            } catch (Exception e) {
+                stage.setTitle("Repository Already Exists");
+                errorPopupWindowController.SetErrorMessage("Error: This Repository Already Exists");
+                stage.setScene(errorPopupWindowScene);
+                stage.show();
+            }
             currentRepository.unbind();
         }
     }
 
     @FXML
     public void switchRepositoryButtonAction(ActionEvent actionEvent) {
+        DirectoryChooser directoryChooser = new DirectoryChooser();
+        directoryChooser.setTitle("Select repository");
+        File file = directoryChooser.showDialog(new Stage());
+        try {
+            mainController.SwitchRepository(file.getPath().toString());
+            currentRepository.setValue(mainController.getRepositoryName());
+        } catch (Exception ex) {
+            Stage stage = new Stage();
+            stage.setTitle("Error");
+            errorPopupWindowController.SetErrorMessage(ex.getMessage());
+            stage.setScene(errorPopupWindowScene);
+            stage.show();
+        }
+
     }
 
     @FXML
