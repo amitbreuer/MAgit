@@ -770,7 +770,7 @@ public class MagitManager {
         writeToFile(headBranchFilePath, commitToResetTo.Sha1Commit());
     }
 
-    public void ValidateXMLRepository(String fileFullName) throws Exception {
+    public void ValidateAndLoadXMLRepository(String fileFullName) throws Exception {
         this.xmlManager = new XmlManager();
         this.xmlManager.createMagitRepositoryFromXml(fileFullName);
         if (Files.exists(Paths.get(this.xmlManager.getMagitRepository().getLocation()))) {
@@ -859,5 +859,10 @@ public class MagitManager {
 
         createNewObjectFile(commitToCreate.toString());
         return commitToCreate;
+    }
+
+    public String getRepositoryName() {
+        String absolutePath = repository.getPath().toString();
+        return new File(absolutePath).getName();
     }
 }

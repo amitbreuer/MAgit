@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="231.0" prefWidth="444.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="header.subComponents.errorPopupWindow.ErrorPopupWindowController">
+   <children>
+      <Label fx:id="errorLable" layoutX="13.0" layoutY="30.0" prefHeight="121.0" prefWidth="381.0" text="Label" AnchorPane.topAnchor="30.0" />
+      <Button fx:id="okButton" layoutX="349.0" layoutY="168.0" mnemonicParsing="false" onAction="#okButtonAction" prefHeight="25.0" prefWidth="45.0" text="OK" AnchorPane.bottomAnchor="38.0" AnchorPane.rightAnchor="49.666666666666664" />
+   </children>
+</AnchorPane>

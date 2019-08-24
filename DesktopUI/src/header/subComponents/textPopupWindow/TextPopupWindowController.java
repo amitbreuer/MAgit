@@ -1,4 +1,4 @@
-package header.common;
+package header.subComponents.textPopupWindow;
 
 import header.HeaderController;
 import javafx.beans.property.SimpleStringProperty;
@@ -9,7 +9,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.Button;
 import javafx.stage.Stage;
 
-public class PopupWindowController {
+public class TextPopupWindowController {
     @FXML private TextField textField;
     @FXML private Button okButton;
     @FXML private Button cancelButton;

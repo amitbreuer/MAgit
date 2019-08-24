@@ -1,13 +1,15 @@
 package header;
 
 import app.AppController;
-import header.common.PopupWindowController;
-import header.subComponents.updateUsername.UpdateUsernameController;
+import exceptions.XmlPathContainsNonRepositoryObjectsException;
+import exceptions.XmlRepositoryAlreadyExistsException;
+import header.subComponents.errorPopupWindow.ErrorPopupWindowController;
+import header.subComponents.textPopupWindow.TextPopupWindowController;
+import header.subComponents.pathContainsRepositoryWindow.PathContainsRepositoryWindowController;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
@@ -53,22 +55,27 @@ public class HeaderController {
     @FXML
     Label usernameLabel;
     @FXML
-    Label currentRepositoryLabel;
+    Label repositoryLabel;
 
     private SimpleStringProperty username;
     private SimpleStringProperty currentRepository;
     private AppController mainController;
-    private PopupWindowController popupWindowController;
+    private TextPopupWindowController popupWindowController;
+    private PathContainsRepositoryWindowController pathContainsRepositoryWindowController;
+    private ErrorPopupWindowController errorPopupWindowController;
+
     private Scene popupWindowScene;
 
+    private Scene pathContainsRepositoryWindowScene;
+    private Scene errorPopupWindowScene;
 
     @FXML
     private void initialize() {
         username = new SimpleStringProperty();
         usernameLabel.textProperty().bind(username);
         currentRepository = new SimpleStringProperty();
-        currentRepositoryLabel.textProperty().bind(currentRepository);
-        URL url = getClass().getResource("/header/common/popupWindow.fxml");
+        repositoryLabel.textProperty().bind(currentRepository);
+        URL url = getClass().getResource("/header/subComponents/textPopupWindow/textPopupWindow.fxml");
         FXMLLoader fxmlLoader = new FXMLLoader(url);
         try {
             AnchorPane popupRoot = fxmlLoader.load();
@@ -78,6 +85,31 @@ public class HeaderController {
         }
         popupWindowController = fxmlLoader.getController();
         popupWindowController.setMainController(this);
+
+
+        //setting pathContainsRepositoryScene
+        URL pathContainsRepositoryUrl = getClass().getResource("/header/subComponents/pathContainsRepositoryWindow/PathContainsRepositoryWindow.fxml");
+        fxmlLoader = new FXMLLoader(pathContainsRepositoryUrl);
+        try {
+            AnchorPane pathContainsRepositoryRoot = fxmlLoader.load();
+            pathContainsRepositoryWindowScene = new Scene(pathContainsRepositoryRoot);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        pathContainsRepositoryWindowController = fxmlLoader.getController();
+        pathContainsRepositoryWindowController.setMainController(this);
+
+
+        //setting errorPopup Scene
+        URL errorPopup = getClass().getResource("/header/subComponents/errorPopupWindow/errorPopupWindow.fxml");
+        fxmlLoader = new FXMLLoader(errorPopup);
+        try {
+            AnchorPane errorPopupRoot = fxmlLoader.load();
+            errorPopupWindowScene = new Scene(errorPopupRoot);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        errorPopupWindowController = fxmlLoader.getController();
     }
 
 
@@ -121,10 +153,6 @@ public class HeaderController {
     }
 
     @FXML
-    public void loadRepositoryFromXmlButtonAction(ActionEvent actionEvent) {
-    }
-
-    @FXML
     public void showAllBranchesButtonAction(ActionEvent actionEvent) {
     }
 
@@ -142,5 +170,50 @@ public class HeaderController {
 
     @FXML
     public void resetHeadButtonAction(ActionEvent actionEvent) {
+    }
+
+    public void loadViaXMLButtonAction(ActionEvent actionEvent) {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Select xml file");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("xml files", "*.xml"));
+        Stage fileChooserStage = new Stage();
+        fileChooserStage.initModality(Modality.APPLICATION_MODAL);
+        File selectedFile = fileChooser.showOpenDialog(fileChooserStage);
+        if (selectedFile == null) {
+            return;
+        }
+
+        String absolutePath = selectedFile.getAbsolutePath();
+        try {
+            mainController.loadRepositoryFromXml(absolutePath);
+            currentRepository.setValue(mainController.getRepositoryName());
+
+        } catch (XmlRepositoryAlreadyExistsException ex) {
+            Stage stage = new Stage();
+            stage.setTitle("Xml repository already exists");
+            stage.setScene(pathContainsRepositoryWindowScene);
+            stage.setAlwaysOnTop(true);
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.show();
+
+        } catch (XmlPathContainsNonRepositoryObjectsException e) {
+            Stage stage = new Stage();
+            stage.setTitle("Path is not repository");
+            errorPopupWindowController.SetErrorMessage("Error: the Path in the xml file contains files which are not repository");
+            stage.setScene(errorPopupWindowScene);
+            stage.setAlwaysOnTop(true);
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.show();
+
+        } catch (Exception ex2) {
+
+            System.out.println(ex2.getMessage());
+
+        }
+    }
+
+    public void replaceExistingRepositoryWithXmlRepository() {
+        mainController.replaceExistingRepositoryWithXmlRepository();
+        currentRepository.setValue(mainController.getRepositoryName());
     }
 }

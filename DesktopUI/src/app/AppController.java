@@ -22,7 +22,7 @@ public class AppController {
     //@FXML private BodyController bodyComponentController;
 
     @FXML
-    public void initialize() throws IOException {
+    public void initialize() {
         FXMLLoader loader = new FXMLLoader();
         URL headerUrl = getClass().getResource(MagitResourcesConstants.HEADER_FXML_PATH);
         loader.setLocation(headerUrl);
@@ -43,5 +43,21 @@ public class AppController {
 
     public void createNewRepository(SimpleStringProperty currentRepository) throws Exception {
         magitManager.CreateEmptyRepository(currentRepository.getValue());
+    }
+
+    public void loadRepositoryFromXml(String absolutePath) throws Exception {
+            magitManager.ValidateAndLoadXMLRepository(absolutePath);
+    }
+
+    public String getRepositoryName() {
+        return magitManager.getRepositoryName();
+    }
+
+    public void replaceExistingRepositoryWithXmlRepository() {
+        try {
+            magitManager.createRepositoryFromMagitRepository();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
