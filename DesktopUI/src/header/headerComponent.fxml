@@ -24,9 +24,9 @@
                   </Menu>
                   <Menu fx:id="branchesMenu" mnemonicParsing="false" text="Branches">
                      <items>
-                        <MenuItem fx:id="showAllBranchesButton" mnemonicParsing="false" onAction="#showAllBranchesButtonAction" text="Show All Brnaches" />
+                        <MenuItem fx:id="showAllBranchesButton" mnemonicParsing="false" onAction="#showAllBranchesButtonAction" text="Show All Branches" />
                         <MenuItem fx:id="newBranchButton" mnemonicParsing="false" onAction="#newBranchButtonAction" text="Create New Branch" />
-                        <MenuItem fx:id="deleteBranchButton" mnemonicParsing="false" onAction="#deleteBranchButtonAction" text="Delete Brnach" />
+                        <MenuItem fx:id="deleteBranchButton" mnemonicParsing="false" onAction="#deleteBranchButtonAction" text="Delete Branch" />
                         <MenuItem fx:id="checkoutButton" mnemonicParsing="false" onAction="#checkoutButtonAction" text="Checkout" />
                         <MenuItem fx:id="resetHeadButton" mnemonicParsing="false" onAction="#resetHeadButtonAction" text="Reset Head" />
                      </items>
