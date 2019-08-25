@@ -16,8 +16,10 @@ import java.net.URL;
 
 public class AppController {
     private MagitManager magitManager;
-    @FXML private ScrollPane headerComponent;
-    @FXML private HeaderController headerComponentController;
+    @FXML
+    private ScrollPane headerComponent;
+    @FXML
+    private HeaderController headerComponentController;
     //@FXML private ScrollPane bodyComponent;
     //@FXML private BodyController bodyComponentController;
 
@@ -46,7 +48,7 @@ public class AppController {
     }
 
     public void loadRepositoryFromXml(String absolutePath) throws Exception {
-            magitManager.ValidateAndLoadXMLRepository(absolutePath);
+        magitManager.ValidateAndLoadXMLRepository(absolutePath);
     }
 
     public String getRepositoryName() {
@@ -63,5 +65,19 @@ public class AppController {
 
     public void SwitchRepository(String repositoryPath) throws Exception {
         magitManager.SwitchRepository(repositoryPath);
+    }
+
+    public void createNewBranch(String branchname, boolean checkout) throws Exception {
+
+        magitManager.CreateNewBranch(branchname, checkout);
+    }
+
+    public void ShowAllBranches() {
+    //get brnaches data from manager and transer it to body component?
+    }
+
+    public void DeleteBranch(String branchName) throws Exception {
+
+        magitManager.DeleteBranch(branchName);
     }
 }

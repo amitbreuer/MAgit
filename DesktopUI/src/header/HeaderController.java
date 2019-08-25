@@ -4,6 +4,7 @@ import app.AppController;
 import exceptions.XmlPathContainsNonRepositoryObjectsException;
 import exceptions.XmlRepositoryAlreadyExistsException;
 import header.subComponents.errorPopupWindow.ErrorPopupWindowController;
+import header.subComponents.newBranchSelectionWindow.NewBranchSelectionWindowController;
 import header.subComponents.textPopupWindow.TextPopupWindowController;
 import header.subComponents.pathContainsRepositoryWindow.PathContainsRepositoryWindowController;
 import javafx.beans.property.SimpleStringProperty;
@@ -64,11 +65,12 @@ public class HeaderController {
     private TextPopupWindowController popupWindowController;
     private PathContainsRepositoryWindowController pathContainsRepositoryWindowController;
     private ErrorPopupWindowController errorPopupWindowController;
+    private NewBranchSelectionWindowController newBranchSelectionWindowController;
 
     private Scene popupWindowScene;
-
     private Scene pathContainsRepositoryWindowScene;
     private Scene errorPopupWindowScene;
+    private Scene newBranchSelectionWindowScene;
 
     @FXML
     private void initialize() {
@@ -112,6 +114,18 @@ public class HeaderController {
             e.printStackTrace();
         }
         errorPopupWindowController = fxmlLoader.getController();
+
+        //setting new branch window Scene
+        URL newBranchWindow = getClass().getResource("/header/subComponents/newBranchSelectionWindow/newBranchSelectionWindow.fxml");
+        fxmlLoader = new FXMLLoader(newBranchWindow);
+        try {
+            AnchorPane branchSelectionRoot = fxmlLoader.load();
+            newBranchSelectionWindowScene = new Scene(branchSelectionRoot);
+        } catch (IOException e) {
+        }
+        newBranchSelectionWindowController = fxmlLoader.getController();
+
+
     }
 
 
@@ -178,14 +192,38 @@ public class HeaderController {
 
     @FXML
     public void showAllBranchesButtonAction(ActionEvent actionEvent) {
+        mainController.ShowAllBranches();
     }
 
     @FXML
     public void newBranchButtonAction(ActionEvent actionEvent) {
+        Stage stage = new Stage();
+        stage.setTitle("Create new branch");
+        stage.setScene(newBranchSelectionWindowScene);
+        stage.initModality(Modality.APPLICATION_MODAL);
+        stage.showAndWait();
     }
 
     @FXML
     public void deleteBranchButtonAction(ActionEvent actionEvent) {
+        Stage stage = new Stage();
+        stage.setTitle("Delete branch");
+        popupWindowController.setLabel("Enter branch name:");
+        stage.setScene(popupWindowScene);
+        stage.initModality(Modality.APPLICATION_MODAL);
+        stage.showAndWait();
+        try {
+            mainController.DeleteBranch(popupWindowController.textProperty().get());
+        } catch (Exception ex) {
+
+            Stage errorStage = new Stage();
+            stage.setTitle("Error");
+            errorPopupWindowController.SetErrorMessage(ex.getMessage());
+            errorStage.setScene(errorPopupWindowScene);
+            errorStage.initModality(Modality.APPLICATION_MODAL);
+            errorStage.showAndWait();
+        }
+
     }
 
     @FXML
@@ -230,14 +268,26 @@ public class HeaderController {
             stage.show();
 
         } catch (Exception ex2) {
-
-            System.out.println(ex2.getMessage());
-
         }
     }
 
     public void replaceExistingRepositoryWithXmlRepository() {
         mainController.replaceExistingRepositoryWithXmlRepository();
         currentRepository.setValue(mainController.getRepositoryName());
+    }
+
+    public void CreateNewBranch(String branchname, boolean checkout) {
+        try {
+            mainController.createNewBranch(branchname, checkout);
+        } catch (Exception e) {
+            Stage stage = new Stage();
+            stage.setTitle("Error");
+            errorPopupWindowController.SetErrorMessage(e.getMessage());
+            stage.setScene(errorPopupWindowScene);
+            stage.setAlwaysOnTop(true);
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.show();
+        }
+
     }
 }
