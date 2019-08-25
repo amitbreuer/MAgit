@@ -13,10 +13,6 @@ public class Folder implements FolderComponent {
         return components;
     }
 
-    public void setComponents(List<ComponentData> components) {
-        this.components = components;
-    }
-
     @Override
     public String toString() {
         String folderToString = new String();
@@ -36,6 +32,7 @@ public class Folder implements FolderComponent {
         private String sha1;
         private FolderComponent folderComponent;
         private String lastModifier;
+        private String lastModifiedDate;
 
         public String getLastModifier() {
             return lastModifier;
@@ -45,7 +42,13 @@ public class Folder implements FolderComponent {
             return lastModifiedDate;
         }
 
-        private String lastModifiedDate;
+        public void setLastModifiedDate(String lastModifiedDate) {
+            this.lastModifiedDate = lastModifiedDate;
+        }
+
+        public void setLastModifier(String lastModifier) {
+            this.lastModifier = lastModifier;
+        }
 
         public ComponentData(String name, String sha1, FolderComponent folderComponent, String lastModifier, String date) {
             this.name = name;
@@ -73,6 +76,10 @@ public class Folder implements FolderComponent {
 
         public String getSha1() {
             return sha1;
+        }
+
+        public void setSha1(String sha1) {
+            this.sha1 = sha1;
         }
 
         public FolderComponent getFolderComponent() {

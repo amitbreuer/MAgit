@@ -5,10 +5,10 @@ import java.nio.file.Path;
 public class DeltaComponent {
     private String name;
     private FolderComponent folderComponent;
-    private Path path;
+    private String path;
     private String type;
 
-    public DeltaComponent(FolderComponent folderComponent, Path path,String name) {
+    public DeltaComponent(FolderComponent folderComponent, String path, String name) {
         this.folderComponent = folderComponent;
         this.path = path;
         this.name = name;
@@ -28,8 +28,7 @@ public class DeltaComponent {
         return folderComponent;
     }
 
-    public Path getPath() {
-
+    public String getPath() {
         return path;
     }
 

@@ -131,19 +131,26 @@ public class HeaderController {
     }
 
     @FXML
-    public void newRepositoryButtonAction(ActionEvent actionEvent) throws Exception {
+    public void newRepositoryButtonAction(ActionEvent actionEvent) {
         DirectoryChooser directoryChooser = new DirectoryChooser();
         directoryChooser.setTitle("Select location for repository");
         File f = directoryChooser.showDialog(new Stage());
         if(f != null){
             Stage stage = new Stage();
             stage.setTitle("New Repository's Name:");
-            popupWindowController.setLabel("Enter Name Of Repository:");
+            popupWindowController.setLabel("Enter name of repository:");
             stage.setScene(popupWindowScene);
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.showAndWait();
             currentRepository.bind(Bindings.concat(f.getPath(),File.separator,popupWindowController.getText()));
-            mainController.createNewRepository(currentRepository);
+            try {
+                mainController.createNewRepository(currentRepository);
+            } catch (Exception e) {
+                stage.setTitle("Error");
+                errorPopupWindowController.SetErrorMessage("This repository already exists");
+                stage.setScene(errorPopupWindowScene);
+                stage.show();
+            }
             currentRepository.unbind();
         }
     }
@@ -198,8 +205,8 @@ public class HeaderController {
 
         } catch (XmlPathContainsNonRepositoryObjectsException e) {
             Stage stage = new Stage();
-            stage.setTitle("Path is not repository");
-            errorPopupWindowController.SetErrorMessage("Error: the Path in the xml file contains files which are not repository");
+            stage.setTitle("Error");
+            errorPopupWindowController.SetErrorMessage("The Path in the xml file contains files which are not repository");
             stage.setScene(errorPopupWindowScene);
             stage.setAlwaysOnTop(true);
             stage.initModality(Modality.APPLICATION_MODAL);

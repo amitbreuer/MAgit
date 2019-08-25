@@ -30,8 +30,6 @@ public class Delta {
         return addedFiles.isEmpty() && updatedFiles.isEmpty() && deletedFiles.isEmpty();
     }
 
-
-
     @Override
     public String toString() {
         StringBuilder deltaToString = new StringBuilder();
@@ -54,10 +52,9 @@ public class Delta {
         StringBuilder sb = new StringBuilder();
         int dcNumber = 1;
         for(DeltaComponent dc : list){
-            sb.append(String.format("%d. name: %s: " +"Type:%s  "+"Path: %s\r\n\r\n",dcNumber,dc.getName(),dc.getType(),dc.getPath().toString()));
+            sb.append(String.format("%d. name: %s: " +"Type:%s  "+"Path: %s\r\n\r\n",dcNumber,dc.getName(),dc.getType(),dc.getPath()));
        dcNumber++;
         }
         return  sb.toString();
     }
-
 }

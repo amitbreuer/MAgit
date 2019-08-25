@@ -4,12 +4,15 @@ import app.AppController;
 import exceptions.XmlPathContainsNonRepositoryObjectsException;
 import exceptions.XmlRepositoryAlreadyExistsException;
 import generated.*;
+import javafx.scene.chart.AxisBuilder;
 import org.apache.commons.codec.digest.DigestUtils;
 import java.io.*;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -106,149 +109,146 @@ public class MagitManager {
         }
     }
 
-    private Folder calculateDeltaAndWC(Path currentPath, Folder folderToCompare, String dateModified, Delta delta) throws IOException {
-        List<File> wCFiles = Arrays.asList(currentPath.toFile().listFiles());
+    private Folder createFolderFromWC(Path currentPath,String currentDate) throws IOException {
+        Folder folderToCreate = new Folder();
+        List<File> wcFiles = Arrays.asList(currentPath.toFile().listFiles());
         String sha1;
         String fileContent;
-        int nameDiff;
-        Blob newBlob;
-        File currentWCFile = null;
-        Folder.ComponentData currentComparedFile = null;
-        Folder currentFolder = new Folder();
-        Collections.sort(wCFiles, (o1, o2) -> o1.getName().compareTo(o2.getName()));
-        Iterator<File> WCIterator = wCFiles.iterator();
-        Iterator<Folder.ComponentData> componentsIterator = folderToCompare.getComponents().iterator();
-        if (currentPath.equals(repository.getPath())) {
-            WCIterator.next(); // skip ".magit"
-        }
-        boolean WChasNext = WCIterator.hasNext();
-        boolean comparedFileHasNext = componentsIterator.hasNext();
-        if (WChasNext) {
-            currentWCFile = WCIterator.next();
-        }
-        if (comparedFileHasNext) {
-            currentComparedFile = componentsIterator.next();
+        for(File file : wcFiles) {
+            if(!file.getName().equals(".magit")) {
+                if (file.isFile()) {
+                    fileContent = convertTextFileToString(file.getPath());
+                    sha1 = DigestUtils.sha1Hex(fileContent);
+                    Blob newBlob = new Blob(fileContent);
+                    folderToCreate.getComponents().add(new Folder.ComponentData(file.getName(), sha1, newBlob, username, currentDate));
+                } else {
+                    Path subFolderPath = Paths.get(file.getPath());
+                    Folder subFolder = createFolderFromWC(subFolderPath, currentDate);
+                    sha1 = subFolder.sha1Folder();
+                    folderToCreate.getComponents().add(new Folder.ComponentData(file.getName(), sha1, subFolder, username, currentDate));
+                }
+            }
         }
 
-        while (WChasNext && comparedFileHasNext) {
-            nameDiff = currentWCFile.getName().compareTo(currentComparedFile.getName());
+        Collections.sort(folderToCreate.getComponents());
+        return folderToCreate;
+    }
+
+    private void calculateDeltaBetweenTwoFolders(Folder newFolder ,Folder oldFolder,String currentPath ,Delta delta) throws IOException {
+        int nameDiff;
+        Folder.ComponentData currentNewComponent = null;
+        Folder.ComponentData currentOldComponent = null;
+        Iterator<Folder.ComponentData> newIterator = newFolder.getComponents().iterator();
+        Iterator<Folder.ComponentData> oldIterator = oldFolder.getComponents().iterator();
+        boolean newHasNext = newIterator.hasNext();
+        boolean oldHasNext = oldIterator.hasNext();
+
+        if (newHasNext) {
+            currentNewComponent = newIterator.next();
+        }
+        if (oldHasNext) {
+            currentOldComponent = oldIterator.next();
+        }
+
+        while (newHasNext && oldHasNext) {
+            nameDiff = currentNewComponent.getName().compareTo(currentOldComponent.getName());
             if (nameDiff == 0) { //if it's the same name
-                if (currentWCFile.isFile()) { //if the file is a txt file
-                    fileContent = convertTextFileToString(currentWCFile.toString());
-                    sha1 = DigestUtils.sha1Hex(fileContent);
-                    if (sha1.equals(currentComparedFile.getSha1())) { //if the file didn't change
-                        currentFolder.getComponents().add(currentComparedFile);
+                if (currentNewComponent.getFolderComponent() instanceof Blob) { //if the file is a txt file
+                    if (currentNewComponent.getSha1().equals(currentOldComponent.getSha1())) { //if the file didn't changed
+                        currentNewComponent.setLastModifiedDate(currentOldComponent.getLastModifiedDate());
+                        currentNewComponent.setLastModifier(currentOldComponent.getLastModifier());
                     } else {
-                        newBlob = new Blob(fileContent);
-                        currentFolder.getComponents().add(new Folder.ComponentData(
-                                currentWCFile.getName(), sha1, newBlob, username, dateModified));
-                        delta.getUpdatedFiles().add(new DeltaComponent(newBlob, currentPath, currentWCFile.getName()));
+                        delta.getUpdatedFiles().add(new DeltaComponent(currentNewComponent.getFolderComponent(), currentPath, currentNewComponent.getName()));
                     }
                 } else {
-                    Path subFolderPath = Paths.get(currentWCFile.getPath());
-                    FolderComponent subComparedFile = currentComparedFile.getFolderComponent();
-                    Folder subFolder = calculateDeltaAndWC(subFolderPath, (Folder) subComparedFile, dateModified, delta);
-                    sha1 = subFolder.sha1Folder();
-                    if (sha1.equals(currentComparedFile.getSha1())) {
-                        currentFolder.getComponents().add(currentComparedFile);
+                    String subFolderPath = currentPath + File.separator + currentNewComponent.getName();
+                    Folder subNewFolder = (Folder)currentNewComponent.getFolderComponent();
+                    Folder subOldFolder = (Folder)currentOldComponent.getFolderComponent();
+                    calculateDeltaBetweenTwoFolders(subNewFolder,subOldFolder,subFolderPath,delta);
+                    currentNewComponent.setSha1(subNewFolder.sha1Folder());
+                    if (currentNewComponent.getSha1().equals(subOldFolder.sha1Folder())) { //if the folder didn't change
+                        currentNewComponent.setLastModifiedDate(currentOldComponent.getLastModifiedDate());
+                        currentNewComponent.setLastModifier(currentOldComponent.getLastModifier());
                     } else {
-                        currentFolder.getComponents().add(new Folder.ComponentData(
-                                currentWCFile.getName(), sha1, subFolder, username, dateModified));
-                        delta.getUpdatedFiles().add(new DeltaComponent(subFolder, currentPath, currentWCFile.getName()));
+                        delta.getUpdatedFiles().add(new DeltaComponent(subNewFolder, currentPath, currentNewComponent.getName()));
                     }
                 }
 
-                WChasNext = WCIterator.hasNext();
-                comparedFileHasNext = componentsIterator.hasNext();
+                newHasNext = newIterator.hasNext();
+                oldHasNext = oldIterator.hasNext();
 
-                if (WChasNext) {
-                    currentWCFile = WCIterator.next();
+                if (newHasNext) {
+                    currentNewComponent = newIterator.next();
                 }
-                if (comparedFileHasNext) {
-                    currentComparedFile = componentsIterator.next();
+                if (oldHasNext) {
+                    currentOldComponent = oldIterator.next();
                 }
             } else if (nameDiff < 0) { //file added
-                addFileToAddedFilesList(currentWCFile, currentFolder, currentPath, dateModified, delta);
-                WChasNext = WCIterator.hasNext();
+                addComponentToAddedFilesList(currentNewComponent,currentPath,delta);
+                newHasNext = newIterator.hasNext();
 
-                if (WChasNext) {
-                    currentWCFile = WCIterator.next();
+                if (newHasNext) {
+                    currentNewComponent = newIterator.next();
                 }
 
             } else { //file deleted
-                addFolderComponentToDeletedFilesList(currentComparedFile, currentPath, delta);
-                comparedFileHasNext = componentsIterator.hasNext();
-                if (comparedFileHasNext) {
-                    currentComparedFile = componentsIterator.next();
+                addFolderComponentToDeletedFilesList(currentOldComponent, currentPath, delta);
+                oldHasNext = oldIterator.hasNext();
+                if (oldHasNext) {
+                    currentOldComponent = oldIterator.next();
                 }
             }
         }
 
-        while (WChasNext) {
-            addFileToAddedFilesList(currentWCFile, currentFolder, currentPath, dateModified, delta);
-            WChasNext = WCIterator.hasNext();
-            if (WChasNext) {
-                currentWCFile = WCIterator.next();
+        while (newHasNext) {
+            addComponentToAddedFilesList(currentNewComponent, currentPath, delta);
+            newHasNext = newIterator.hasNext();
+            if (newHasNext) {
+                currentNewComponent = newIterator.next();
             }
         }
-        while (comparedFileHasNext) {
-            addFolderComponentToDeletedFilesList(currentComparedFile, currentPath, delta);
-            comparedFileHasNext = componentsIterator.hasNext();
-            if (comparedFileHasNext) {
-                currentComparedFile = componentsIterator.next();
+        while (oldHasNext) {
+            addFolderComponentToDeletedFilesList(currentOldComponent, currentPath, delta);
+            oldHasNext = oldIterator.hasNext();
+            if (oldHasNext) {
+                currentOldComponent = oldIterator.next();
             }
-        }
-
-        Collections.sort(currentFolder.getComponents());
-        return currentFolder;
-    }
-
-    private void addFileToAddedFilesList(File addedFile, Folder folderToUpdate, Path newFilePath, String dateModified, Delta delta) throws IOException {
-        String fileContent;
-        String sha1;
-        Folder subFolder;
-        Blob newBlob;
-        if (addedFile.isFile()) {
-            fileContent = convertTextFileToString(addedFile.toString());
-            sha1 = DigestUtils.sha1Hex(fileContent);
-            newBlob = new Blob(fileContent);
-            folderToUpdate.getComponents().add(new Folder.ComponentData(
-                    addedFile.getName(), sha1, newBlob, username, dateModified));
-            delta.getAddedFiles().add(new DeltaComponent(newBlob, newFilePath, addedFile.getName()));
-        } else { // if new file is a directory
-            File[] files = addedFile.listFiles();
-            subFolder = new Folder();
-            for (File f : files) {
-                addFileToAddedFilesList(f, subFolder, Paths.get(addedFile.getPath()), dateModified, delta);
-                sha1 = subFolder.sha1Folder();
-                folderToUpdate.getComponents().add(new Folder.ComponentData(
-                        addedFile.getName(), sha1, subFolder, username, dateModified));
-            }
-            delta.getAddedFiles().add(new DeltaComponent(subFolder, newFilePath, addedFile.getName()));
         }
     }
 
-    private void addFolderComponentToDeletedFilesList(Folder.ComponentData fc, Path path, Delta delta) {
+    private void addComponentToAddedFilesList(Folder.ComponentData folderComponentToAdd, String componentPath, Delta delta) throws IOException {
+        FolderComponent componentToAdd = folderComponentToAdd.getFolderComponent();
+        if (componentToAdd instanceof Folder) {
+            String subFolderPath = componentPath + File.separator + folderComponentToAdd.getName();
+            List<Folder.ComponentData> components = ((Folder) componentToAdd).getComponents();
+            for (Folder.ComponentData cd : components) {
+                addComponentToAddedFilesList(cd, subFolderPath, delta);
+            }
+        }
+        delta.getAddedFiles().add(new DeltaComponent(componentToAdd, componentPath, folderComponentToAdd.getName()));
+    }
 
-        if (fc.getFolderComponent() instanceof Folder) {
-            List<Folder.ComponentData> components = ((Folder) fc.getFolderComponent()).getComponents();
-            Path subPath = Paths.get(path.toString() + File.separator + fc.getName());
+    private void addFolderComponentToDeletedFilesList(Folder.ComponentData componentDataToDelete, String path, Delta delta) {
+        FolderComponent componentToDelete = componentDataToDelete.getFolderComponent();
+        if (componentToDelete instanceof Folder) {
+            List<Folder.ComponentData> components = ((Folder) componentToDelete).getComponents();
+            String subPath = path + File.separator + componentDataToDelete.getName();
             for (Folder.ComponentData c : components) {
                 addFolderComponentToDeletedFilesList(c, subPath, delta);
             }
         }
-        delta.getDeletedFiles().add(new DeltaComponent(fc.getFolderComponent(), path, fc.getName()));
+        delta.getDeletedFiles().add(new DeltaComponent(componentToDelete, path, componentDataToDelete.getName()));
     }
 
     private Delta getDelta() throws IOException {
         Folder currentWC;
-        Path objectsDirPath = Paths.get(repository.GetObjectsDirPath());
         Delta delta = new Delta();
-
-        if (directoryIsEmpty(Paths.get(objectsDirPath.toString()))) {//it's the first commit
-            currentWC = calculateDeltaAndWC(repository.getPath(), new Folder(), new Commit("", "").getDateCreated(), delta);
+        String dateCreated = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss.SSS"));
+        currentWC = createFolderFromWC(repository.getPath(),dateCreated);
+        if (repository.getHeadBranch().getLastCommit() == null) {//it's the first commit
+            calculateDeltaBetweenTwoFolders(currentWC, new Folder(),repository.getPath().toString(), delta);
         } else {
-            currentWC = calculateDeltaAndWC(repository.getPath(), repository.getHeadBranch().getLastCommit().getMainFolder(), new Commit("", "").getDateCreated(), delta);
+            calculateDeltaBetweenTwoFolders(currentWC, repository.getHeadBranch().getLastCommit().getMainFolder(), repository.getPath().toString(), delta);
         }
 
         return delta;
@@ -542,17 +542,21 @@ public class MagitManager {
 
     public void ExecuteCommit(String message) throws Exception {
         Folder currentWC;
+        Folder lastCommitMainFolder;
         Commit newCommit = new Commit(username, message);
         Delta delta = new Delta();
         String currentMainFolderSha1;
         String lastCommitMainFolderSha1 = "";
         String headBranchFilePath = this.repository.GetBranchesDirPath() + File.separator + repository.getHeadBranch().getName() + ".txt";
+        String dateCreated = newCommit.getDateCreated();
+        currentWC = createFolderFromWC(repository.getPath(),dateCreated);
 
         if (this.repository.getHeadBranch().getLastCommit() == null) {//it's the first commit
-            currentWC = calculateDeltaAndWC(repository.getPath(), new Folder(), newCommit.getDateCreated(), delta);
+            calculateDeltaBetweenTwoFolders(currentWC, new Folder(), dateCreated, delta);
         } else {
-            lastCommitMainFolderSha1 = repository.getHeadBranch().getLastCommit().getMainFolder().sha1Folder();
-            currentWC = calculateDeltaAndWC(repository.getPath(), repository.getHeadBranch().getLastCommit().getMainFolder(), newCommit.getDateCreated(), delta);
+            lastCommitMainFolder = repository.getHeadBranch().getLastCommit().getMainFolder();
+            lastCommitMainFolderSha1 = lastCommitMainFolder.sha1Folder();
+            calculateDeltaBetweenTwoFolders(currentWC,lastCommitMainFolder,dateCreated, delta);
         }
 
         currentMainFolderSha1 = currentWC.sha1Folder();
@@ -793,17 +797,6 @@ public class MagitManager {
                 deleteDirectory(f.toPath());
         }
         file.delete();
-        /*
-        if (Files.exists(path)) {
-            if (Files.isDirectory(path)) {
-                DirectoryStream<Path> entries = Files.newDirectoryStream(path);
-                for (Path entry : entries) {
-                    deleteDirectory(entry);
-                }
-            }
-            Files.delete(path);
-        }
-        */
     }
 
     public void createRepositoryFromMagitRepository() throws Exception {
