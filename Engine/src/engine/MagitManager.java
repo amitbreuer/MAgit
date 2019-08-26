@@ -6,6 +6,7 @@ import exceptions.XmlRepositoryAlreadyExistsException;
 import generated.*;
 import javafx.scene.chart.AxisBuilder;
 import org.apache.commons.codec.digest.DigestUtils;
+
 import java.io.*;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
@@ -23,6 +24,10 @@ public class MagitManager {
     private String username;
     private Repository repository;
     private XmlManager xmlManager;
+
+    public Repository GetCurrentRepository() {
+        return repository;
+    }
 
     public MagitManager() {
         username = "Administrator";
@@ -89,6 +94,7 @@ public class MagitManager {
                 headBranch = new Branch(headBranchName, prevCommit);
                 this.repository.setHeadBranch(headBranch);
                 this.repository.getBranches().add(headBranch);
+                updateRepositoryBranchesList();
             } else {
                 throw new Exception("This folder is not a repository in M.A.git");
             }
@@ -109,13 +115,13 @@ public class MagitManager {
         }
     }
 
-    private Folder createFolderFromWC(Path currentPath,String currentDate) throws IOException {
+    private Folder createFolderFromWC(Path currentPath, String currentDate) throws IOException {
         Folder folderToCreate = new Folder();
         List<File> wcFiles = Arrays.asList(currentPath.toFile().listFiles());
         String sha1;
         String fileContent;
-        for(File file : wcFiles) {
-            if(!file.getName().equals(".magit")) {
+        for (File file : wcFiles) {
+            if (!file.getName().equals(".magit")) {
                 if (file.isFile()) {
                     fileContent = convertTextFileToString(file.getPath());
                     sha1 = DigestUtils.sha1Hex(fileContent);
@@ -134,7 +140,7 @@ public class MagitManager {
         return folderToCreate;
     }
 
-    private void calculateDeltaBetweenTwoFolders(Folder newFolder ,Folder oldFolder,String currentPath ,Delta delta) throws IOException {
+    private void calculateDeltaBetweenTwoFolders(Folder newFolder, Folder oldFolder, String currentPath, Delta delta) throws IOException {
         int nameDiff;
         Folder.ComponentData currentNewComponent = null;
         Folder.ComponentData currentOldComponent = null;
@@ -162,9 +168,9 @@ public class MagitManager {
                     }
                 } else {
                     String subFolderPath = currentPath + File.separator + currentNewComponent.getName();
-                    Folder subNewFolder = (Folder)currentNewComponent.getFolderComponent();
-                    Folder subOldFolder = (Folder)currentOldComponent.getFolderComponent();
-                    calculateDeltaBetweenTwoFolders(subNewFolder,subOldFolder,subFolderPath,delta);
+                    Folder subNewFolder = (Folder) currentNewComponent.getFolderComponent();
+                    Folder subOldFolder = (Folder) currentOldComponent.getFolderComponent();
+                    calculateDeltaBetweenTwoFolders(subNewFolder, subOldFolder, subFolderPath, delta);
                     currentNewComponent.setSha1(subNewFolder.sha1Folder());
                     if (currentNewComponent.getSha1().equals(subOldFolder.sha1Folder())) { //if the folder didn't change
                         currentNewComponent.setLastModifiedDate(currentOldComponent.getLastModifiedDate());
@@ -184,7 +190,7 @@ public class MagitManager {
                     currentOldComponent = oldIterator.next();
                 }
             } else if (nameDiff < 0) { //file added
-                addComponentToAddedFilesList(currentNewComponent,currentPath,delta);
+                addComponentToAddedFilesList(currentNewComponent, currentPath, delta);
                 newHasNext = newIterator.hasNext();
 
                 if (newHasNext) {
@@ -244,9 +250,9 @@ public class MagitManager {
         Folder currentWC;
         Delta delta = new Delta();
         String dateCreated = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss.SSS"));
-        currentWC = createFolderFromWC(repository.getPath(),dateCreated);
+        currentWC = createFolderFromWC(repository.getPath(), dateCreated);
         if (repository.getHeadBranch().getLastCommit() == null) {//it's the first commit
-            calculateDeltaBetweenTwoFolders(currentWC, new Folder(),repository.getPath().toString(), delta);
+            calculateDeltaBetweenTwoFolders(currentWC, new Folder(), repository.getPath().toString(), delta);
         } else {
             calculateDeltaBetweenTwoFolders(currentWC, repository.getHeadBranch().getLastCommit().getMainFolder(), repository.getPath().toString(), delta);
         }
@@ -549,14 +555,14 @@ public class MagitManager {
         String lastCommitMainFolderSha1 = "";
         String headBranchFilePath = this.repository.GetBranchesDirPath() + File.separator + repository.getHeadBranch().getName() + ".txt";
         String dateCreated = newCommit.getDateCreated();
-        currentWC = createFolderFromWC(repository.getPath(),dateCreated);
+        currentWC = createFolderFromWC(repository.getPath(), dateCreated);
 
         if (this.repository.getHeadBranch().getLastCommit() == null) {//it's the first commit
             calculateDeltaBetweenTwoFolders(currentWC, new Folder(), dateCreated, delta);
         } else {
             lastCommitMainFolder = repository.getHeadBranch().getLastCommit().getMainFolder();
             lastCommitMainFolderSha1 = lastCommitMainFolder.sha1Folder();
-            calculateDeltaBetweenTwoFolders(currentWC,lastCommitMainFolder,dateCreated, delta);
+            calculateDeltaBetweenTwoFolders(currentWC, lastCommitMainFolder, dateCreated, delta);
         }
 
         currentMainFolderSha1 = currentWC.sha1Folder();
@@ -802,7 +808,11 @@ public class MagitManager {
     public void createRepositoryFromMagitRepository() throws Exception {
         deleteDirectory(Paths.get(this.xmlManager.getMagitRepository().getLocation()));
         CreateEmptyRepository(this.xmlManager.getMagitRepository().getLocation());
+        this.repository.getBranches().clear();
+        File masterBranch = new File(this.repository.GetBranchesDirPath() + File.separator + "master.txt");
+        masterBranch.delete();
         addMagitRepositoryObjectsToRepository();
+
         spanWCFromCommit(this.repository.getHeadBranch().getLastCommit());
     }
 
@@ -819,13 +829,15 @@ public class MagitManager {
             if (branchToCreate.getName().equals(headBranchName)) {
                 this.repository.setHeadBranch(branchToCreate);
                 writeToFile(this.repository.GetBranchesDirPath() + File.separator
-                        + branchToCreate.getName() + ".txt", commitToCreate.Sha1Commit());
-            } else {
-                createTextFile(this.repository.GetBranchesDirPath() + File.separator
-                        + branchToCreate.getName() + ".txt", commitToCreate.Sha1Commit());
+                        + "HEAD.txt", headBranchName);
             }
+
+            createTextFile(this.repository.GetBranchesDirPath() + File.separator
+                    + branchToCreate.getName() + ".txt", commitToCreate.Sha1Commit());
         }
     }
+
+
 
     private Commit createCommitFromMagitCommit(MagitSingleCommit magitCommit) throws Exception {
         Commit commitToCreate;

@@ -3,10 +3,15 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.TextFlow?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="231.0" prefWidth="444.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="header.subComponents.errorPopupWindow.ErrorPopupWindowController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="158.0" prefWidth="351.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="header.subComponents.errorPopupWindow.ErrorPopupWindowController">
    <children>
-      <Label fx:id="errorLable" layoutX="13.0" layoutY="30.0" prefHeight="121.0" prefWidth="381.0" text="Label" AnchorPane.topAnchor="30.0" />
-      <Button fx:id="okButton" layoutX="349.0" layoutY="168.0" mnemonicParsing="false" onAction="#okButtonAction" prefHeight="25.0" prefWidth="45.0" text="OK" AnchorPane.bottomAnchor="38.0" AnchorPane.rightAnchor="49.666666666666664" />
+      <Button fx:id="okButton" layoutX="152.0" layoutY="116.0" maxWidth="70.0" minHeight="27.0" minWidth="59.0" mnemonicParsing="false" onAction="#okButtonAction" prefHeight="27.0" prefWidth="59.0" text="OK" AnchorPane.bottomAnchor="15.0" />
+      <TextFlow layoutX="6.0" prefHeight="104.0" prefWidth="351.0">
+         <children>
+            <Label fx:id="errorLable" prefHeight="73.0" prefWidth="351.0" text="Label:&#10;dfdssdgsdsdgdsdgdsgsdgdsgdgdgsdgdgsdgdgsdgdgdsgdgdg&#10;" />
+         </children>
+      </TextFlow>
    </children>
 </AnchorPane>
