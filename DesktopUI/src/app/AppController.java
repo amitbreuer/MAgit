@@ -73,11 +73,22 @@ public class AppController {
     }
 
     public void ShowAllBranches() {
-    //get brnaches data from manager and transer it to body component?
+        //get brnaches data from manager and transer it to body component?
     }
 
     public void DeleteBranch(String branchName) throws Exception {
-
         magitManager.DeleteBranch(branchName);
+    }
+
+    public MagitManager getMagitManager() {
+        return magitManager;
+    }
+
+    public void Checkout(String branchName) {
+        try {
+            magitManager.CheckOut(branchName);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

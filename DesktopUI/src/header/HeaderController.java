@@ -1,14 +1,19 @@
 package header;
 
 import app.AppController;
+import engine.Branch;
 import exceptions.XmlPathContainsNonRepositoryObjectsException;
 import exceptions.XmlRepositoryAlreadyExistsException;
+import header.binds.BranchNameBind;
+import header.binds.IsHeadBrancheBind;
 import header.subComponents.errorPopupWindow.ErrorPopupWindowController;
 import header.subComponents.newBranchSelectionWindow.NewBranchSelectionWindowController;
 import header.subComponents.textPopupWindow.TextPopupWindowController;
 import header.subComponents.pathContainsRepositoryWindow.PathContainsRepositoryWindowController;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -19,10 +24,13 @@ import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import javafx.beans.binding.Bindings;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class HeaderController {
     @FXML
@@ -46,8 +54,6 @@ public class HeaderController {
     @FXML
     MenuItem newBranchButton;
     @FXML
-    MenuItem deleteBranchButton;
-    @FXML
     MenuItem checkoutButton;
     @FXML
     MenuItem resetHeadButton;
@@ -58,6 +64,8 @@ public class HeaderController {
     @FXML
     Label repositoryLabel;
 
+    private SimpleBooleanProperty noAvailableRepository;
+    private SimpleStringProperty headBranchName;
     private SimpleStringProperty username;
     private SimpleStringProperty currentRepository;
     private AppController mainController;
@@ -70,14 +78,20 @@ public class HeaderController {
     private Scene pathContainsRepositoryWindowScene;
     private Scene errorPopupWindowScene;
     private Scene newBranchSelectionWindowScene;
+    private Map<String, Menu> currentBranchesMenus;
+
 
     @FXML
     private void initialize() {
+        noAvailableRepository = new SimpleBooleanProperty(Boolean.TRUE);
+        branchesMenu.disableProperty().bind(noAvailableRepository);
+        headBranchName = new SimpleStringProperty();
         username = new SimpleStringProperty();
         usernameLabel.textProperty().bind(username);
         username.setValue("Administrator");
         currentRepository = new SimpleStringProperty();
         repositoryLabel.textProperty().bind(currentRepository);
+        currentBranchesMenus = new HashMap<>();
         URL url = getClass().getResource("/header/subComponents/textPopupWindow/textPopupWindow.fxml");
         FXMLLoader fxmlLoader = new FXMLLoader(url);
         try {
@@ -123,15 +137,10 @@ public class HeaderController {
         } catch (IOException e) {
         }
         newBranchSelectionWindowController = fxmlLoader.getController();
-
-
     }
 
 
-    public void setMainController(AppController mainController) {
-        this.mainController = mainController;
-    }
-
+    //on actions
     @FXML
     public void updateUsernameButtonAction(ActionEvent actionEvent) {
         Stage stage = new Stage();
@@ -140,9 +149,8 @@ public class HeaderController {
         stage.setScene(popupWindowScene);
         stage.initModality(Modality.APPLICATION_MODAL);
         stage.showAndWait();
-        username.bind(popupWindowController.textProperty());
+        username.setValue(popupWindowController.textProperty().getValue());
         mainController.setUsername(username);
-        username.unbind();
     }
 
     @FXML
@@ -153,20 +161,24 @@ public class HeaderController {
         if (f != null) {
             Stage stage = new Stage();
             stage.setTitle("New Repository's Name:");
-            popupWindowController.setLabel("Enter name of repository:");
+            popupWindowController.setLabel("Enter Name Of Repository:");
             stage.setScene(popupWindowScene);
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.showAndWait();
-            currentRepository.bind(Bindings.concat(f.getPath(),File.separator,popupWindowController.getText()));
+            String repoFullPath = new String(f.getPath());
+            repoFullPath += File.separator + popupWindowController.getText();
+
+            currentRepository.setValue(repoFullPath);
             try {
                 mainController.createNewRepository(currentRepository);
+                noAvailableRepository.setValue(Boolean.FALSE);
+                UpdateBranches();
             } catch (Exception e) {
                 stage.setTitle("Error");
                 errorPopupWindowController.SetErrorMessage("This repository already exists");
                 stage.setScene(errorPopupWindowScene);
                 stage.show();
             }
-            currentRepository.unbind();
         }
     }
 
@@ -178,6 +190,8 @@ public class HeaderController {
         try {
             mainController.SwitchRepository(file.getPath().toString());
             currentRepository.setValue(mainController.getRepositoryName());
+            noAvailableRepository.setValue(Boolean.FALSE);
+            UpdateBranches();
         } catch (Exception ex) {
             Stage stage = new Stage();
             stage.setTitle("Error");
@@ -186,11 +200,6 @@ public class HeaderController {
             stage.show();
         }
 
-    }
-
-    @FXML
-    public void showAllBranchesButtonAction(ActionEvent actionEvent) {
-        mainController.ShowAllBranches();
     }
 
     @FXML
@@ -203,35 +212,6 @@ public class HeaderController {
     }
 
     @FXML
-    public void deleteBranchButtonAction(ActionEvent actionEvent) {
-        Stage stage = new Stage();
-        stage.setTitle("Delete branch");
-        popupWindowController.setLabel("Enter branch name:");
-        stage.setScene(popupWindowScene);
-        stage.initModality(Modality.APPLICATION_MODAL);
-        stage.showAndWait();
-        try {
-            mainController.DeleteBranch(popupWindowController.textProperty().get());
-        } catch (Exception ex) {
-
-            Stage errorStage = new Stage();
-            stage.setTitle("Error");
-            errorPopupWindowController.SetErrorMessage(ex.getMessage());
-            errorStage.setScene(errorPopupWindowScene);
-            errorStage.initModality(Modality.APPLICATION_MODAL);
-            errorStage.showAndWait();
-        }
-
-    }
-
-    @FXML
-    public void checkoutButtonAction(ActionEvent actionEvent) {
-    }
-
-    @FXML
-    public void resetHeadButtonAction(ActionEvent actionEvent) {
-    }
-
     public void loadViaXMLButtonAction(ActionEvent actionEvent) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Select xml file");
@@ -247,6 +227,8 @@ public class HeaderController {
         try {
             mainController.loadRepositoryFromXml(absolutePath);
             currentRepository.setValue(mainController.getRepositoryName());
+            noAvailableRepository.setValue(Boolean.FALSE);
+            UpdateBranches();
 
         } catch (XmlRepositoryAlreadyExistsException ex) {
             Stage stage = new Stage();
@@ -267,16 +249,33 @@ public class HeaderController {
 
         } catch (Exception ex2) {
         }
+
+        UpdateBranches();
+    }
+
+    //other Methods
+    private void updateHeadBranch() {
+        String newHeadName = mainController.getMagitManager().GetCurrentRepository().getHeadBranch().getName();
+        headBranchName.setValue(newHeadName);
     }
 
     public void replaceExistingRepositoryWithXmlRepository() {
         mainController.replaceExistingRepositoryWithXmlRepository();
         currentRepository.setValue(mainController.getRepositoryName());
+        noAvailableRepository.setValue(Boolean.FALSE);
+        UpdateBranches();
     }
 
-    public void CreateNewBranch(String branchname, boolean checkout) {
+    public void setMainController(AppController mainController) {
+        this.mainController = mainController;
+    }
+
+    public void CreateNewBranch(String branchName, boolean checkout) {
         try {
-            mainController.createNewBranch(branchname, checkout);
+            mainController.createNewBranch(branchName, checkout);
+
+            addBranchToBranches(branchName);
+
         } catch (Exception e) {
             Stage stage = new Stage();
             stage.setTitle("Error");
@@ -286,6 +285,67 @@ public class HeaderController {
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.show();
         }
+    }
+
+    public void UpdateBranches() {
+        List<Branch> branches = mainController.getMagitManager().GetCurrentRepository().getBranches();
+        for (Branch br : branches) {
+            if (!currentBranchesMenus.containsKey(br.getName())) {
+                addBranchToBranches(br.getName());
+            }
+        }
+        updateHeadBranch();
 
     }
+
+    private void addBranchToBranches(String branchName) {
+        Menu addedBranch = createSingleBranchMenu(branchName);
+        branchesMenu.getItems().add(addedBranch);
+        currentBranchesMenus.put(branchName, addedBranch);
+    }
+
+    private Menu createSingleBranchMenu(String branchName) {
+        IsHeadBrancheBind isHeadBranch = new IsHeadBrancheBind(branchName, headBranchName);
+        Menu newMenu = new Menu();
+        newMenu.textProperty().bind(new BranchNameBind(branchName, isHeadBranch));
+
+
+        MenuItem delete = new MenuItem();
+        delete.setText("Delete");
+        delete.disableProperty().bind(isHeadBranch);
+        delete.setOnAction((x) -> {
+            deleteBranch(branchName);
+        });
+
+        MenuItem checkout = new MenuItem();
+        checkout.setText("Checkout");
+        checkout.disableProperty().bind(isHeadBranch);
+        checkout.setOnAction((x) -> checkout(branchName));
+
+        newMenu.getItems().add(checkout);
+        newMenu.getItems().add(delete);
+        return newMenu;
+    }
+
+    private void checkout(String branchName) {
+        mainController.Checkout(branchName);
+        updateHeadBranch();
+    }
+
+    private void deleteBranch(String branchName) {
+        try {
+            mainController.DeleteBranch(branchName);
+            branchesMenu.getItems().remove(currentBranchesMenus.get(branchName));
+            currentBranchesMenus.remove(branchName);
+        } catch (Exception ex) {
+            Stage stage = new Stage();
+            stage.setTitle("Error");
+            errorPopupWindowController.SetErrorMessage(ex.getMessage());
+            stage.setScene(errorPopupWindowScene);
+            stage.show();
+        }
+
+    }
+
+
 }
