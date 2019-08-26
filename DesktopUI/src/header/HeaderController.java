@@ -3,6 +3,7 @@ package header;
 import app.AppController;
 import exceptions.XmlPathContainsNonRepositoryObjectsException;
 import exceptions.XmlRepositoryAlreadyExistsException;
+import header.subComponents.ClickableMenu;
 import header.subComponents.errorPopupWindow.ErrorPopupWindowController;
 import header.subComponents.newBranchSelectionWindow.NewBranchSelectionWindowController;
 import header.subComponents.textPopupWindow.TextPopupWindowController;
@@ -52,15 +53,13 @@ public class HeaderController {
     @FXML
     MenuItem resetHeadButton;
     @FXML
-    Menu commitMenu; // /files?
-    @FXML
     Label usernameLabel;
     @FXML
     Label repositoryLabel;
 
+    private AppController mainController;
     private SimpleStringProperty username;
     private SimpleStringProperty currentRepository;
-    private AppController mainController;
     private TextPopupWindowController popupWindowController;
     private PathContainsRepositoryWindowController pathContainsRepositoryWindowController;
     private ErrorPopupWindowController errorPopupWindowController;
@@ -124,7 +123,40 @@ public class HeaderController {
         }
         newBranchSelectionWindowController = fxmlLoader.getController();
 
+        //adding commit clickable menu
+        ClickableMenu commitClickableMenu = new ClickableMenu("Commit");
+        commitClickableMenu.setOnAction(event -> {
+            Stage stage = new Stage();
+            stage.setTitle("Commit Message");
+            popupWindowController.setLabel("Enter message of commit:");
+            stage.setScene(popupWindowScene);
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.showAndWait();
+            try {
+                mainController.Commit(popupWindowController.getText());
+            } catch (Exception ex) {
+                stage.setTitle("Error");
+                errorPopupWindowController.SetErrorMessage(ex.getMessage());
+                stage.setScene(errorPopupWindowScene);
+                stage.show();
+            }
+        });
+        topMenuBar.getMenus().add(commitClickableMenu);
 
+        //adding WC status clickable menu
+        ClickableMenu wcStatusClickableMenu = new ClickableMenu("WC Status");
+        wcStatusClickableMenu.setOnAction(event -> {
+            try {
+                mainController.ShowStatus();
+            } catch (IOException e) {
+                Stage stage = new Stage();
+                stage.setTitle("Error");
+                errorPopupWindowController.SetErrorMessage(e.getMessage());
+                stage.setScene(errorPopupWindowScene);
+                stage.show();
+            }
+        });
+        topMenuBar.getMenus().add(wcStatusClickableMenu);
     }
 
 
@@ -232,6 +264,7 @@ public class HeaderController {
     public void resetHeadButtonAction(ActionEvent actionEvent) {
     }
 
+    @FXML
     public void loadViaXMLButtonAction(ActionEvent actionEvent) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Select xml file");
@@ -274,6 +307,7 @@ public class HeaderController {
         currentRepository.setValue(mainController.getRepositoryName());
     }
 
+    @FXML
     public void CreateNewBranch(String branchname, boolean checkout) {
         try {
             mainController.createNewBranch(branchname, checkout);
@@ -287,5 +321,32 @@ public class HeaderController {
             stage.show();
         }
 
+    }
+
+    @FXML
+    public void commitAction(ActionEvent actionEvent) {
+        /*MenuItem commitMenuItem = new MenuItem();
+        commitMenuItem.setVisible(Boolean.FALSE);
+        commitMenuItem.setOnAction((e) -> {
+            Stage stage = new Stage();
+            stage.setTitle("Commit Message");
+            popupWindowController.setLabel("Enter message of commit:");
+            stage.setScene(popupWindowScene);
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.showAndWait();
+            try {
+                mainController.Commit(popupWindowController.getText());
+            } catch (Exception ex) {
+                stage.setTitle("Error");
+                errorPopupWindowController.SetErrorMessage(ex.getMessage());
+                stage.setScene(errorPopupWindowScene);
+                stage.show();
+            }
+        });
+        commitMenu.getItems().add(commitMenuItem);
+        commitMenu.showingProperty().addListener(((observable, oldValue, newValue) -> {
+            commitMenu.getItems().get(0).fire();
+        }));
+        System.out.println("Commit Executed successfully");    */
     }
 }

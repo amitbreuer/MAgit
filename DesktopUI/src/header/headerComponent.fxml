@@ -31,11 +31,6 @@
                         <MenuItem fx:id="resetHeadButton" mnemonicParsing="false" onAction="#resetHeadButtonAction" text="Reset Head" />
                      </items>
                   </Menu>
-                  <Menu mnemonicParsing="false" text="Commit">
-                     <items>
-                        <MenuItem mnemonicParsing="false" text="Delete" />
-                     </items>
-                  </Menu>
                </menus>
             </MenuBar>
             <AnchorPane>
