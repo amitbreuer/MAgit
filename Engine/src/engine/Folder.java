@@ -27,7 +27,7 @@ public class Folder implements FolderComponent {
         return DigestUtils.sha1Hex(this.toString());
     }
 
-    protected static class ComponentData implements Comparable<ComponentData> {
+    public static class ComponentData implements Comparable<ComponentData> {
         private String name;
         private String sha1;
         private FolderComponent folderComponent;

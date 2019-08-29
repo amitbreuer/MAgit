@@ -27,7 +27,6 @@
                         <MenuItem fx:id="newBranchButton" mnemonicParsing="false" onAction="#newBranchButtonAction" text="Create New Branch" />
                      </items>
                   </Menu>
-                  <Menu mnemonicParsing="false" text="Commit" />
                </menus>
             </MenuBar>
             <AnchorPane>

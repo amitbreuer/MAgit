@@ -4,9 +4,9 @@ import javafx.beans.binding.StringBinding;
 
 public class BranchNameBind extends StringBinding {
     String myName;
-    IsHeadBrancheBind isHeadBranch;
+    IsHeadBranchBind isHeadBranch;
 
-    public BranchNameBind(String branchName, IsHeadBrancheBind isHeadBranch) {
+    public BranchNameBind(String branchName, IsHeadBranchBind isHeadBranch) {
         this.myName = branchName;
         this.isHeadBranch = isHeadBranch;
         bind(isHeadBranch);

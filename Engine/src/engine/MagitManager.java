@@ -4,7 +4,6 @@ import app.AppController;
 import exceptions.XmlPathContainsNonRepositoryObjectsException;
 import exceptions.XmlRepositoryAlreadyExistsException;
 import generated.*;
-import javafx.scene.chart.AxisBuilder;
 import org.apache.commons.codec.digest.DigestUtils;
 
 import java.io.*;
@@ -547,6 +546,8 @@ public class MagitManager {
     }
 
     public void ExecuteCommit(String message) throws Exception {
+        //controller.ShowSingleCommitFilesTree(this.repository.getHeadBranch().getLastCommit().Sha1Commit());
+
         Folder currentWC;
         Folder lastCommitMainFolder;
         Commit newCommit = new Commit(username, message);
@@ -689,7 +690,7 @@ public class MagitManager {
         }
     }
 
-    private Commit createCommitFromObjectFile(String commitSha1) throws IOException {
+    public Commit createCommitFromObjectFile(String commitSha1) throws IOException {
         String objectsFolderPath = repository.GetObjectsDirPath();
         List<String> commitTextFileContent;
         FolderComponent mainFolder;
@@ -868,6 +869,14 @@ public class MagitManager {
 
     public String getRepositoryName() {
         String absolutePath = repository.getPath().toString();
-        return new File(absolutePath).getName();
+        return new File(absolutePath).getAbsolutePath();
+    }
+
+    public void Merge(String sha1OfTheirsCommit){
+        //find aba
+        //create three folders - ours,theirs,ancestor
+        //create folder of open changes and conflicts
+        //resolve conflicts
+        //commit
     }
 }

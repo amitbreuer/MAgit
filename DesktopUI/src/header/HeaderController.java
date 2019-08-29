@@ -5,7 +5,7 @@ import engine.Branch;
 import exceptions.XmlPathContainsNonRepositoryObjectsException;
 import exceptions.XmlRepositoryAlreadyExistsException;
 import header.binds.BranchNameBind;
-import header.binds.IsHeadBrancheBind;
+import header.binds.IsHeadBranchBind;
 import header.subComponents.ClickableMenu;
 import header.subComponents.errorPopupWindow.ErrorPopupWindowController;
 import header.subComponents.newBranchSelectionWindow.NewBranchSelectionWindowController;
@@ -49,13 +49,7 @@ public class HeaderController {
     @FXML
     Menu branchesMenu;
     @FXML
-    MenuItem showAllBranchesButton;
-    @FXML
     MenuItem newBranchButton;
-    @FXML
-    MenuItem checkoutButton;
-    @FXML
-    MenuItem resetHeadButton;
     @FXML
     Label usernameLabel;
     @FXML
@@ -80,16 +74,33 @@ public class HeaderController {
 
     @FXML
     private void initialize() {
+        //init properties
         noAvailableRepository = new SimpleBooleanProperty(Boolean.TRUE);
-        branchesMenu.disableProperty().bind(noAvailableRepository);
         headBranchName = new SimpleStringProperty();
         username = new SimpleStringProperty();
+        currentRepository = new SimpleStringProperty();
+        currentBranchesMenus = new HashMap<>();
+
+        //bindings
+        branchesMenu.disableProperty().bind(noAvailableRepository);
         usernameLabel.textProperty().bind(username);
         username.setValue("Administrator");
-        currentRepository = new SimpleStringProperty();
         repositoryLabel.textProperty().bind(currentRepository);
-        currentBranchesMenus = new HashMap<>();
-        URL url = getClass().getResource("/header/subComponents/textPopupWindow/textPopupWindow.fxml");
+
+        //set relevant windows controllers and scenes
+        setTextPopupWindow();
+        setPathContainsRepositoryWindow();
+        setErrorPopupWindow();
+        setNewBranchWindow();
+
+        //adding dynamic buttons
+        addCommitClickableMenu();
+        addWcStatusClickableMenu();
+    }
+
+    private void setTextPopupWindow() {
+        URL url = getClass().getResource(HeaderResourcesConstants.TEXT_POPUP_WINDOW_FXML_PATH);
+
         FXMLLoader fxmlLoader = new FXMLLoader(url);
         try {
             AnchorPane popupRoot = fxmlLoader.load();
@@ -100,9 +111,11 @@ public class HeaderController {
         popupWindowController = fxmlLoader.getController();
         popupWindowController.setMainController(this);
 
+    }
 
-        //setting pathContainsRepositoryScene
-        URL pathContainsRepositoryUrl = getClass().getResource("/header/subComponents/pathContainsRepositoryWindow/PathContainsRepositoryWindow.fxml");
+    private void setPathContainsRepositoryWindow() {
+        FXMLLoader fxmlLoader;
+        URL pathContainsRepositoryUrl = getClass().getResource(HeaderResourcesConstants.CONTAINS_REPOSITORY_WINDOW_FXML_PATH);
         fxmlLoader = new FXMLLoader(pathContainsRepositoryUrl);
         try {
             AnchorPane pathContainsRepositoryRoot = fxmlLoader.load();
@@ -113,9 +126,11 @@ public class HeaderController {
         pathContainsRepositoryWindowController = fxmlLoader.getController();
         pathContainsRepositoryWindowController.setMainController(this);
 
+    }
 
-        //setting errorPopup Scene
-        URL errorPopup = getClass().getResource("/header/subComponents/errorPopupWindow/errorPopupWindow.fxml");
+    private void setErrorPopupWindow() {
+        FXMLLoader fxmlLoader;
+        URL errorPopup = getClass().getResource(HeaderResourcesConstants.ERROR_POPUP_WINDOW_FXML_PATH);
         fxmlLoader = new FXMLLoader(errorPopup);
         try {
             AnchorPane errorPopupRoot = fxmlLoader.load();
@@ -125,8 +140,11 @@ public class HeaderController {
         }
         errorPopupWindowController = fxmlLoader.getController();
 
-        //setting new branch window Scene
-        URL newBranchWindow = getClass().getResource("/header/subComponents/newBranchSelectionWindow/newBranchSelectionWindow.fxml");
+    }
+
+    private void setNewBranchWindow() {
+        FXMLLoader fxmlLoader;
+        URL newBranchWindow = getClass().getResource(HeaderResourcesConstants.NEW_BRANCH_WINDOW_FXML_PATH);
         fxmlLoader = new FXMLLoader(newBranchWindow);
         try {
             AnchorPane branchSelectionRoot = fxmlLoader.load();
@@ -134,9 +152,29 @@ public class HeaderController {
         } catch (IOException e) {
         }
         newBranchSelectionWindowController = fxmlLoader.getController();
+        newBranchSelectionWindowController.setMainController(this);
+    }
 
-        //adding commit clickable menu
+    private void addWcStatusClickableMenu() {
+        ClickableMenu wcStatusClickableMenu = new ClickableMenu("WC Status");
+        wcStatusClickableMenu.disableProperty().bind(noAvailableRepository);
+        wcStatusClickableMenu.setOnAction(event -> {
+            try {
+                mainController.ShowStatus();
+            } catch (IOException e) {
+                Stage stage = new Stage();
+                stage.setTitle("Error");
+                errorPopupWindowController.SetErrorMessage(e.getMessage());
+                stage.setScene(errorPopupWindowScene);
+                stage.show();
+            }
+        });
+        topMenuBar.getMenus().add(wcStatusClickableMenu);
+    }
+
+    private void addCommitClickableMenu() {
         ClickableMenu commitClickableMenu = new ClickableMenu("Commit");
+        commitClickableMenu.disableProperty().bind(noAvailableRepository);
         commitClickableMenu.setOnAction(event -> {
             Stage stage = new Stage();
             stage.setTitle("Commit Message");
@@ -155,22 +193,7 @@ public class HeaderController {
         });
         topMenuBar.getMenus().add(commitClickableMenu);
 
-        //adding WC status clickable menu
-        ClickableMenu wcStatusClickableMenu = new ClickableMenu("WC Status");
-        wcStatusClickableMenu.setOnAction(event -> {
-            try {
-                mainController.ShowStatus();
-            } catch (IOException e) {
-                Stage stage = new Stage();
-                stage.setTitle("Error");
-                errorPopupWindowController.SetErrorMessage(e.getMessage());
-                stage.setScene(errorPopupWindowScene);
-                stage.show();
-            }
-        });
-        topMenuBar.getMenus().add(wcStatusClickableMenu);
     }
-
 
     //on actions
     @FXML
@@ -197,8 +220,8 @@ public class HeaderController {
             stage.setScene(popupWindowScene);
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.showAndWait();
-            String repoFullPath = new String(f.getPath());
-            repoFullPath += File.separator + popupWindowController.getText();
+            String repoFullPath = f.getPath();
+            repoFullPath += popupWindowController.getText();
 
             currentRepository.setValue(repoFullPath);
             try {
@@ -220,7 +243,7 @@ public class HeaderController {
         directoryChooser.setTitle("Select repository");
         File file = directoryChooser.showDialog(new Stage());
         try {
-            mainController.SwitchRepository(file.getPath().toString());
+            mainController.SwitchRepository(file.getPath());
             currentRepository.setValue(mainController.getRepositoryName());
             noAvailableRepository.setValue(Boolean.FALSE);
             UpdateBranches();
@@ -306,7 +329,6 @@ public class HeaderController {
     public void CreateNewBranch(String branchName, boolean checkout) {
         try {
             mainController.createNewBranch(branchName, checkout);
-
             addBranchToBranches(branchName);
 
         } catch (Exception e) {
@@ -318,6 +340,7 @@ public class HeaderController {
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.show();
         }
+        UpdateBranches();
     }
 
     public void UpdateBranches() {
@@ -338,7 +361,7 @@ public class HeaderController {
     }
 
     private Menu createSingleBranchMenu(String branchName) {
-        IsHeadBrancheBind isHeadBranch = new IsHeadBrancheBind(branchName, headBranchName);
+        IsHeadBranchBind isHeadBranch = new IsHeadBranchBind(branchName, headBranchName);
         Menu newMenu = new Menu();
         newMenu.textProperty().bind(new BranchNameBind(branchName, isHeadBranch));
 
@@ -346,18 +369,44 @@ public class HeaderController {
         MenuItem delete = new MenuItem();
         delete.setText("Delete");
         delete.disableProperty().bind(isHeadBranch);
-        delete.setOnAction((x) -> {
-            deleteBranch(branchName);
-        });
+        delete.visibleProperty().bind(isHeadBranch.not());
+        delete.setOnAction((x) -> deleteBranch(branchName));
 
         MenuItem checkout = new MenuItem();
         checkout.setText("Checkout");
         checkout.disableProperty().bind(isHeadBranch);
+        checkout.visibleProperty().bind(isHeadBranch.not());
         checkout.setOnAction((x) -> checkout(branchName));
+
+        MenuItem reset = new MenuItem();
+        reset.setText("Reset");
+        reset.disableProperty().bind(isHeadBranch.not());
+        reset.visibleProperty().bind(isHeadBranch);
+        reset.setOnAction((x)-> resetHead());
 
         newMenu.getItems().add(checkout);
         newMenu.getItems().add(delete);
+        newMenu.getItems().add(reset);
         return newMenu;
+    }
+
+    private void resetHead() {
+        Stage stage = new Stage();
+        stage.setTitle("Reset Head");
+        popupWindowController.setLabel("Enter sha1 of commit:");
+        stage.setScene(popupWindowScene);
+        stage.initModality(Modality.APPLICATION_MODAL);
+        stage.showAndWait();
+        try {
+            mainController.resetHead(popupWindowController.getText());
+        } catch (Exception e) {
+            stage = new Stage();
+            stage.setTitle("Error");
+            errorPopupWindowController.SetErrorMessage(e.getMessage());
+            stage.setScene(errorPopupWindowScene);
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.show();
+        }
     }
 
     private void checkout(String branchName) {

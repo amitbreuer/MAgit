@@ -52,7 +52,7 @@ public class Delta {
         StringBuilder sb = new StringBuilder();
         int dcNumber = 1;
         for(DeltaComponent dc : list){
-            sb.append(String.format("%d. name: %s: " +"Type:%s  "+"Path: %s\r\n\r\n",dcNumber,dc.getName(),dc.getType(),dc.getPath()));
+            sb.append(String.format("%d. name: %s: " +"Type:%s  "+"Path: %s\r\n",dcNumber,dc.getName(),dc.getType(),dc.getPath()));
        dcNumber++;
         }
         return  sb.toString();

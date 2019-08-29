@@ -14,7 +14,7 @@ public class Main extends Application {
         FXMLLoader loader = new FXMLLoader();
 
         //load app fxml
-        URL mainFXML = getClass().getResource(MagitResourcesConstants.MAIN_FXML_PATH);
+        URL mainFXML = getClass().getResource(AppResourcesConstants.MAIN_FXML_PATH);
         loader.setLocation(mainFXML);
         BorderPane root = loader.load();
 

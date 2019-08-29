@@ -18,9 +18,9 @@ public class BottomController {
 
     @FXML
     private void initialize() {
-        messageLabel.setText("");
         message = new SimpleStringProperty();
         messageLabel.textProperty().bind(message);
+        message.setValue("Please set repository");
     }
 
     public void setMessage(String message) {
