@@ -5,6 +5,8 @@ import exceptions.XmlPathContainsNonRepositoryObjectsException;
 import exceptions.XmlRepositoryAlreadyExistsException;
 import generated.*;
 import org.apache.commons.codec.digest.DigestUtils;
+import puk.team.course.magit.ancestor.finder.AncestorFinder;
+import puk.team.course.magit.ancestor.finder.CommitRepresentative;
 
 import java.io.*;
 import java.nio.file.FileAlreadyExistsException;
@@ -14,6 +16,7 @@ import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.function.Function;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
@@ -264,7 +267,7 @@ public class MagitManager {
         String deltaToString;
 
         if (delta.isEmpty()) {
-            deltaToString = "There are no changes since the last commit";
+            deltaToString = "There are no open changes";
         } else {
             deltaToString = delta.toString();
         }
@@ -546,8 +549,6 @@ public class MagitManager {
     }
 
     public void ExecuteCommit(String message) throws Exception {
-        //controller.ShowSingleCommitFilesTree(this.repository.getHeadBranch().getLastCommit().Sha1Commit());
-
         Folder currentWC;
         Folder lastCommitMainFolder;
         Commit newCommit = new Commit(username, message);
@@ -578,12 +579,13 @@ public class MagitManager {
             createNewObjectFileFromDelta(delta);//create new object files for all new/updated files
             createNewObjectFile(currentWC.toString());//create object file that contains the new app folder
             createNewObjectFile(newCommit.toString());//create object file that contains the new commit
+        } else {
+            throw new Exception("There are no open changes");
         }
 
         try {
             writeToFile(headBranchFilePath, newCommit.Sha1Commit());
         } catch (Exception e) {
-            ////what if the action didnt success? do we need to delete all created filed?
         }
     }
 
@@ -595,7 +597,6 @@ public class MagitManager {
             unzip(fileToUnzipPath, objectsFolderPath);
             textFile = new File(objectsFolderPath + File.separator + fileName + ".txt");
         } catch (IOException e) {
-            //////////////////////////////// what if it failed?
         }
 
         return textFile;
@@ -839,7 +840,6 @@ public class MagitManager {
     }
 
 
-
     private Commit createCommitFromMagitCommit(MagitSingleCommit magitCommit) throws Exception {
         Commit commitToCreate;
         Commit previousCommit = null;
@@ -872,11 +872,212 @@ public class MagitManager {
         return new File(absolutePath).getAbsolutePath();
     }
 
-    public void Merge(String sha1OfTheirsCommit){
-        //find aba
+
+    public void Merge(String branchToMergeName) {
+        Branch branchToMerge = repository.FindBranchByName(branchToMergeName);
+        String theirsCommitSha1 = branchToMerge.getLastCommit().getSha1();
+        //find ancestor
+        Function<String, CommitRepresentative> function = new Sha1ToCommitFunction(this);
+        AncestorFinder ancestorFinder = new AncestorFinder(function);
+        String oursCommitSha1 = this.repository.getHeadBranch().getLastCommit().Sha1Commit();
+        String ancestorCommitSha1 = ancestorFinder.traceAncestor(oursCommitSha1, theirsCommitSha1);
+
         //create three folders - ours,theirs,ancestor
-        //create folder of open changes and conflicts
-        //resolve conflicts
+        Folder oursFolder = null;
+        Folder theirsFolder = null;
+        Folder ancestorsFolder = null;
+        try {
+            oursFolder = createCommitFromObjectFile(oursCommitSha1).getMainFolder();
+            theirsFolder = createCommitFromObjectFile(theirsCommitSha1).getMainFolder();
+            ancestorsFolder = createCommitFromObjectFile(ancestorCommitSha1).getMainFolder();
+        } catch (IOException e) {
+        }
+        Conflicts conflicts = new Conflicts();
+        Folder mergedFolder = createMergedFolderAndFindConflicts(oursFolder, theirsFolder, ancestorsFolder, conflicts,this.username);
+        mergedFolder.sha1Folder();
+        this.controller.ResolveConflicts(conflicts);
         //commit
+
+        //span New WC
+    }
+
+    public static Folder createMergedFolderAndFindConflicts(Folder oursFolder, Folder theirsFolder, Folder ancestorsFolder, Conflicts conflicts,String updaterName) {
+        Folder mergedFolder = new Folder();
+        String minName;
+        int oursIndex = 0;
+        int theirsIndex = 0;
+        int ancestorsIndex = 0;
+        String oursFileName;
+        String theirsFileName;
+        String ancestorsFileName;
+        Folder.ComponentData oursComponent = null;
+        Folder.ComponentData theirsComponent = null;
+        Folder.ComponentData ancestorsComponent = null;
+        SingleFileMerger fileMerger;
+        List<Folder.ComponentData> oursComponents = oursFolder.getComponents();
+        List<Folder.ComponentData> theirsComponents = theirsFolder.getComponents();
+        List<Folder.ComponentData> ancestorsComponents = ancestorsFolder.getComponents();
+        int oursSize = oursComponents.size();
+        int theirsSize = theirsComponents.size();
+        int ancestorsSize = ancestorsComponents.size();
+
+        ArrayList<Integer> indicesArray = new ArrayList<>();
+        indicesArray.add(0, oursIndex);
+        indicesArray.add(1, theirsIndex);
+        indicesArray.add(2, ancestorsIndex);
+
+        while (oursIndex < oursSize || theirsIndex < theirsSize || ancestorsIndex < ancestorsSize) {
+            oursComponent = oursIndex < oursSize ? oursComponents.get(oursIndex) : null;
+            theirsComponent = theirsIndex < theirsSize ? theirsComponents.get(theirsIndex) : null;
+            ancestorsComponent = ancestorsIndex < ancestorsSize ? ancestorsComponents.get(ancestorsIndex) : null;
+
+            oursFileName = oursComponent != null ? oursComponent.getName() : null;
+            theirsFileName = theirsComponent != null ? theirsComponent.getName() : null;
+            ancestorsFileName = ancestorsComponent != null ? ancestorsComponent.getName() : null;
+
+            minName = getLowestLexicographicFileName(oursFileName, theirsFileName, ancestorsFileName);
+
+            fileMerger = getSingleFileMerger(oursComponent, theirsComponent, ancestorsComponent, minName);
+            fileMerger.mergeFiles(oursComponent, theirsComponent, ancestorsComponent, mergedFolder, conflicts,updaterName);
+
+            advanceMergeIndicesByEnumValue(fileMerger, indicesArray);
+
+            oursIndex = indicesArray.get(0);
+            theirsIndex = indicesArray.get(1);
+            ancestorsIndex = indicesArray.get(2);
+        }
+        Collections.sort(mergedFolder.getComponents());
+        return mergedFolder;
+    }
+
+    private static void advanceMergeIndicesByEnumValue(SingleFileMerger fileMerger, ArrayList<Integer> indices) {
+        switch (fileMerger) {
+            case DELETEDBYOURS:
+                indices.set(1, indices.get(1) + 1);
+                indices.set(2, indices.get(2) + 1);
+                break;
+            case DELETEDBYTHEIRS:
+                indices.set(0, indices.get(0) + 1);
+                indices.set(2, indices.get(2) + 1);
+                break;
+            case DELETEDBYBOTH:
+                indices.set(2, indices.get(2) + 1);
+                break;
+            case NOCHANGE:
+                indices.set(0, indices.get(0) + 1);
+                indices.set(1, indices.get(1) + 1);
+                indices.set(2, indices.get(2) + 1);
+                break;
+            case ADDEDBYOURS:
+                indices.set(0, indices.get(0) + 1);
+                break;
+            case ADDEDBYTHEIRS:
+                indices.set(1, indices.get(1) + 1);
+                break;
+            case ADDEDBYBOTH:
+                indices.set(0, indices.get(0) + 1);
+                indices.set(1, indices.get(1) + 1);
+                break;
+            case UPDATEDBYOURS:
+            case UPDATEDBYBOTH:
+            case UPDATEDBYTHEIRS:
+                indices.set(0, indices.get(0) + 1);
+                indices.set(1, indices.get(1) + 1);
+                indices.set(2, indices.get(2) + 1);
+                break;
+
+            case OURSDELETEDTHEIRSUPDATEDCONFLICT:
+                indices.set(1, indices.get(1) + 1);
+                indices.set(2, indices.get(2) + 1);
+                break;
+
+            case OURSUPDATEDTHEIRSDELETEDCONFLICT:
+                indices.set(0, indices.get(0) + 1);
+                indices.set(2, indices.get(2) + 1);
+                break;
+
+            case OURSADDEDTHEIRSADDEDIFFERENTLYDCONFLICT:
+                indices.set(0, indices.get(0) + 1);
+                indices.set(1, indices.get(1) + 1);
+                break;
+
+            case OURSUPDATEDTHEIRSUPDATEDDIFFERENTLYCONFLICT:
+                indices.set(0, indices.get(0) + 1);
+                indices.set(1, indices.get(1) + 1);
+                indices.set(2, indices.get(2) + 1);
+                break;
+        }
+    }
+
+    private static SingleFileMerger getSingleFileMerger(Folder.ComponentData oursComponent, Folder.ComponentData theirsComponent, Folder.ComponentData ancestorComponent, String minName) {
+        boolean existsInOurs;
+        boolean existsInTheirs;
+        boolean existsInAncestors;
+        boolean oursEqualsTheirs;
+        boolean oursEqualsAncestors;
+        boolean theirsEqualsAncestors;
+        String oursFileName;
+        String theirsFileName;
+        String ancestorFileName;
+
+        if (oursComponent == null) {
+            existsInOurs = false;
+            oursEqualsTheirs = false;
+            oursEqualsAncestors = false;
+        } else {
+            oursFileName = oursComponent.getName();
+            existsInOurs = oursFileName.equals(minName);
+        }
+        if (theirsComponent == null) {
+            existsInTheirs = false;
+            oursEqualsTheirs = false;
+            theirsEqualsAncestors = false;
+        } else {
+            theirsFileName = theirsComponent.getName();
+            existsInTheirs = theirsFileName.equals(minName);
+        }
+        if (ancestorComponent == null) {
+            existsInAncestors = false;
+            oursEqualsAncestors = false;
+            theirsEqualsAncestors = false;
+        } else {
+            ancestorFileName = ancestorComponent.getName();
+            existsInAncestors = ancestorFileName.equals(minName);
+        }
+
+        oursEqualsTheirs = existsInOurs && existsInTheirs && oursComponent.getSha1().equals(theirsComponent.getSha1());
+        oursEqualsAncestors = existsInOurs && existsInAncestors && oursComponent.getSha1().equals(ancestorComponent.getSha1());
+        theirsEqualsAncestors = existsInTheirs && existsInAncestors && theirsComponent.getSha1().equals(ancestorComponent.getSha1());
+
+        SingleFileMerger fileMerger = SingleFileMerger.GetMerger(existsInOurs, existsInTheirs, existsInAncestors, oursEqualsTheirs, oursEqualsAncestors, theirsEqualsAncestors);
+
+        return fileMerger;
+    }
+
+
+    private static String getLowestLexicographicFileName(String str1, String str2, String str3) {
+        String min = "";
+        if (str1 != null) {
+            min = str1;
+        }
+        if (str2 != null) {
+            if (min == "") {
+                min = str2;
+            } else {
+                min = str2.compareTo(min) < 0 ? str2 : min;
+            }
+        }
+        if (str3 != null) {
+            if (min == "") {
+                min = str3;
+            } else {
+                min = str3.compareTo(min) < 0 ? str3 : min;
+            }
+        }
+        return min;
+    }
+
+    private String getLowestLexicographicFileName(String str1, String str2) {
+        return str1.compareTo(str2) <= 0 ? str1 : str2;
     }
 }

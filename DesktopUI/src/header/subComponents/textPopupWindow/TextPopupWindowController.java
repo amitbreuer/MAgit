@@ -9,6 +9,8 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.Button;
 import javafx.stage.Stage;
 
+import javax.script.Bindings;
+
 public class TextPopupWindowController {
     @FXML private TextField textField;
     @FXML private Button okButton;
@@ -16,12 +18,12 @@ public class TextPopupWindowController {
     @FXML private Label label;
 
     private SimpleStringProperty text;
-    private SimpleStringProperty labelProperty;
     private HeaderController mainController;
 
     @FXML private void initialize(){
         text = new SimpleStringProperty();
         text.bind(textField.textProperty());
+        //okButton.setDisable(textField.textProperty().isEmpty().getValue().equals(true));
     }
 
     public void setMainController(HeaderController mainController) {
@@ -30,13 +32,16 @@ public class TextPopupWindowController {
 
     @FXML
     public void okButtonAction(ActionEvent actionEvent) {
-        Stage stage = (Stage) okButton.getScene().getWindow();
-        stage.close();
+        closeStage();
     }
 
     @FXML
     public void cancelButtonAction(ActionEvent actionEvent) {
-        Stage stage = (Stage) cancelButton.getScene().getWindow();
+        closeStage();
+    }
+
+    private void closeStage(){
+        Stage stage = (Stage) okButton.getScene().getWindow();
         stage.close();
     }
 

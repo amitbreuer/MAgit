@@ -1,11 +1,14 @@
 package engine;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import puk.team.course.magit.ancestor.finder.CommitRepresentative;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-public class Commit {
+public class Commit implements CommitRepresentative {
     private String prevCommitSha1;
+    private String anotherPrevCommitSha1;
     private String dateCreated;
     private String creator;
     private String message;
@@ -33,7 +36,6 @@ public class Commit {
     public void setMainFolder(Folder mainFolder) {
         this.mainFolder = mainFolder;
     }
-
 
     public String getPrevCommitSha1() {
         return prevCommitSha1;
@@ -71,5 +73,30 @@ public class Commit {
 
     public String getCreator() {
         return creator;
+    }
+
+    @Override
+    public String getSha1() {
+        return this.Sha1Commit();
+    }
+
+    @Override
+    public String getFirstPrecedingSha1() {
+        if(prevCommitSha1 == null){
+            return "";
+        }
+        return prevCommitSha1;
+    }
+
+    @Override
+    public String getSecondPrecedingSha1() {
+        if(anotherPrevCommitSha1 == null){
+            return "";
+        }
+        return anotherPrevCommitSha1;
+    }
+
+    public void setSecondPrevCommitSha1(String commitSha1) {
+        this.anotherPrevCommitSha1 = commitSha1;
     }
 }

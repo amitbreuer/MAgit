@@ -16,7 +16,7 @@ public class DeltaComponent {
             this.type = "Directory";
         }
         else {
-            this.type = "Text file";
+            this.type = "Text File";
         }
     }
 

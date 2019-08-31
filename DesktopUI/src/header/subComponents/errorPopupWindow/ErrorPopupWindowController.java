@@ -15,11 +15,9 @@ public class ErrorPopupWindowController {
 
     private HeaderController mainController;
 
-
     public void SetErrorMessage(String message) {
         errorLable.textProperty().setValue(message);
     }
-
 
     @FXML private void initialize(){
     }

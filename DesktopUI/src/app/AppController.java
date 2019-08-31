@@ -19,6 +19,7 @@ import javafx.scene.layout.BorderPane;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.List;
 
 public class AppController {
     @FXML
@@ -58,8 +59,9 @@ public class AppController {
         magitManager.SetUsername(text.getValue());
     }
 
-    public void createNewRepository(SimpleStringProperty currentRepository) throws Exception {
-        magitManager.CreateEmptyRepository(currentRepository.getValue());
+    public void createNewRepository(String repositoryPath) throws Exception {
+        magitManager.CreateEmptyRepository(repositoryPath);
+        bottomComponentController.setMessage("Created and Switched to " + repositoryPath);
     }
 
     public void loadRepositoryFromXml(String absolutePath) throws Exception {
@@ -146,5 +148,23 @@ public class AppController {
 
     public void resetHead(String commitSha1) throws Exception {
         magitManager.ResetHeadBranch(commitSha1);
+    }
+
+    public void ResolveConflicts(Conflicts conflicts) {
+
+        List<ConflictComponent> conflictComponentList = conflicts.getConflictFiles();
+        for(ConflictComponent cc:conflictComponentList){
+            resolveSingleCOnflict(cc);
+        }
+        headerComponentController.Commit();
+    }
+
+    private void resolveSingleCOnflict(ConflictComponent cc) {
+        //creating 4 windows - checking which is null
+    }
+
+    public void Merge(String branchName) {
+        magitManager.Merge(branchName);
+        bottomComponentController.setMessage("Merge was done successfully");
     }
 }
