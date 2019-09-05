@@ -48,12 +48,10 @@ public class MagitManager {
     }
 
     public void CreateEmptyRepository(String repositoryPath) throws Exception {
-
         if (Files.exists(Paths.get(repositoryPath))) {
             throw new FileAlreadyExistsException("The path you have entered already exists");
         } else {
             this.repository = new Repository(repositoryPath);
-
 
             new File(repositoryPath).mkdirs();
             new File(repositoryPath + "/.magit").mkdir();
@@ -274,7 +272,7 @@ public class MagitManager {
         return deltaToString;
     }
 
-    public void spanWCFromCommit(Commit commitToSpan) throws Exception {
+    private void spanWCFromCommit(Commit commitToSpan) throws Exception {
         Path pathOfRepository = this.repository.getPath();
         File repositoryToDelete = pathOfRepository.toFile();
         deleteFileFromWorkingCopy(repositoryToDelete);
@@ -394,7 +392,7 @@ public class MagitManager {
 
     private Branch createBranchFromObjectFileSha1(String branchName, String sha1) throws IOException {
         Commit newCommit = createCommitFromObjectFile(sha1);
-        StringTokenizer tokenizer = new StringTokenizer(branchName, "."); // to cut the extention ".txt"
+        StringTokenizer tokenizer = new StringTokenizer(branchName, "."); // to cut the extension ".txt"
         Branch newBranch = new Branch(tokenizer.nextToken(), newCommit);
         return newBranch;
     }
@@ -496,7 +494,7 @@ public class MagitManager {
         return branchHistory.toString();
     }
 
-    List<Commit> getAllCommitsOfActiveBrnach() throws IOException {
+    private List<Commit> getAllCommitsOfActiveBrnach() throws IOException {
         List<Commit> allCommits = new ArrayList<>();
         Commit currentCommit = this.repository.getHeadBranch().getLastCommit();
         String prevCommitSha1;
@@ -699,6 +697,7 @@ public class MagitManager {
         File mainFolderTextFile = null;
         File commitTextFile = null;
         String prevCommitSha1 = null;
+        String anotherPrevSha1 = null;
         String mainFolderSha1 = null;
         String dateCreated = null;
         String creator = null;
@@ -712,18 +711,22 @@ public class MagitManager {
         if (prevCommitSha1.equals("null")) {
             prevCommitSha1 = null;
         }
-        mainFolderSha1 = commitTextFileContent.get(1);
-        dateCreated = commitTextFileContent.get(2);
-        creator = commitTextFileContent.get(3);
-        message = commitTextFileContent.get(4);
+        anotherPrevSha1 = commitTextFileContent.get(1);
+        if (anotherPrevSha1.equals("null")) {
+            anotherPrevSha1 = null;
+        }
+        mainFolderSha1 = commitTextFileContent.get(2);
+        dateCreated = commitTextFileContent.get(3);
+        creator = commitTextFileContent.get(4);
+        message = commitTextFileContent.get(5);
         mainFolderTextFile = getTextFileFromObjectsDirectory(mainFolderSha1, objectsFolderPath);
         mainFolderTextFileContent = Files.readAllLines(mainFolderTextFile.toPath());
-
 
         mainFolder = createFolderComponentFromTextFileLines(true, mainFolderTextFileContent, objectsFolderPath);
 
         newCommit = new Commit(creator, message);
         newCommit.setPrevCommitSha1(prevCommitSha1);
+        newCommit.setSecondPrevCommitSha1(anotherPrevSha1);
         newCommit.setDateCreated(dateCreated);
         newCommit.setMainFolder((Folder) mainFolder);
         this.repository.getRecentlyUsedCommits().put(newCommit.Sha1Commit(), newCommit);
@@ -798,7 +801,7 @@ public class MagitManager {
         createRepositoryFromMagitRepository();
     }
 
-    void deleteDirectory(Path path) throws IOException {
+    private void deleteDirectory(Path path) throws IOException {
         File file = path.toFile();
         if (file.isDirectory()) {
             for (File f : file.listFiles())
@@ -839,13 +842,14 @@ public class MagitManager {
         }
     }
 
-
     private Commit createCommitFromMagitCommit(MagitSingleCommit magitCommit) throws Exception {
         Commit commitToCreate;
         Commit previousCommit = null;
+        Commit anotherPreviousCommit = null;
         Folder rootFolderToCreate;
         List<PrecedingCommits.PrecedingCommit> precedingCommits = null;
         MagitSingleCommit prevMagitCommit;
+        MagitSingleCommit anotherPrevMagitCommit;
         MagitSingleFolder magitFolder = this.xmlManager.existingFolders.get(magitCommit.getRootFolder().getId());
         rootFolderToCreate = createFolderFromMagitFolder(magitFolder);
         commitToCreate = new Commit(magitCommit.getAuthor(), magitCommit.getMessage(), magitCommit.getDateOfCreation());
@@ -855,11 +859,15 @@ public class MagitManager {
             precedingCommits = magitCommit.getPrecedingCommits().getPrecedingCommit();
         }
         if (precedingCommits != null) {
-
             if (precedingCommits.size() != 0) {
                 prevMagitCommit = this.xmlManager.existingCommits.get(precedingCommits.get(0).getId());
                 previousCommit = createCommitFromMagitCommit(prevMagitCommit);
                 commitToCreate.setPrevCommitSha1(previousCommit.Sha1Commit());
+                if(precedingCommits.size() == 2){
+                    anotherPrevMagitCommit = this.xmlManager.existingCommits.get(precedingCommits.get(1).getId());
+                    anotherPreviousCommit = createCommitFromMagitCommit(anotherPrevMagitCommit);
+                    commitToCreate.setSecondPrevCommitSha1(anotherPreviousCommit.getSha1());
+                }
             }
         }
 
@@ -872,8 +880,14 @@ public class MagitManager {
         return new File(absolutePath).getAbsolutePath();
     }
 
-
-    public void Merge(String branchToMergeName) {
+    public void Merge(String branchToMergeName) throws Exception {
+        try {
+            if(thereAreUncommittedChanges()){
+                throw new Exception("Merge failed. There are open changes");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         Branch branchToMerge = repository.FindBranchByName(branchToMergeName);
         String theirsCommitSha1 = branchToMerge.getLastCommit().getSha1();
         //find ancestor
@@ -894,11 +908,47 @@ public class MagitManager {
         }
         Conflicts conflicts = new Conflicts();
         Folder mergedFolder = createMergedFolderAndFindConflicts(oursFolder, theirsFolder, ancestorsFolder, conflicts,this.username);
-        mergedFolder.sha1Folder();
         this.controller.ResolveConflicts(conflicts);
+        implementConflictSolutions(conflicts);
         //commit
+        String message = controller.GetCommitsMessage();
+        Commit mergedCommit = new Commit(username,message);
+        mergedCommit.setMainFolder(mergedFolder);
+        mergedCommit.setPrevCommitSha1(oursCommitSha1);
+        mergedCommit.setSecondPrevCommitSha1(theirsCommitSha1);
+        repository.getHeadBranch().setLastCommit(mergedCommit);
+        repository.getRecentlyUsedCommits().put(mergedCommit.Sha1Commit(), mergedCommit);
+        try {
+            createObjectsFilesFromMergedFolder(mergedFolder);
+            createNewObjectFile(mergedCommit.toString());
+            String headBranchFilePath = repository.GetBranchesDirPath() + File.separator + repository.getHeadBranch().getName() + ".txt";
+            writeToFile(headBranchFilePath, mergedCommit.Sha1Commit());
+            spanWCFromCommit(mergedCommit);
+        } catch (Exception e) {
+        }
+    }
 
-        //span New WC
+    private void createObjectsFilesFromMergedFolder(Folder mergedFolder) throws Exception {
+        List<Folder.ComponentData> components = mergedFolder.getComponents();
+        String objectsDirPath = repository.GetObjectsDirPath();
+        for(Folder.ComponentData cd : components){
+            if(cd.getFolderComponent() instanceof Blob){
+                if(!Files.exists(Paths.get(objectsDirPath + File.separator + cd.getSha1() + ".zip"))){
+                    createNewObjectFile(cd.getFolderComponent().toString());
+                }
+            } else {
+                if(!Files.exists(Paths.get(objectsDirPath + File.separator + cd.getSha1() + ".zip"))){
+                    createObjectsFilesFromMergedFolder((Folder)cd.getFolderComponent());
+                }
+            }
+        }
+        if(!Files.exists(Paths.get(objectsDirPath + File.separator + mergedFolder.sha1Folder() + ".zip"))){
+            createNewObjectFile(mergedFolder.toString());
+        }
+    }
+
+    private void implementConflictSolutions(Conflicts conflicts) {
+        //update containing folder with solution and create object file for each one
     }
 
     public static Folder createMergedFolderAndFindConflicts(Folder oursFolder, Folder theirsFolder, Folder ancestorsFolder, Conflicts conflicts,String updaterName) {
@@ -1054,7 +1104,6 @@ public class MagitManager {
         return fileMerger;
     }
 
-
     private static String getLowestLexicographicFileName(String str1, String str2, String str3) {
         String min = "";
         if (str1 != null) {
@@ -1077,7 +1126,49 @@ public class MagitManager {
         return min;
     }
 
-    private String getLowestLexicographicFileName(String str1, String str2) {
-        return str1.compareTo(str2) <= 0 ? str1 : str2;
+    public Map<String,Commit> GetAllCommitsMap() {
+        Map<String,Commit> commitsMap = new HashMap<>();
+        List<Branch> branches = this.repository.getBranches();
+        for(Branch branch : branches){
+            if(branch.getLastCommit() != null){
+                addCommitToCommitsMap(branch.getLastCommit(),commitsMap);
+            }
+        }
+
+        return commitsMap;
+    }
+
+    private void addCommitToCommitsMap(Commit commitToAdd, Map<String,Commit> commitsMap) {
+        if(!commitsMap.containsKey(commitToAdd.getSha1())){
+            commitsMap.put(commitToAdd.getSha1(),commitToAdd);
+        }
+        String prevCommitSha1 = commitToAdd.getPrevCommitSha1();
+        String anotherPrevCommitSha1 = commitToAdd.getSecondPrecedingSha1();
+
+        if(prevCommitSha1 != null){
+            Commit prevCommit = null;
+            if(repository.getRecentlyUsedCommits().containsKey(prevCommitSha1)){
+                prevCommit = repository.getRecentlyUsedCommits().get(prevCommitSha1);
+            } else {
+                try {
+                    prevCommit = createCommitFromObjectFile(prevCommitSha1);
+                } catch (IOException e) {
+                }
+            }
+            addCommitToCommitsMap(prevCommit,commitsMap);
+        }
+
+        if(anotherPrevCommitSha1 != null){
+            Commit anotherPrevCommit = null;
+            if(repository.getRecentlyUsedCommits().containsKey(anotherPrevCommitSha1)){
+                anotherPrevCommit  = repository.getRecentlyUsedCommits().get(anotherPrevCommitSha1);
+            } else {
+                try {
+                    anotherPrevCommit  = createCommitFromObjectFile(anotherPrevCommitSha1);
+                } catch (IOException e) {
+                }
+            }
+            addCommitToCommitsMap(anotherPrevCommit ,commitsMap);
+        }
     }
 }

@@ -2,9 +2,8 @@ package engine;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import puk.team.course.magit.ancestor.finder.CommitRepresentative;
-
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class Commit implements CommitRepresentative {
     private String prevCommitSha1;
@@ -22,11 +21,16 @@ public class Commit implements CommitRepresentative {
         this.dateCreated = getDate();
         this.creator = creator;
         this.message = message;
+        this.prevCommitSha1 = null;
+        this.anotherPrevCommitSha1 = null;
     }
-    public Commit(String creator,String message,String dateCreated){
+
+    public Commit(String creator, String message, String dateCreated) {
         this.creator = creator;
         this.message = message;
         this.dateCreated = dateCreated;
+        this.prevCommitSha1 = null;
+        this.anotherPrevCommitSha1 = null;
     }
 
     public Folder getMainFolder() {
@@ -54,13 +58,18 @@ public class Commit implements CommitRepresentative {
     }
 
     private String getDate() {
-        return LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss.SSS"));
+
+        SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yyyy-HH:mm:ss:SSS");
+        Date date = new Date();
+        return formatter.format(date);
+
     }
 
     @Override
     public String toString() {
         return
                 prevCommitSha1 + "\r\n" +
+                        anotherPrevCommitSha1 + "\r\n" +
                         mainFolder.sha1Folder() + "\r\n" +
                         dateCreated + "\r\n" +
                         creator + "\r\n" +
@@ -82,17 +91,11 @@ public class Commit implements CommitRepresentative {
 
     @Override
     public String getFirstPrecedingSha1() {
-        if(prevCommitSha1 == null){
-            return "";
-        }
         return prevCommitSha1;
     }
 
     @Override
     public String getSecondPrecedingSha1() {
-        if(anotherPrevCommitSha1 == null){
-            return "";
-        }
         return anotherPrevCommitSha1;
     }
 

@@ -32,11 +32,12 @@ public class PathContainsRepositoryWindowController {
 
     @FXML
     public void okButtonAction(ActionEvent actionEvent) {
-        if(replaceExistingRepositoryRadioButton.isSelected()) {
-         mainController.replaceExistingRepositoryWithXmlRepository();
-        }
         Stage stage = (Stage) okButton.getScene().getWindow();
         stage.close();
+        if(replaceExistingRepositoryRadioButton.isSelected()) {
+
+            mainController.replaceExistingRepositoryWithXmlRepository();
+        }
     }
 
     public void cancelButtonAction(ActionEvent actionEvent) {

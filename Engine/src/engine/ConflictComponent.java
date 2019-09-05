@@ -4,6 +4,7 @@ public class ConflictComponent {
     String oursFileContent;
     String theirsFileContent;
     String ancestorsFileContent;
+    String mergedFileContent;
     Folder containingFolder;
 
     public ConflictComponent(String oursFileContent, String theirsFileContent, String ancestorsFileContent, Folder containingFolder) {
@@ -25,5 +26,8 @@ public class ConflictComponent {
         return ancestorsFileContent;
     }
 
+    public void setMergedFileContent(String mergedFileContent) {
+        this.mergedFileContent = mergedFileContent;
+    }
 }
 

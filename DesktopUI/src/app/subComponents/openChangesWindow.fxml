@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="165.0" prefWidth="336.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="app.subComponents.OpenChangesWindowController">
+   <children>
+      <Label layoutX="26.0" layoutY="26.0" prefHeight="51.0" prefWidth="283.0" text="There are open changes!&#10;Please commit to save changes before continue.&#10;If you don't commit all changes will be lost." AnchorPane.leftAnchor="26.0" AnchorPane.rightAnchor="26.666666666666686" AnchorPane.topAnchor="26.0">
+         <font>
+            <Font name="System Bold" size="12.0" />
+         </font>
+      </Label>
+      <CheckBox fx:id="commitCheckBox" layoutX="26.0" layoutY="90.0" mnemonicParsing="false" text="Commit" AnchorPane.leftAnchor="26.0" AnchorPane.topAnchor="90.0" />
+      <Button fx:id="okButton" layoutX="130.0" layoutY="120.0" mnemonicParsing="false" onAction="#okButtonAction" prefHeight="25.0" prefWidth="75.0" text="OK" AnchorPane.bottomAnchor="19.666666666666668" />
+   </children>
+</AnchorPane>

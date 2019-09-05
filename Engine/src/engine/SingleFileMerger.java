@@ -1,7 +1,9 @@
 package engine;
 
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Date;
 
 public enum SingleFileMerger {
     DELETEDBYBOTH(false, false, true, false, false, false),
@@ -107,8 +109,7 @@ public enum SingleFileMerger {
                             theirs.toString(), null, containingFolder));
                 }else {
                     Folder mergedSubFolder;
-                    String dateUpdated= LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss.SSS"));
-
+                    String dateUpdated = getDate();
                     mergedSubFolder = MagitManager.createMergedFolderAndFindConflicts((Folder)ours.getFolderComponent(),(Folder)theirs.getFolderComponent(),new Folder(),conflicts,updaterName);
                     containingFolder.getComponents().add(new Folder.ComponentData(ours.getName(),mergedSubFolder.sha1Folder(),mergedSubFolder,updaterName,dateUpdated) );
                 }
@@ -120,7 +121,7 @@ public enum SingleFileMerger {
                             theirs.toString(), ancestors.toString(), containingFolder));
                 }else {
                     Folder mergedSubFolder;
-                    String dateUpdated= LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss.SSS"));
+                    String dateUpdated = getDate();
                     mergedSubFolder = MagitManager.createMergedFolderAndFindConflicts((Folder)ours.getFolderComponent(),(Folder)theirs.getFolderComponent(),(Folder)ancestors.getFolderComponent(),conflicts,updaterName);
                     containingFolder.getComponents().add(new Folder.ComponentData(ours.getName(),mergedSubFolder.sha1Folder(),mergedSubFolder,updaterName,dateUpdated) );
                 }
@@ -128,6 +129,11 @@ public enum SingleFileMerger {
         }
     }
 
+    private String getDate() {
+        SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yyyy-HH:mm:ss:SSS");
+        Date date = new Date(System.currentTimeMillis());
+        return formatter.format(date);
+    }
 
     SingleFileMerger(boolean b1, boolean b2, boolean b3, boolean b4, boolean b5, boolean b6) {
         existsInOurs = b1;

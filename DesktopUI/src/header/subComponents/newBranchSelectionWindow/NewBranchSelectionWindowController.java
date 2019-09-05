@@ -20,19 +20,13 @@ public class NewBranchSelectionWindowController {
     @FXML
     RadioButton checkoutNewBranchRadioButton;
     @FXML
-    private HeaderController mainController;
-    @FXML
     TextField textField;
 
-
-    @FXML
-    public void initialize() {
-    }
+    private HeaderController mainController;
 
     public void setMainController(HeaderController mainController) {
         this.mainController = mainController;
     }
-
 
     public void okButtonAction(ActionEvent actionEvent) {
         mainController.CreateNewBranch(textField.getText(),checkoutNewBranchRadioButton.isSelected() == Boolean.TRUE);

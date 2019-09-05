@@ -13,4 +13,7 @@
    <right>
       <ScrollPane fx:id="rightComponent" fitToHeight="true" prefHeight="200.0" prefWidth="200.0" />
    </right>
+   <center>
+      <fx:include fx:id="bodyComponent" maxWidth="1.7976931348623157E308" source="../body/bodyComponent.fxml" />
+   </center>
 </BorderPane>

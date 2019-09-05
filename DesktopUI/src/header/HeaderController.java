@@ -56,7 +56,7 @@ public class HeaderController {
     @FXML
     Label repositoryLabel;
 
-    private SimpleBooleanProperty noAvailableRepository;
+    public SimpleBooleanProperty noAvailableRepository;
     private SimpleStringProperty headBranchName;
     private SimpleStringProperty username;
     private SimpleStringProperty currentRepository;
@@ -71,7 +71,6 @@ public class HeaderController {
     private Scene errorPopupWindowScene;
     private Scene newBranchSelectionWindowScene;
     private Map<String, Menu> currentBranchesMenus;
-
 
     @FXML
     private void initialize() {
@@ -111,7 +110,6 @@ public class HeaderController {
         }
         popupWindowController = fxmlLoader.getController();
         popupWindowController.setMainController(this);
-
     }
 
     private void setPathContainsRepositoryWindow() {
@@ -163,11 +161,7 @@ public class HeaderController {
             try {
                 mainController.ShowStatus();
             } catch (IOException e) {
-                Stage stage = new Stage();
-                stage.setTitle("Error");
-                errorPopupWindowController.SetErrorMessage(e.getMessage());
-                stage.setScene(errorPopupWindowScene);
-                stage.show();
+                ShowErrorWindow(e.getMessage());
             }
         });
         topMenuBar.getMenus().add(wcStatusClickableMenu);
@@ -207,17 +201,13 @@ public class HeaderController {
             stage.showAndWait();
             String repoFullPath = f.getPath();
             repoFullPath += popupWindowController.getText();
-
             currentRepository.setValue(repoFullPath);
             try {
                 mainController.createNewRepository(currentRepository.getValue());
                 noAvailableRepository.setValue(Boolean.FALSE);
                 UpdateBranches();
             } catch (Exception e) {
-                stage.setTitle("Error");
-                errorPopupWindowController.SetErrorMessage("This repository already exists");
-                stage.setScene(errorPopupWindowScene);
-                stage.show();
+                ShowErrorWindow("This repository already exists");
             }
         }
     }
@@ -232,12 +222,8 @@ public class HeaderController {
             currentRepository.setValue(mainController.getRepositoryName());
             noAvailableRepository.setValue(Boolean.FALSE);
             UpdateBranches();
-        } catch (Exception ex) {
-            Stage stage = new Stage();
-            stage.setTitle("Error");
-            errorPopupWindowController.SetErrorMessage(ex.getMessage());
-            stage.setScene(errorPopupWindowScene);
-            stage.show();
+        } catch (Exception e) {
+            ShowErrorWindow(e.getMessage());
         }
 
     }
@@ -268,25 +254,17 @@ public class HeaderController {
             mainController.loadRepositoryFromXml(absolutePath);
             currentRepository.setValue(mainController.getRepositoryName());
             noAvailableRepository.setValue(Boolean.FALSE);
-            UpdateBranches();
-
+            //UpdateBranches();
         } catch (XmlRepositoryAlreadyExistsException ex) {
             Stage stage = new Stage();
             stage.setTitle("Xml repository already exists");
             stage.setScene(pathContainsRepositoryWindowScene);
             stage.setAlwaysOnTop(true);
             stage.initModality(Modality.APPLICATION_MODAL);
-            stage.show();
-
+            stage.showAndWait();
         } catch (XmlPathContainsNonRepositoryObjectsException e) {
-            Stage stage = new Stage();
-            stage.setTitle("Error");
-            errorPopupWindowController.SetErrorMessage("The Path in the xml file contains files which are not repository");
-            stage.setScene(errorPopupWindowScene);
-            stage.setAlwaysOnTop(true);
-            stage.initModality(Modality.APPLICATION_MODAL);
-            stage.show();
-
+            ShowErrorWindow("The Path in the xml file contains files which are not repository");
+            return;
         } catch (Exception ex2) {
         }
 
@@ -315,21 +293,14 @@ public class HeaderController {
         try {
             mainController.createNewBranch(branchName, checkout);
             addBranchToBranches(branchName);
-
         } catch (Exception e) {
-            Stage stage = new Stage();
-            stage.setTitle("Error");
-            errorPopupWindowController.SetErrorMessage(e.getMessage());
-            stage.setScene(errorPopupWindowScene);
-            stage.setAlwaysOnTop(true);
-            stage.initModality(Modality.APPLICATION_MODAL);
-            stage.show();
+            ShowErrorWindow(e.getMessage());
         }
         UpdateBranches();
     }
 
     public void UpdateBranches() {
-        List<Branch> branches = mainController.getMagitManager().GetCurrentRepository().getBranches();
+        List<Branch> branches = mainController.GetBranches();
         for (Branch br : branches) {
             if (!currentBranchesMenus.containsKey(br.getName())) {
                 addBranchToBranches(br.getName());
@@ -392,17 +363,16 @@ public class HeaderController {
         try {
             mainController.resetHead(popupWindowController.getText());
         } catch (Exception e) {
-            stage = new Stage();
-            stage.setTitle("Error");
-            errorPopupWindowController.SetErrorMessage(e.getMessage());
-            stage.setScene(errorPopupWindowScene);
-            stage.initModality(Modality.APPLICATION_MODAL);
-            stage.show();
+            ShowErrorWindow(e.getMessage());
         }
     }
 
     private void checkout(String branchName) {
-        mainController.Checkout(branchName);
+        try {
+            mainController.Checkout(branchName);
+        } catch (Exception e) {
+            ShowErrorWindow(e.getMessage());
+        }
         updateHeadBranch();
     }
 
@@ -411,17 +381,17 @@ public class HeaderController {
             mainController.DeleteBranch(branchName);
             branchesMenu.getItems().remove(currentBranchesMenus.get(branchName));
             currentBranchesMenus.remove(branchName);
-        } catch (Exception ex) {
-            Stage stage = new Stage();
-            stage.setTitle("Error");
-            errorPopupWindowController.SetErrorMessage(ex.getMessage());
-            stage.setScene(errorPopupWindowScene);
-            stage.show();
+        } catch (Exception e) {
+            ShowErrorWindow(e.getMessage());
         }
     }
 
-    private void merge(String branchName){
-        mainController.Merge(branchName);
+    private void merge(String branchName){ ////////////////////
+        try {
+            mainController.Merge(branchName);
+        } catch (Exception e) {
+            ShowErrorWindow(e.getMessage());
+        }
     }
 
     public void Commit() {
@@ -433,11 +403,17 @@ public class HeaderController {
         stage.showAndWait();
         try {
             mainController.Commit(popupWindowController.getText());
-        } catch (Exception ex) {
-            stage.setTitle("Error");
-            errorPopupWindowController.SetErrorMessage(ex.getMessage());
-            stage.setScene(errorPopupWindowScene);
-            stage.show();
+        } catch (Exception e) {
+            ShowErrorWindow(e.getMessage());
         }
+    }
+
+    public void ShowErrorWindow(String errorMessage){
+        Stage stage = new Stage();
+        stage.setTitle("Error");
+        errorPopupWindowController.SetErrorMessage(errorMessage);
+        stage.setScene(errorPopupWindowScene);
+        stage.initModality(Modality.APPLICATION_MODAL);
+        stage.show();
     }
 }
