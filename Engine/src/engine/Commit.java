@@ -21,16 +21,16 @@ public class Commit implements CommitRepresentative {
         this.dateCreated = getDate();
         this.creator = creator;
         this.message = message;
-        this.prevCommitSha1 = null;
-        this.anotherPrevCommitSha1 = null;
+        this.prevCommitSha1 = "";
+        this.anotherPrevCommitSha1 = "";
     }
 
     public Commit(String creator, String message, String dateCreated) {
         this.creator = creator;
         this.message = message;
         this.dateCreated = dateCreated;
-        this.prevCommitSha1 = null;
-        this.anotherPrevCommitSha1 = null;
+        this.prevCommitSha1 = "";
+        this.anotherPrevCommitSha1 = "";
     }
 
     public Folder getMainFolder() {
@@ -68,8 +68,8 @@ public class Commit implements CommitRepresentative {
     @Override
     public String toString() {
         return
-                (prevCommitSha1 == null ? "" :  prevCommitSha1) + "\r\n" +
-                        (anotherPrevCommitSha1 == null ? "" : anotherPrevCommitSha1) + "\r\n" +
+                prevCommitSha1 + "\r\n" +
+                        anotherPrevCommitSha1 + "\r\n" +
                         mainFolder.sha1Folder() + "\r\n" +
                         dateCreated + "\r\n" +
                         creator + "\r\n" +

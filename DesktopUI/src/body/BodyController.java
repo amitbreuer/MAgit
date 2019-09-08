@@ -151,37 +151,6 @@ public class BodyController {
         }
     }
 
-/*
-    private void calculateXCoordinate(CommitNode rootCommit, Integer xCoordinate, Map<String, Integer> sha1ToXCoordinate, Map<String, CommitNode> commitNodesMap) {
-        sha1ToXCoordinate.put(rootCommit.getSha1(), xCoordinate);
-        String branchChildSha1;
-        String mergeChildSha1;
-        branchChildSha1 = rootCommit.getBranchChildSha1();
-        mergeChildSha1 = rootCommit.getMergeChildSha1();
-        CommitNode branchChildNode;
-        CommitNode mergeChildNode;
-
-        if (branchChildSha1 != null) {
-            branchChildNode = commitNodesMap.get(branchChildSha1);
-            calculateXCoordinate(branchChildNode, xCoordinate, sha1ToXCoordinate, commitNodesMap);
-        }
-        if (mergeChildSha1 != null) {
-            mergeChildNode = commitNodesMap.get(mergeChildSha1);
-            calculateXCoordinate(mergeChildNode, xCoordinate + 30, sha1ToXCoordinate, commitNodesMap);
-        }
-    }
-
-    private Commit findCommitTreeRoot(Map<String, Commit> commitsMap) {
-        Commit CommitToReturn = null;
-        for (Map.Entry<String, Commit> entry : commitsMap.entrySet()) {
-            if (entry.getValue().getPrevCommitSha1() == null && entry.getValue().getSecondPrecedingSha1() == null) {
-                CommitToReturn = entry.getValue();
-            }
-        }
-        return CommitToReturn;
-    }
-*/
-
     private void connectCommitNodesEdges(Commit commit, Map<String, Commit> commitsMap, Map<String, CommitNode> commitsNodeMap, Set<Edge> edges) {
         String branchParentSha1 = commit.getPrevCommitSha1();
         String mergedParentSha1 = commit.getSecondPrecedingSha1();
@@ -192,13 +161,13 @@ public class BodyController {
         Commit branchParentCommit;
         Commit mergedParentCommit;
 
-        if (branchParentSha1 != null) {
+        if (!branchParentSha1.equals("")) {
             branchParentCommit = commitsMap.get(branchParentSha1);
             branchParentCommitNode = commitsNodeMap.get(branchParentSha1);
             edges.add(new Edge(currentCommitNode, branchParentCommitNode));
             connectCommitNodesEdges(branchParentCommit, commitsMap, commitsNodeMap, edges);
         }
-        if (mergedParentSha1 != null) {
+        if (!mergedParentSha1.equals("")) {
             mergedParentCommit = commitsMap.get(mergedParentSha1);
             mergedParentCommitNode = commitsNodeMap.get(mergedParentSha1);
             edges.add(new Edge(currentCommitNode, mergedParentCommitNode));
@@ -209,7 +178,6 @@ public class BodyController {
     public void ShowDelta(String commit1Sha1, String commit2Sha1) {
         mainController.GetDeltaBetweenTwoCommits(commit1Sha1,commit2Sha1);
     }
-
 
     public void ShowFilesOfCommit(String commitSha1) {
         try {

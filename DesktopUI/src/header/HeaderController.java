@@ -266,6 +266,7 @@ public class HeaderController {
             ShowErrorWindow("The Path in the xml file contains files which are not repository");
             return;
         } catch (Exception ex2) {
+            System.out.println("11111");
         }
 
         UpdateBranches();

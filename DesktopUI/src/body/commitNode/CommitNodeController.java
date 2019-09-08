@@ -22,8 +22,8 @@ public class CommitNodeController {
 
     @FXML
     public void initialize(){
-        branchParentSha1 = new SimpleStringProperty();
-        mergeParentSha1 = new SimpleStringProperty();
+        branchParentSha1 = new SimpleStringProperty("");
+        mergeParentSha1 = new SimpleStringProperty("");
         setCommitNodeContextMenu();
     }
 

@@ -713,13 +713,13 @@ public class MagitManager {
         commitTextFile = getTextFileFromObjectsDirectory(commitSha1, objectsFolderPath);
         commitTextFileContent = Files.readAllLines(commitTextFile.toPath());
         prevCommitSha1 = commitTextFileContent.get(0);
-        if (prevCommitSha1.equals("")) {
+/*        if (prevCommitSha1.equals("")) {
             prevCommitSha1 = null;
-        }
+        }*/
         anotherPrevSha1 = commitTextFileContent.get(1);
-        if (anotherPrevSha1.equals("")) {
+/*        if (anotherPrevSha1.equals("")) {
             anotherPrevSha1 = null;
-        }
+        }*/
         mainFolderSha1 = commitTextFileContent.get(2);
         dateCreated = commitTextFileContent.get(3);
         creator = commitTextFileContent.get(4);
@@ -1134,12 +1134,12 @@ public class MagitManager {
         String prevCommitSha1 = commitToAdd.getPrevCommitSha1();
         String anotherPrevCommitSha1 = commitToAdd.getSecondPrecedingSha1();
 
-        if (prevCommitSha1 != null) {
+        if (!prevCommitSha1.equals("")) {
             Commit prevCommit = CreateCommitFromSha1(prevCommitSha1);
             addCommitToCommitsMap(prevCommit, commitsMap);
         }
 
-        if (anotherPrevCommitSha1 != null) {
+        if (!anotherPrevCommitSha1.equals("")) {
             Commit anotherPrevCommit = CreateCommitFromSha1(anotherPrevCommitSha1);
             addCommitToCommitsMap(anotherPrevCommit, commitsMap);
         }

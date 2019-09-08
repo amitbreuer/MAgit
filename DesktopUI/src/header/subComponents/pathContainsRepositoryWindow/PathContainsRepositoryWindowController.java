@@ -35,7 +35,6 @@ public class PathContainsRepositoryWindowController {
         Stage stage = (Stage) okButton.getScene().getWindow();
         stage.close();
         if(replaceExistingRepositoryRadioButton.isSelected()) {
-
             mainController.replaceExistingRepositoryWithXmlRepository();
         }
     }

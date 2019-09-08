@@ -13,6 +13,6 @@ public class ParentIsNullBind extends BooleanBinding {
 
     @Override
     protected boolean computeValue() {
-        return parentSha1.getValue() == null;
+        return parentSha1.getValue().equals("");
     }
 }

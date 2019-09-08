@@ -220,7 +220,7 @@ public class AppController {
         ResolveConflicts(conflics);
         magitManager.CommitMerge(mergedFolder,GetCommitsMessage(),branchName);
         bottomComponentController.setMessage("Merge was done successfully");
-        //ShowCommitTree();
+        ShowCommitTree();
     }
 
     public Map<String, Commit> GetAllCommitsMap() { /////// check if every commit is put to the recently used list

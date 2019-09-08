@@ -179,6 +179,7 @@ public class Menu {
                     if (!magitManager.thereAreUncommittedChanges()) {
                         System.out.println("There are no open changes");
                     } else {
+                        String theirsLastCommitSha1 = "";
                         System.out.println("Enter a message for the commit:");
                         String message = scanner.nextLine();
                         magitManager.ExecuteCommit(message, theirsLastCommitSha1);
