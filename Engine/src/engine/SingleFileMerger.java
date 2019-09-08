@@ -66,7 +66,7 @@ public enum SingleFileMerger {
                 if (ours.getFolderComponent() instanceof Blob) {
                     containingFolder.getComponents().add(ours);
                 } else {
-                    Folder mergedSubFolder = MagitManager.createMergedFolderAndFindConflicts((Folder) ours.getFolderComponent(), (Folder) theirs.getFolderComponent(), (Folder) ancestors.getFolderComponent(), conflicts,updaterName);
+                    Folder mergedSubFolder = MagitManager.addFilesToMergedFolderAndConflicts((Folder) ours.getFolderComponent(), (Folder) theirs.getFolderComponent(), (Folder) ancestors.getFolderComponent(), conflicts,updaterName);
                     containingFolder.getComponents().add(new Folder.ComponentData(ours.getName(),
                             mergedSubFolder.sha1Folder(), mergedSubFolder, ours.getLastModifier(), ours.getLastModifiedDate()));
                 }
@@ -78,7 +78,7 @@ public enum SingleFileMerger {
                 if (theirs.getFolderComponent() instanceof Blob) {
                     containingFolder.getComponents().add(theirs);
                 } else {
-                    Folder mergedSubFolder = MagitManager.createMergedFolderAndFindConflicts((Folder) ours.getFolderComponent(), (Folder) theirs.getFolderComponent(), (Folder) ancestors.getFolderComponent(), conflicts,updaterName);
+                    Folder mergedSubFolder = MagitManager.addFilesToMergedFolderAndConflicts((Folder) ours.getFolderComponent(), (Folder) theirs.getFolderComponent(), (Folder) ancestors.getFolderComponent(), conflicts,updaterName);
                     containingFolder.getComponents().add(new Folder.ComponentData(theirs.getName(),
                             mergedSubFolder.sha1Folder(), mergedSubFolder, theirs.getLastModifier(), theirs.getLastModifiedDate()));
                 }
@@ -88,7 +88,7 @@ public enum SingleFileMerger {
                     conflicts.AddConflictComponent(new ConflictComponent(null,
                             theirs.toString(), ancestors.toString(), containingFolder));
                 } else {
-                    MagitManager.createMergedFolderAndFindConflicts(new Folder(), (Folder) theirs.getFolderComponent(),
+                    MagitManager.addFilesToMergedFolderAndConflicts(new Folder(), (Folder) theirs.getFolderComponent(),
                             (Folder) ancestors.getFolderComponent(), conflicts,updaterName);
                 }
                 break;
@@ -98,7 +98,7 @@ public enum SingleFileMerger {
                     conflicts.AddConflictComponent(new ConflictComponent(ours.toString(),
                             null, ancestors.toString(), containingFolder));
                 }else {
-                    MagitManager.createMergedFolderAndFindConflicts((Folder)ours.getFolderComponent(),new Folder(),
+                    MagitManager.addFilesToMergedFolderAndConflicts((Folder)ours.getFolderComponent(),new Folder(),
                             (Folder)ancestors.getFolderComponent(),conflicts,updaterName);
                 }
                 break;
@@ -110,7 +110,7 @@ public enum SingleFileMerger {
                 }else {
                     Folder mergedSubFolder;
                     String dateUpdated = getDate();
-                    mergedSubFolder = MagitManager.createMergedFolderAndFindConflicts((Folder)ours.getFolderComponent(),(Folder)theirs.getFolderComponent(),new Folder(),conflicts,updaterName);
+                    mergedSubFolder = MagitManager.addFilesToMergedFolderAndConflicts((Folder)ours.getFolderComponent(),(Folder)theirs.getFolderComponent(),new Folder(),conflicts,updaterName);
                     containingFolder.getComponents().add(new Folder.ComponentData(ours.getName(),mergedSubFolder.sha1Folder(),mergedSubFolder,updaterName,dateUpdated) );
                 }
 
@@ -122,7 +122,7 @@ public enum SingleFileMerger {
                 }else {
                     Folder mergedSubFolder;
                     String dateUpdated = getDate();
-                    mergedSubFolder = MagitManager.createMergedFolderAndFindConflicts((Folder)ours.getFolderComponent(),(Folder)theirs.getFolderComponent(),(Folder)ancestors.getFolderComponent(),conflicts,updaterName);
+                    mergedSubFolder = MagitManager.addFilesToMergedFolderAndConflicts((Folder)ours.getFolderComponent(),(Folder)theirs.getFolderComponent(),(Folder)ancestors.getFolderComponent(),conflicts,updaterName);
                     containingFolder.getComponents().add(new Folder.ComponentData(ours.getName(),mergedSubFolder.sha1Folder(),mergedSubFolder,updaterName,dateUpdated) );
                 }
                 break;

@@ -276,7 +276,13 @@ public class MagitManager {
         Path pathOfRepository = this.repository.getPath();
         File repositoryToDelete = pathOfRepository.toFile();
         deleteFileFromWorkingCopy(repositoryToDelete);
-        List<Folder.ComponentData> componentDataList = commitToSpan.getMainFolder().getComponents();
+        Folder mainFolder = commitToSpan.getMainFolder();
+        spanWCFromFolder(mainFolder);
+    }
+
+    private void spanWCFromFolder(Folder mainFolder) throws Exception {
+        Path pathOfRepository = this.repository.getPath();
+        List<Folder.ComponentData> componentDataList = mainFolder.getComponents();
         for (Folder.ComponentData fc : componentDataList) {
             addFolderComponentToDirectory(pathOfRepository, fc.getFolderComponent(), fc.getName());
         }
@@ -504,11 +510,7 @@ public class MagitManager {
             prevCommitSha1 = currentCommit.getPrevCommitSha1();
 
             while (prevCommitSha1 != null) {
-                if (this.repository.getRecentlyUsedCommits().containsKey(prevCommitSha1)) {
-                    currentCommit = this.repository.getRecentlyUsedCommits().get(prevCommitSha1);
-                } else {
-                    currentCommit = createCommitFromObjectFile(prevCommitSha1);
-                }
+                currentCommit = CreateCommitFromSha1(prevCommitSha1);
                 allCommits.add(currentCommit);
                 prevCommitSha1 = currentCommit.getPrevCommitSha1();
             }
@@ -546,7 +548,7 @@ public class MagitManager {
         return blobToCreate;
     }
 
-    public void ExecuteCommit(String message) throws Exception {
+    public void ExecuteCommit(String message, String mergedBranchLastCommitSha1) throws Exception {
         Folder currentWC;
         Folder lastCommitMainFolder;
         Commit newCommit = new Commit(username, message);
@@ -569,6 +571,9 @@ public class MagitManager {
         if (!lastCommitMainFolderSha1.equals(currentMainFolderSha1)) {//if there are changes since the last commit
             if (repository.getHeadBranch().getLastCommit() != null) { //if it's not the first commit
                 newCommit.setPrevCommitSha1(repository.getHeadBranch().getLastCommit().Sha1Commit()); //point the new commit to the previous commit
+                if (mergedBranchLastCommitSha1 != null){
+                    newCommit.setSecondPrevCommitSha1(mergedBranchLastCommitSha1);
+                }
             }
             repository.getHeadBranch().setLastCommit(newCommit);
             repository.getHeadBranch().getLastCommit().setMainFolder(currentWC);
@@ -708,11 +713,11 @@ public class MagitManager {
         commitTextFile = getTextFileFromObjectsDirectory(commitSha1, objectsFolderPath);
         commitTextFileContent = Files.readAllLines(commitTextFile.toPath());
         prevCommitSha1 = commitTextFileContent.get(0);
-        if (prevCommitSha1.equals("null")) {
+        if (prevCommitSha1.equals("")) {
             prevCommitSha1 = null;
         }
         anotherPrevSha1 = commitTextFileContent.get(1);
-        if (anotherPrevSha1.equals("null")) {
+        if (anotherPrevSha1.equals("")) {
             anotherPrevSha1 = null;
         }
         mainFolderSha1 = commitTextFileContent.get(2);
@@ -846,6 +851,7 @@ public class MagitManager {
         Commit commitToCreate;
         Commit previousCommit = null;
         Commit anotherPreviousCommit = null;
+        String commitToCreateSha1;
         Folder rootFolderToCreate;
         List<PrecedingCommits.PrecedingCommit> precedingCommits = null;
         MagitSingleCommit prevMagitCommit;
@@ -854,7 +860,10 @@ public class MagitManager {
         rootFolderToCreate = createFolderFromMagitFolder(magitFolder);
         commitToCreate = new Commit(magitCommit.getAuthor(), magitCommit.getMessage(), magitCommit.getDateOfCreation());
         commitToCreate.setMainFolder(rootFolderToCreate);
-        this.repository.getRecentlyUsedCommits().put(commitToCreate.Sha1Commit(), commitToCreate);
+        commitToCreateSha1 = commitToCreate.Sha1Commit();
+        if (!this.repository.getRecentlyUsedCommits().containsKey(commitToCreateSha1)) {
+            this.repository.getRecentlyUsedCommits().put(commitToCreateSha1, commitToCreate);
+        }
         if (magitCommit.getPrecedingCommits() != null) {
             precedingCommits = magitCommit.getPrecedingCommits().getPrecedingCommit();
         }
@@ -863,7 +872,7 @@ public class MagitManager {
                 prevMagitCommit = this.xmlManager.existingCommits.get(precedingCommits.get(0).getId());
                 previousCommit = createCommitFromMagitCommit(prevMagitCommit);
                 commitToCreate.setPrevCommitSha1(previousCommit.Sha1Commit());
-                if(precedingCommits.size() == 2){
+                if (precedingCommits.size() == 2) {
                     anotherPrevMagitCommit = this.xmlManager.existingCommits.get(precedingCommits.get(1).getId());
                     anotherPreviousCommit = createCommitFromMagitCommit(anotherPrevMagitCommit);
                     commitToCreate.setSecondPrevCommitSha1(anotherPreviousCommit.getSha1());
@@ -880,14 +889,15 @@ public class MagitManager {
         return new File(absolutePath).getAbsolutePath();
     }
 
-    public void Merge(String branchToMergeName) throws Exception {
+    public Folder CreateMergedFolderAndFindConflicts(String branchToMergeName,Conflicts conflicts) throws Exception {
         try {
-            if(thereAreUncommittedChanges()){
+            if (thereAreUncommittedChanges()) {
                 throw new Exception("Merge failed. There are open changes");
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
+
         Branch branchToMerge = repository.FindBranchByName(branchToMergeName);
         String theirsCommitSha1 = branchToMerge.getLastCommit().getSha1();
         //find ancestor
@@ -897,61 +907,40 @@ public class MagitManager {
         String ancestorCommitSha1 = ancestorFinder.traceAncestor(oursCommitSha1, theirsCommitSha1);
 
         //create three folders - ours,theirs,ancestor
-        Folder oursFolder = null;
-        Folder theirsFolder = null;
-        Folder ancestorsFolder = null;
-        try {
-            oursFolder = createCommitFromObjectFile(oursCommitSha1).getMainFolder();
-            theirsFolder = createCommitFromObjectFile(theirsCommitSha1).getMainFolder();
-            ancestorsFolder = createCommitFromObjectFile(ancestorCommitSha1).getMainFolder();
-        } catch (IOException e) {
-        }
-        Conflicts conflicts = new Conflicts();
-        Folder mergedFolder = createMergedFolderAndFindConflicts(oursFolder, theirsFolder, ancestorsFolder, conflicts,this.username);
-        this.controller.ResolveConflicts(conflicts);
-        implementConflictSolutions(conflicts);
-        //commit
-        String message = controller.GetCommitsMessage();
-        Commit mergedCommit = new Commit(username,message);
-        mergedCommit.setMainFolder(mergedFolder);
-        mergedCommit.setPrevCommitSha1(oursCommitSha1);
-        mergedCommit.setSecondPrevCommitSha1(theirsCommitSha1);
-        repository.getHeadBranch().setLastCommit(mergedCommit);
-        repository.getRecentlyUsedCommits().put(mergedCommit.Sha1Commit(), mergedCommit);
-        try {
-            createObjectsFilesFromMergedFolder(mergedFolder);
-            createNewObjectFile(mergedCommit.toString());
-            String headBranchFilePath = repository.GetBranchesDirPath() + File.separator + repository.getHeadBranch().getName() + ".txt";
-            writeToFile(headBranchFilePath, mergedCommit.Sha1Commit());
-            spanWCFromCommit(mergedCommit);
-        } catch (Exception e) {
-        }
+        Folder oursFolder = CreateCommitFromSha1(oursCommitSha1).getMainFolder();
+        Folder theirsFolder = CreateCommitFromSha1(theirsCommitSha1).getMainFolder();
+        Folder ancestorsFolder = CreateCommitFromSha1(ancestorCommitSha1).getMainFolder();
+
+        return addFilesToMergedFolderAndConflicts(oursFolder, theirsFolder, ancestorsFolder, conflicts, this.username);
     }
 
     private void createObjectsFilesFromMergedFolder(Folder mergedFolder) throws Exception {
         List<Folder.ComponentData> components = mergedFolder.getComponents();
         String objectsDirPath = repository.GetObjectsDirPath();
-        for(Folder.ComponentData cd : components){
-            if(cd.getFolderComponent() instanceof Blob){
-                if(!Files.exists(Paths.get(objectsDirPath + File.separator + cd.getSha1() + ".zip"))){
+        for (Folder.ComponentData cd : components) {
+            if (cd.getFolderComponent() instanceof Blob) {
+                if (!Files.exists(Paths.get(objectsDirPath + File.separator + cd.getSha1() + ".zip"))) {
                     createNewObjectFile(cd.getFolderComponent().toString());
                 }
             } else {
-                if(!Files.exists(Paths.get(objectsDirPath + File.separator + cd.getSha1() + ".zip"))){
-                    createObjectsFilesFromMergedFolder((Folder)cd.getFolderComponent());
+                if (!Files.exists(Paths.get(objectsDirPath + File.separator + cd.getSha1() + ".zip"))) {
+                    createObjectsFilesFromMergedFolder((Folder) cd.getFolderComponent());
                 }
             }
         }
-        if(!Files.exists(Paths.get(objectsDirPath + File.separator + mergedFolder.sha1Folder() + ".zip"))){
+        if (!Files.exists(Paths.get(objectsDirPath + File.separator + mergedFolder.sha1Folder() + ".zip"))) {
             createNewObjectFile(mergedFolder.toString());
         }
     }
 
-    private void implementConflictSolutions(Conflicts conflicts) {
-        //update containing folder with solution and create object file for each one
+    private void implementConflictSolutions(Folder mergedFolder, Conflicts conflicts) {
+        List<ConflictComponent> conflictComponents = conflicts.getConflictFiles();
+        for(ConflictComponent cc : conflictComponents){
+            //cc.resolve();
+        }
     }
 
-    public static Folder createMergedFolderAndFindConflicts(Folder oursFolder, Folder theirsFolder, Folder ancestorsFolder, Conflicts conflicts,String updaterName) {
+    public static Folder addFilesToMergedFolderAndConflicts(Folder oursFolder, Folder theirsFolder, Folder ancestorsFolder, Conflicts conflicts, String updaterName) {
         Folder mergedFolder = new Folder();
         String minName;
         int oursIndex = 0;
@@ -988,7 +977,7 @@ public class MagitManager {
             minName = getLowestLexicographicFileName(oursFileName, theirsFileName, ancestorsFileName);
 
             fileMerger = getSingleFileMerger(oursComponent, theirsComponent, ancestorsComponent, minName);
-            fileMerger.mergeFiles(oursComponent, theirsComponent, ancestorsComponent, mergedFolder, conflicts,updaterName);
+            fileMerger.mergeFiles(oursComponent, theirsComponent, ancestorsComponent, mergedFolder, conflicts, updaterName);
 
             advanceMergeIndicesByEnumValue(fileMerger, indicesArray);
 
@@ -1126,49 +1115,64 @@ public class MagitManager {
         return min;
     }
 
-    public Map<String,Commit> GetAllCommitsMap() {
-        Map<String,Commit> commitsMap = new HashMap<>();
+    public Map<String, Commit> GetAllCommitsMap() {
+        Map<String, Commit> commitsMap = new HashMap<>();
         List<Branch> branches = this.repository.getBranches();
-        for(Branch branch : branches){
-            if(branch.getLastCommit() != null){
-                addCommitToCommitsMap(branch.getLastCommit(),commitsMap);
+        for (Branch branch : branches) {
+            if (branch.getLastCommit() != null) {
+                addCommitToCommitsMap(branch.getLastCommit(), commitsMap);
             }
         }
 
         return commitsMap;
     }
 
-    private void addCommitToCommitsMap(Commit commitToAdd, Map<String,Commit> commitsMap) {
-        if(!commitsMap.containsKey(commitToAdd.getSha1())){
-            commitsMap.put(commitToAdd.getSha1(),commitToAdd);
+    private void addCommitToCommitsMap(Commit commitToAdd, Map<String, Commit> commitsMap) {
+        if (!commitsMap.containsKey(commitToAdd.getSha1())) {
+            commitsMap.put(commitToAdd.getSha1(), commitToAdd);
         }
         String prevCommitSha1 = commitToAdd.getPrevCommitSha1();
         String anotherPrevCommitSha1 = commitToAdd.getSecondPrecedingSha1();
 
-        if(prevCommitSha1 != null){
-            Commit prevCommit = null;
-            if(repository.getRecentlyUsedCommits().containsKey(prevCommitSha1)){
-                prevCommit = repository.getRecentlyUsedCommits().get(prevCommitSha1);
-            } else {
-                try {
-                    prevCommit = createCommitFromObjectFile(prevCommitSha1);
-                } catch (IOException e) {
-                }
-            }
-            addCommitToCommitsMap(prevCommit,commitsMap);
+        if (prevCommitSha1 != null) {
+            Commit prevCommit = CreateCommitFromSha1(prevCommitSha1);
+            addCommitToCommitsMap(prevCommit, commitsMap);
         }
 
-        if(anotherPrevCommitSha1 != null){
-            Commit anotherPrevCommit = null;
-            if(repository.getRecentlyUsedCommits().containsKey(anotherPrevCommitSha1)){
-                anotherPrevCommit  = repository.getRecentlyUsedCommits().get(anotherPrevCommitSha1);
-            } else {
-                try {
-                    anotherPrevCommit  = createCommitFromObjectFile(anotherPrevCommitSha1);
-                } catch (IOException e) {
-                }
-            }
-            addCommitToCommitsMap(anotherPrevCommit ,commitsMap);
+        if (anotherPrevCommitSha1 != null) {
+            Commit anotherPrevCommit = CreateCommitFromSha1(anotherPrevCommitSha1);
+            addCommitToCommitsMap(anotherPrevCommit, commitsMap);
         }
+    }
+
+    public Delta GetDeltaBetweenTwoCommitSha1s(String commit1Sha1, String commit2Sha1) throws IOException {
+        Delta delta = new Delta();
+        Commit commit1 = CreateCommitFromSha1(commit1Sha1);
+        Commit commit2 = CreateCommitFromSha1(commit2Sha1);
+        calculateDeltaBetweenTwoFolders(commit1.getMainFolder(), commit2.getMainFolder(), repository.getPath().toString(), delta);
+
+        return delta;
+    }
+
+    public Commit CreateCommitFromSha1(String commitSha1) {
+        Commit commitToReturn = null;
+        if (repository.getRecentlyUsedCommits().containsKey(commitSha1)) {
+            commitToReturn = repository.getRecentlyUsedCommits().get(commitSha1);
+        } else {
+            try {
+                commitToReturn = createCommitFromObjectFile(commitSha1);
+                repository.getRecentlyUsedCommits().put(commitSha1, commitToReturn);
+            } catch (IOException e) {
+            }
+        }
+
+        return commitToReturn;
+    }
+
+    public void CommitMerge(Folder mergedFolder,String message,String theirsBranchName) throws Exception {
+        spanWCFromFolder(mergedFolder);
+        String theirsLastCommitSha1 = repository.FindBranchByName(theirsBranchName).getLastCommit().getSha1();
+        ExecuteCommit(message,theirsLastCommitSha1);
+        createObjectsFilesFromMergedFolder(mergedFolder);
     }
 }

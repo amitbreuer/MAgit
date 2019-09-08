@@ -181,7 +181,7 @@ public class Menu {
                     } else {
                         System.out.println("Enter a message for the commit:");
                         String message = scanner.nextLine();
-                        magitManager.ExecuteCommit(message);
+                        magitManager.ExecuteCommit(message, theirsLastCommitSha1);
                     }
                 } catch (Exception e) {
                     e.printStackTrace();

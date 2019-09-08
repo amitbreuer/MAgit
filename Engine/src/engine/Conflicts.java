@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Conflicts {
-    List<ConflictComponent> conflictFiles = new ArrayList<>();
+    private List<ConflictComponent> conflictFiles = new ArrayList<>();
 
     public void AddConflictComponent(ConflictComponent conflictComponent){
         this.conflictFiles.add(conflictComponent);

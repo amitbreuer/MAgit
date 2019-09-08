@@ -390,19 +390,14 @@ public class HeaderController {
         try {
             mainController.Merge(branchName);
         } catch (Exception e) {
-            ShowErrorWindow(e.getMessage());
+            e.printStackTrace();
         }
+
     }
 
     public void Commit() {
-        Stage stage = new Stage();
-        stage.setTitle("Commit Message");
-        popupWindowController.setLabel("Enter message of commit:");
-        stage.setScene(popupWindowScene);
-        stage.initModality(Modality.APPLICATION_MODAL);
-        stage.showAndWait();
         try {
-            mainController.Commit(popupWindowController.getText());
+            mainController.Commit(GetCommitMessage());
         } catch (Exception e) {
             ShowErrorWindow(e.getMessage());
         }
@@ -415,5 +410,15 @@ public class HeaderController {
         stage.setScene(errorPopupWindowScene);
         stage.initModality(Modality.APPLICATION_MODAL);
         stage.show();
+    }
+
+    public String GetCommitMessage() {
+        Stage stage = new Stage();
+        stage.setTitle("Commit Message");
+        popupWindowController.setLabel("Enter message of commit:");
+        stage.setScene(popupWindowScene);
+        stage.initModality(Modality.APPLICATION_MODAL);
+        stage.showAndWait();
+        return popupWindowController.getText();
     }
 }

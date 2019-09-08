@@ -1,13 +1,12 @@
 package body.commitNode;
 
 import body.BodyController;
+import body.binds.ParentIsNullBind;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.Label;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.Tooltip;
-import javafx.scene.input.ContextMenuEvent;
-import javafx.scene.input.KeyEvent;
+import javafx.scene.control.*;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.shape.Circle;
 
 public class CommitNodeController {
@@ -17,11 +16,39 @@ public class CommitNodeController {
     @FXML private Label sha1Label;
     @FXML private Circle CommitCircle;
 
+    private SimpleStringProperty branchParentSha1;
+    private SimpleStringProperty mergeParentSha1;
     private BodyController mainController;
 
     @FXML
-    public void initiazlie(){
-        System.out.println("BLA");
+    public void initialize(){
+        branchParentSha1 = new SimpleStringProperty();
+        mergeParentSha1 = new SimpleStringProperty();
+        setCommitNodeContextMenu();
+    }
+
+    private void setCommitNodeContextMenu() {
+        ContextMenu commitContextMenu = new ContextMenu();
+
+        MenuItem showCommitFiles = new MenuItem("Show Files Of Commit");
+        showCommitFiles.setOnAction((x)->mainController.ShowFilesOfCommit(sha1Label.getText()));
+
+        MenuItem branchParentDelta = new MenuItem("Show branch parent Delta");
+        branchParentDelta.setOnAction((x)-> mainController.ShowDelta(sha1Label.getText(),branchParentSha1.getValue()));
+        branchParentDelta.disableProperty().bind(new ParentIsNullBind(branchParentSha1));
+
+        MenuItem mergeParentDelta = new MenuItem("Show merge parent Delta");
+        mergeParentDelta.setOnAction((x)-> mainController.ShowDelta(sha1Label.getText(),mergeParentSha1.getValue()));
+        mergeParentDelta.disableProperty().bind(new ParentIsNullBind(mergeParentSha1));
+
+        MenuItem bonus = new MenuItem("bonus");
+        commitContextMenu.getItems().addAll(showCommitFiles,branchParentDelta,mergeParentDelta,new SeparatorMenuItem(),bonus);
+        CommitCircle.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                commitContextMenu.show(CommitCircle,event.getScreenX(),event.getScreenY());
+            }
+        });
     }
 
     public void setMainController(BodyController mainController) {
@@ -52,12 +79,11 @@ public class CommitNodeController {
         return (int)CommitCircle.getRadius();
     }
 
-    @FXML
-    public void showContextMenu(ContextMenuEvent contextMenuEvent) {
-        ContextMenu commitContextMenu = new ContextMenu();
-        MenuItem branchParentDelta = new MenuItem();
-        branchParentDelta.setOnAction((x)-> System.out.println("BlaBla"));
-        commitContextMenu.getItems().add(branchParentDelta);
-        //commitContextMenu.show();
+    public void setBranchParentSha1(String branchParentSha1) {
+        this.branchParentSha1.setValue(branchParentSha1);
+    }
+
+    public void setMergeParentSha1(String mergeParentSha1) {
+        this.mergeParentSha1.setValue(mergeParentSha1);
     }
 }

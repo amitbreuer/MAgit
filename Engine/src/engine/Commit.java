@@ -68,8 +68,8 @@ public class Commit implements CommitRepresentative {
     @Override
     public String toString() {
         return
-                prevCommitSha1 + "\r\n" +
-                        anotherPrevCommitSha1 + "\r\n" +
+                (prevCommitSha1 == null ? "" :  prevCommitSha1) + "\r\n" +
+                        (anotherPrevCommitSha1 == null ? "" : anotherPrevCommitSha1) + "\r\n" +
                         mainFolder.sha1Folder() + "\r\n" +
                         dateCreated + "\r\n" +
                         creator + "\r\n" +

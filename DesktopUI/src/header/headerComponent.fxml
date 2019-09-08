@@ -41,6 +41,12 @@
                   <Label fx:id="repositoryLabel" layoutX="149.0" text="...." />
                </children>
             </AnchorPane>
+            <AnchorPane>
+               <children>
+                  <Label fx:id="currentRepositoryLabel1" layoutX="6.0" text="Head Branch" />
+                  <Label fx:id="repositoryLabel1" layoutX="149.0" text="...." />
+               </children>
+            </AnchorPane>
          </children>
       </VBox>
    </content>

@@ -1,5 +1,6 @@
 package body.commitNode;
 
+import body.BodyController;
 import com.fxgraph.cells.AbstractCell;
 import com.fxgraph.graph.Graph;
 import com.fxgraph.graph.IEdge;
@@ -17,22 +18,30 @@ public class CommitNode extends AbstractCell {
     private String dateCreated;
     private String committer;
     private String message;
-//    private String branchChildSha1;
-//    private String mergeChildSha1;
+    private String branchChildSha1;
+    private String mergeChildSha1;
     private CommitNodeController commitNodeController;
+    private BodyController bodyController;
 
-    public CommitNode(Commit commit) {
+    public CommitNode(Commit commit, BodyController bodyController) {
         this.sha1 = commit.getSha1();
         this.dateCreated = commit.getDateCreated();
         this.committer = commit.getCreator();
         this.message = commit.getMessage();
+        this.branchChildSha1 = commit.getPrevCommitSha1();
+        this.mergeChildSha1 = commit.getSecondPrecedingSha1();
+        this.bodyController = bodyController;
     }
 
     public String getSha1() {
         return sha1;
     }
 
-//    public void setBranchChildSha1(String branchChildSha1) {
+    public CommitNodeController getCommitNodeController() {
+        return commitNodeController;
+    }
+
+    //    public void setBranchChildSha1(String branchChildSha1) {
 //        this.branchChildSha1 = branchChildSha1;
 //    }
 //    public String getBranchChildSha1() {
@@ -54,7 +63,6 @@ public class CommitNode extends AbstractCell {
     @Override
     public Region getGraphic(Graph graph) {
         try {
-
             FXMLLoader fxmlLoader = new FXMLLoader();
             URL url = getClass().getResource("commitNode.fxml");
             fxmlLoader.setLocation(url);
@@ -65,6 +73,10 @@ public class CommitNode extends AbstractCell {
             commitNodeController.setCommitMessage(message);
             commitNodeController.setCommitter(committer);
             commitNodeController.setCommitDateCreated(dateCreated);
+            commitNodeController.setBranchParentSha1(branchChildSha1);
+            commitNodeController.setMergeParentSha1(mergeChildSha1);
+            commitNodeController.setMainController(bodyController);
+
 
             return root;
         } catch (IOException e) {

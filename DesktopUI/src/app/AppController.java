@@ -5,7 +5,6 @@ import body.BodyController;
 import bottom.BottomController;
 import engine.*;
 import header.HeaderController;
-import header.HeaderResourcesConstants;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
@@ -128,7 +127,7 @@ public class AppController {
     }
 
     public void Commit(String message) throws Exception {
-        magitManager.ExecuteCommit(message);
+        magitManager.ExecuteCommit(message, null);
         bottomComponentController.setMessage("Commit was executed successfully");
         ShowCommitTree();
     }
@@ -213,8 +212,13 @@ public class AppController {
     }
 
     public void Merge(String branchName) throws Exception {
-        magitManager.Merge(branchName);
-
+        if(magitManager.thereAreUncommittedChanges()){
+            throw new Exception("Merge failed. There are open changes.");
+        }
+        Conflicts conflics = new Conflicts();
+        Folder mergedFolder = magitManager.CreateMergedFolderAndFindConflicts(branchName,conflics);
+        ResolveConflicts(conflics);
+        magitManager.CommitMerge(mergedFolder,GetCommitsMessage(),branchName);
         bottomComponentController.setMessage("Merge was done successfully");
         //ShowCommitTree();
     }
@@ -227,8 +231,8 @@ public class AppController {
         return magitManager.GetCurrentRepository().getBranches();
     }
 
-    public String GetCommitsMessage() { //////////////////////////////////////////
-        return null;
+    public String GetCommitsMessage() {
+        return headerComponentController.GetCommitMessage();
     }
 
     public void ShowCommitTree() {
@@ -237,5 +241,15 @@ public class AppController {
 
     public Branch GetHeadBranch() {
         return magitManager.GetCurrentRepository().getHeadBranch();
+    }
+
+    public void GetDeltaBetweenTwoCommits(String commit1Sha1, String commit2Sha1) {
+        Delta delta;
+        try {
+            delta = magitManager.GetDeltaBetweenTwoCommitSha1s(commit1Sha1,commit2Sha1);
+            rightComponent.setContent(new Label(delta.toString()));
+        } catch (IOException e) {
+            e.printStackTrace(); // error message
+        }
     }
 }

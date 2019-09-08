@@ -12,6 +12,8 @@ import engine.Branch;
 import engine.Commit;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.control.*;
+
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -89,7 +91,7 @@ public class BodyController {
         int yCoordinate = 10;
         List<CommitNode> commitNodesList = new ArrayList<>();
         for(Map.Entry<String, Commit> entry : commitsMap.entrySet()){
-            CommitNode commitNode = new CommitNode(entry.getValue());
+            CommitNode commitNode = new CommitNode(entry.getValue(),this);
             commitNodesList.add(commitNode);
             commitNodesMap.put(commitNode.getSha1(),commitNode);
         }
@@ -168,17 +170,17 @@ public class BodyController {
             calculateXCoordinate(mergeChildNode, xCoordinate + 30, sha1ToXCoordinate, commitNodesMap);
         }
     }
-*/
 
-//    private Commit findCommitTreeRoot(Map<String, Commit> commitsMap) {
-//        Commit CommitToReturn = null;
-//        for (Map.Entry<String, Commit> entry : commitsMap.entrySet()) {
-//            if (entry.getValue().getPrevCommitSha1() == null && entry.getValue().getSecondPrecedingSha1() == null) {
-//                CommitToReturn = entry.getValue();
-//            }
-//        }
-//        return CommitToReturn;
-//    }
+    private Commit findCommitTreeRoot(Map<String, Commit> commitsMap) {
+        Commit CommitToReturn = null;
+        for (Map.Entry<String, Commit> entry : commitsMap.entrySet()) {
+            if (entry.getValue().getPrevCommitSha1() == null && entry.getValue().getSecondPrecedingSha1() == null) {
+                CommitToReturn = entry.getValue();
+            }
+        }
+        return CommitToReturn;
+    }
+*/
 
     private void connectCommitNodesEdges(Commit commit, Map<String, Commit> commitsMap, Map<String, CommitNode> commitsNodeMap, Set<Edge> edges) {
         String branchParentSha1 = commit.getPrevCommitSha1();
@@ -201,6 +203,19 @@ public class BodyController {
             mergedParentCommitNode = commitsNodeMap.get(mergedParentSha1);
             edges.add(new Edge(currentCommitNode, mergedParentCommitNode));
             connectCommitNodesEdges(mergedParentCommit, commitsMap, commitsNodeMap, edges);
+        }
+    }
+
+    public void ShowDelta(String commit1Sha1, String commit2Sha1) {
+        mainController.GetDeltaBetweenTwoCommits(commit1Sha1,commit2Sha1);
+    }
+
+
+    public void ShowFilesOfCommit(String commitSha1) {
+        try {
+            mainController.ShowSingleCommitFilesTree(commitSha1);
+        } catch (IOException e) {
+            e.printStackTrace(); //////////////////////////////////////////
         }
     }
 }
