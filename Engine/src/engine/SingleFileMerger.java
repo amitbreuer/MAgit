@@ -48,7 +48,6 @@ public enum SingleFileMerger {
         return returnValue;
     }
 
-
     void mergeFiles(Folder.ComponentData ours, Folder.ComponentData theirs, Folder.ComponentData ancestors, Folder containingFolder, Conflicts conflicts,String updaterName) {
         switch (this) {
             case DELETEDBYBOTH:
@@ -86,7 +85,7 @@ public enum SingleFileMerger {
             case OURSDELETEDTHEIRSUPDATEDCONFLICT:
                 if (theirs.getFolderComponent() instanceof Blob) {
                     conflicts.AddConflictComponent(new ConflictComponent(null,
-                            theirs.toString(), ancestors.toString(), containingFolder));
+                            theirs, ancestors, containingFolder,updaterName,getDate()));
                 } else {
                     MagitManager.addFilesToMergedFolderAndConflicts(new Folder(), (Folder) theirs.getFolderComponent(),
                             (Folder) ancestors.getFolderComponent(), conflicts,updaterName);
@@ -95,8 +94,8 @@ public enum SingleFileMerger {
 
             case OURSUPDATEDTHEIRSDELETEDCONFLICT:
                 if (ours.getFolderComponent() instanceof Blob) {
-                    conflicts.AddConflictComponent(new ConflictComponent(ours.toString(),
-                            null, ancestors.toString(), containingFolder));
+                    conflicts.AddConflictComponent(new ConflictComponent(ours,
+                            null, ancestors, containingFolder,updaterName,getDate()));
                 }else {
                     MagitManager.addFilesToMergedFolderAndConflicts((Folder)ours.getFolderComponent(),new Folder(),
                             (Folder)ancestors.getFolderComponent(),conflicts,updaterName);
@@ -105,25 +104,23 @@ public enum SingleFileMerger {
 
             case OURSADDEDTHEIRSADDEDIFFERENTLYDCONFLICT:
                 if(ours.getFolderComponent() instanceof Blob) {
-                    conflicts.AddConflictComponent(new ConflictComponent(ours.toString(),
-                            theirs.toString(), null, containingFolder));
+                    conflicts.AddConflictComponent(new ConflictComponent(ours,
+                            theirs, null, containingFolder,updaterName,getDate()));
                 }else {
                     Folder mergedSubFolder;
-                    String dateUpdated = getDate();
                     mergedSubFolder = MagitManager.addFilesToMergedFolderAndConflicts((Folder)ours.getFolderComponent(),(Folder)theirs.getFolderComponent(),new Folder(),conflicts,updaterName);
-                    containingFolder.getComponents().add(new Folder.ComponentData(ours.getName(),mergedSubFolder.sha1Folder(),mergedSubFolder,updaterName,dateUpdated) );
+                    containingFolder.getComponents().add(new Folder.ComponentData(ours.getName(),mergedSubFolder.sha1Folder(),mergedSubFolder,updaterName,getDate()) );
                 }
 
                 break;
             case OURSUPDATEDTHEIRSUPDATEDDIFFERENTLYCONFLICT:
                 if(ours.getFolderComponent() instanceof Blob) {
-                    conflicts.AddConflictComponent(new ConflictComponent(ours.toString(),
-                            theirs.toString(), ancestors.toString(), containingFolder));
+                    conflicts.AddConflictComponent(new ConflictComponent(ours,
+                            theirs, ancestors, containingFolder,updaterName,getDate()));
                 }else {
                     Folder mergedSubFolder;
-                    String dateUpdated = getDate();
                     mergedSubFolder = MagitManager.addFilesToMergedFolderAndConflicts((Folder)ours.getFolderComponent(),(Folder)theirs.getFolderComponent(),(Folder)ancestors.getFolderComponent(),conflicts,updaterName);
-                    containingFolder.getComponents().add(new Folder.ComponentData(ours.getName(),mergedSubFolder.sha1Folder(),mergedSubFolder,updaterName,dateUpdated) );
+                    containingFolder.getComponents().add(new Folder.ComponentData(ours.getName(),mergedSubFolder.sha1Folder(),mergedSubFolder,updaterName,getDate()) );
                 }
                 break;
         }

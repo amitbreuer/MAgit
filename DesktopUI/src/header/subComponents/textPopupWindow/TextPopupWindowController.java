@@ -19,6 +19,7 @@ public class TextPopupWindowController {
 
     private SimpleStringProperty text;
     private HeaderController mainController;
+    private boolean actionNotCanelled;
 
     @FXML private void initialize(){
         text = new SimpleStringProperty();
@@ -32,11 +33,13 @@ public class TextPopupWindowController {
 
     @FXML
     public void okButtonAction(ActionEvent actionEvent) {
+        actionNotCanelled = true;
         closeStage();
     }
 
     @FXML
     public void cancelButtonAction(ActionEvent actionEvent) {
+        actionNotCanelled = false;
         closeStage();
     }
 
@@ -46,7 +49,7 @@ public class TextPopupWindowController {
     }
 
     public String getText() {
-        return text.get();
+        return textField.getText();
     }
 
     public SimpleStringProperty textProperty() {
@@ -55,5 +58,13 @@ public class TextPopupWindowController {
 
     public void setLabel(String text) {
         label.textProperty().setValue(text);
+    }
+
+    public void ClearTextField(){
+        textField.clear();
+    }
+
+    public boolean isActionNotCanelled() {
+        return actionNotCanelled;
     }
 }

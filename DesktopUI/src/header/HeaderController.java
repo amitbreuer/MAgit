@@ -7,7 +7,6 @@ import exceptions.XmlRepositoryAlreadyExistsException;
 import header.binds.BranchNameBind;
 import header.binds.IsHeadBranchBind;
 import header.subComponents.ClickableMenu;
-import header.subComponents.errorPopupWindow.ErrorPopupWindowController;
 import header.subComponents.newBranchSelectionWindow.NewBranchSelectionWindowController;
 import header.subComponents.textPopupWindow.TextPopupWindowController;
 import header.subComponents.pathContainsRepositoryWindow.PathContainsRepositoryWindowController;
@@ -55,21 +54,23 @@ public class HeaderController {
     Label usernameLabel;
     @FXML
     Label repositoryLabel;
+    @FXML
+    Label activeBranchLabel;
 
     public SimpleBooleanProperty noAvailableRepository;
     private SimpleStringProperty headBranchName;
     private SimpleStringProperty username;
     private SimpleStringProperty currentRepository;
     private AppController mainController;
+
     private TextPopupWindowController popupWindowController;
     private PathContainsRepositoryWindowController pathContainsRepositoryWindowController;
-    private ErrorPopupWindowController errorPopupWindowController;
     private NewBranchSelectionWindowController newBranchSelectionWindowController;
 
     private Scene popupWindowScene;
     private Scene pathContainsRepositoryWindowScene;
-    private Scene errorPopupWindowScene;
     private Scene newBranchSelectionWindowScene;
+
     private Map<String, Menu> currentBranchesMenus;
 
     @FXML
@@ -86,11 +87,11 @@ public class HeaderController {
         usernameLabel.textProperty().bind(username);
         username.setValue("Administrator");
         repositoryLabel.textProperty().bind(currentRepository);
+        activeBranchLabel.textProperty().bind(headBranchName);
 
         //set relevant windows controllers and scenes
         setTextPopupWindow();
         setPathContainsRepositoryWindow();
-        setErrorPopupWindow();
         setNewBranchWindow();
 
         //adding dynamic buttons
@@ -127,20 +128,6 @@ public class HeaderController {
 
     }
 
-    private void setErrorPopupWindow() {
-        FXMLLoader fxmlLoader;
-        URL errorPopup = getClass().getResource(HeaderResourcesConstants.ERROR_POPUP_WINDOW_FXML_PATH);
-        fxmlLoader = new FXMLLoader(errorPopup);
-        try {
-            AnchorPane errorPopupRoot = fxmlLoader.load();
-            errorPopupWindowScene = new Scene(errorPopupRoot);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        errorPopupWindowController = fxmlLoader.getController();
-
-    }
-
     private void setNewBranchWindow() {
         FXMLLoader fxmlLoader;
         URL newBranchWindow = getClass().getResource(HeaderResourcesConstants.NEW_BRANCH_WINDOW_FXML_PATH);
@@ -149,6 +136,7 @@ public class HeaderController {
             AnchorPane branchSelectionRoot = fxmlLoader.load();
             newBranchSelectionWindowScene = new Scene(branchSelectionRoot);
         } catch (IOException e) {
+            e.printStackTrace();
         }
         newBranchSelectionWindowController = fxmlLoader.getController();
         newBranchSelectionWindowController.setMainController(this);
@@ -157,13 +145,7 @@ public class HeaderController {
     private void addWCStatusClickableMenu() {
         ClickableMenu wcStatusClickableMenu = new ClickableMenu("WC Status");
         wcStatusClickableMenu.disableProperty().bind(noAvailableRepository);
-        wcStatusClickableMenu.setOnAction(event -> {
-            try {
-                mainController.ShowStatus();
-            } catch (IOException e) {
-                ShowErrorWindow(e.getMessage());
-            }
-        });
+        wcStatusClickableMenu.setOnAction(event -> mainController.ShowWCStatus());
         topMenuBar.getMenus().add(wcStatusClickableMenu);
     }
 
@@ -180,11 +162,14 @@ public class HeaderController {
         Stage stage = new Stage();
         stage.setTitle("Update Username");
         popupWindowController.setLabel("Enter Username:");
+        popupWindowController.ClearTextField();
         stage.setScene(popupWindowScene);
         stage.initModality(Modality.APPLICATION_MODAL);
         stage.showAndWait();
-        username.setValue(popupWindowController.textProperty().getValue());
-        mainController.setUsername(username);
+        if (popupWindowController.isActionNotCanelled()) {
+            username.setValue(popupWindowController.getText());
+            mainController.setUsername(username);
+        }
     }
 
     @FXML
@@ -196,18 +181,18 @@ public class HeaderController {
             Stage stage = new Stage();
             stage.setTitle("New Repository's Name:");
             popupWindowController.setLabel("Enter name of repository:");
+            popupWindowController.ClearTextField();
             stage.setScene(popupWindowScene);
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.showAndWait();
-            String repoFullPath = f.getPath();
-            repoFullPath += popupWindowController.getText();
-            currentRepository.setValue(repoFullPath);
-            try {
+            if (popupWindowController.isActionNotCanelled()) {
+                String repoFullPath = f.getPath();
+                repoFullPath += popupWindowController.getText();
+                currentRepository.setValue(repoFullPath);
                 mainController.createNewRepository(currentRepository.getValue());
                 noAvailableRepository.setValue(Boolean.FALSE);
+                clearBranchesMenu();
                 UpdateBranches();
-            } catch (Exception e) {
-                ShowErrorWindow("This repository already exists");
             }
         }
     }
@@ -217,21 +202,28 @@ public class HeaderController {
         DirectoryChooser directoryChooser = new DirectoryChooser();
         directoryChooser.setTitle("Select repository");
         File file = directoryChooser.showDialog(new Stage());
-        try {
+        if(file != null){
             mainController.SwitchRepository(file.getPath());
             currentRepository.setValue(mainController.getRepositoryName());
             noAvailableRepository.setValue(Boolean.FALSE);
+            clearBranchesMenu();
             UpdateBranches();
-        } catch (Exception e) {
-            ShowErrorWindow(e.getMessage());
         }
+    }
 
+    private void clearBranchesMenu() {
+        for(Map.Entry<String, Menu> branchMenu : currentBranchesMenus.entrySet()){
+            String branchName = branchMenu.getKey();
+            branchesMenu.getItems().remove(currentBranchesMenus.get(branchName));
+        }
+        currentBranchesMenus.clear();
     }
 
     @FXML
     public void newBranchButtonAction(ActionEvent actionEvent) {
         Stage stage = new Stage();
         stage.setTitle("Create new branch");
+        newBranchSelectionWindowController.ClearTextField();
         stage.setScene(newBranchSelectionWindowScene);
         stage.initModality(Modality.APPLICATION_MODAL);
         stage.showAndWait();
@@ -254,25 +246,32 @@ public class HeaderController {
             mainController.loadRepositoryFromXml(absolutePath);
             currentRepository.setValue(mainController.getRepositoryName());
             noAvailableRepository.setValue(Boolean.FALSE);
-            //UpdateBranches();
-        } catch (XmlRepositoryAlreadyExistsException ex) {
+        } catch (XmlRepositoryAlreadyExistsException e) {
             Stage stage = new Stage();
-            stage.setTitle("Xml repository already exists");
+            stage.setTitle(e.getMessage());
             stage.setScene(pathContainsRepositoryWindowScene);
             stage.setAlwaysOnTop(true);
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.showAndWait();
         } catch (XmlPathContainsNonRepositoryObjectsException e) {
-            ShowErrorWindow("The Path in the xml file contains files which are not repository");
+            mainController.showErrorWindow(e.getMessage());
             return;
-        } catch (Exception ex2) {
-            System.out.println("11111");
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+        clearBranchesMenu();
+        UpdateBranches();
+    }
 
+    @FXML
+    public void CreateNewBranch(String branchName, boolean checkout) {
+        mainController.createNewBranch(branchName, checkout);
+        //AddBranchToBranches(branchName);
         UpdateBranches();
     }
 
     //other Methods
+
     private void updateHeadBranch() {
         String newHeadName = mainController.getMagitManager().GetCurrentRepository().getHeadBranch().getName();
         headBranchName.setValue(newHeadName);
@@ -282,6 +281,7 @@ public class HeaderController {
         mainController.replaceExistingRepositoryWithXmlRepository();
         currentRepository.setValue(mainController.getRepositoryName());
         noAvailableRepository.setValue(Boolean.FALSE);
+        clearBranchesMenu();
         UpdateBranches();
     }
 
@@ -289,29 +289,18 @@ public class HeaderController {
         this.mainController = mainController;
     }
 
-    @FXML
-    public void CreateNewBranch(String branchName, boolean checkout) {
-        try {
-            mainController.createNewBranch(branchName, checkout);
-            addBranchToBranches(branchName);
-        } catch (Exception e) {
-            ShowErrorWindow(e.getMessage());
-        }
-        UpdateBranches();
-    }
-
     public void UpdateBranches() {
         List<Branch> branches = mainController.GetBranches();
         for (Branch br : branches) {
             if (!currentBranchesMenus.containsKey(br.getName())) {
-                addBranchToBranches(br.getName());
+                AddBranchToBranches(br.getName());
             }
         }
         updateHeadBranch();
 
     }
 
-    private void addBranchToBranches(String branchName) {
+    public void AddBranchToBranches(String branchName) {
         Menu addedBranch = createSingleBranchMenu(branchName);
         branchesMenu.getItems().add(addedBranch);
         currentBranchesMenus.put(branchName, addedBranch);
@@ -321,7 +310,6 @@ public class HeaderController {
         IsHeadBranchBind isHeadBranch = new IsHeadBranchBind(branchName, headBranchName);
         Menu newMenu = new Menu();
         newMenu.textProperty().bind(new BranchNameBind(branchName, isHeadBranch));
-
 
         MenuItem delete = new MenuItem();
         delete.setText("Delete");
@@ -358,68 +346,69 @@ public class HeaderController {
         Stage stage = new Stage();
         stage.setTitle("Reset Head");
         popupWindowController.setLabel("Enter sha1 of commit:");
+        popupWindowController.ClearTextField();
         stage.setScene(popupWindowScene);
         stage.initModality(Modality.APPLICATION_MODAL);
         stage.showAndWait();
-        try {
-            mainController.resetHead(popupWindowController.getText());
-        } catch (Exception e) {
-            ShowErrorWindow(e.getMessage());
+        if (popupWindowController.isActionNotCanelled()) {
+            mainController.ResetHead(popupWindowController.getText());
         }
     }
 
     private void checkout(String branchName) {
-        try {
-            mainController.Checkout(branchName);
-        } catch (Exception e) {
-            ShowErrorWindow(e.getMessage());
-        }
+        mainController.Checkout(branchName);
         updateHeadBranch();
     }
 
     private void deleteBranch(String branchName) {
-        try {
-            mainController.DeleteBranch(branchName);
-            branchesMenu.getItems().remove(currentBranchesMenus.get(branchName));
-            currentBranchesMenus.remove(branchName);
-        } catch (Exception e) {
-            ShowErrorWindow(e.getMessage());
-        }
+        mainController.DeleteBranch(branchName);
+        DeleteBranchFromBranchesMenu(branchName);
     }
 
-    private void merge(String branchName){ ////////////////////
-        try {
-            mainController.Merge(branchName);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    public void DeleteBranchFromBranchesMenu(String branchName) {
+        branchesMenu.getItems().remove(currentBranchesMenus.get(branchName));
+        currentBranchesMenus.remove(branchName);
+        UpdateBranches();
+    }
 
+    private void merge(String branchName) {
+        mainController.Merge(branchName);
     }
 
     public void Commit() {
-        try {
-            mainController.Commit(GetCommitMessage());
-        } catch (Exception e) {
-            ShowErrorWindow(e.getMessage());
+        String message = GetCommitMessage();
+        if (message != null) {
+            mainController.Commit(message);
         }
     }
 
-    public void ShowErrorWindow(String errorMessage){
-        Stage stage = new Stage();
-        stage.setTitle("Error");
-        errorPopupWindowController.SetErrorMessage(errorMessage);
-        stage.setScene(errorPopupWindowScene);
-        stage.initModality(Modality.APPLICATION_MODAL);
-        stage.show();
-    }
-
     public String GetCommitMessage() {
+        String message = null;
         Stage stage = new Stage();
         stage.setTitle("Commit Message");
         popupWindowController.setLabel("Enter message of commit:");
+        popupWindowController.ClearTextField();
         stage.setScene(popupWindowScene);
         stage.initModality(Modality.APPLICATION_MODAL);
         stage.showAndWait();
-        return popupWindowController.getText();
+        if (popupWindowController.isActionNotCanelled()) {
+            message = popupWindowController.getText();
+        }
+        return message;
+    }
+
+    public String GetNewBranchName(){
+        String branchName = null;
+        Stage stage = new Stage();
+        stage.setTitle("New Branch");
+        popupWindowController.setLabel("Enter name for new branch:");
+        popupWindowController.ClearTextField();
+        stage.setScene(popupWindowScene);
+        stage.initModality(Modality.APPLICATION_MODAL);
+        stage.showAndWait();
+        if (popupWindowController.isActionNotCanelled()) {
+            branchName = popupWindowController.getText();
+        }
+        return branchName;
     }
 }

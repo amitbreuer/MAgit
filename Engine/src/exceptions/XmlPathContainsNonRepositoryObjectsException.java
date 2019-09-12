@@ -1,7 +1,8 @@
 package exceptions;
 
 public class XmlPathContainsNonRepositoryObjectsException extends Exception {
-    public XmlPathContainsNonRepositoryObjectsException(String message){
-        super(message);
+    @Override
+    public String getMessage() {
+        return "The Path in the xml file contains files which are not repository";
     }
 }

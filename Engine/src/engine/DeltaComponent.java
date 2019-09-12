@@ -1,6 +1,6 @@
 package engine;
 
-import java.nio.file.Path;
+import java.io.File;
 
 public class DeltaComponent {
     private String name;
@@ -34,5 +34,9 @@ public class DeltaComponent {
 
     public String getName() {
         return name;
+    }
+
+    public String GetFullName(){
+        return path + File.separator + name;
     }
 }

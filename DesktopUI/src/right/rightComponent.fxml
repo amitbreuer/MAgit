@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.control.TreeView?>
+
+<SplitPane dividerPositions="0.5" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" orientation="VERTICAL" prefHeight="382.0" prefWidth="216.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="right.RightController">
+   <items>
+      <TitledPane fx:id="topTitledPane" text="Files">
+         <content>
+            <TreeView fx:id="filesTree" onMouseClicked="#mouseClickedAction" prefHeight="200.0" prefWidth="200.0" />
+         </content>
+      </TitledPane>
+      <TitledPane fx:id="bottomTitledPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="159.0" prefWidth="214.0" text="Commit Info">
+         <content>
+            <ScrollPane fx:id="bottomScrollPane" prefHeight="147.0" prefWidth="212.0" />
+         </content>
+      </TitledPane>
+   </items>
+</SplitPane>

@@ -2,7 +2,6 @@ package body;
 
 import app.AppController;
 import body.commitNode.CommitNode;
-import body.commitNode.CommitNodeController;
 import body.commitNode.CommitTreeLayout;
 import com.fxgraph.edges.Edge;
 import com.fxgraph.graph.Graph;
@@ -12,12 +11,11 @@ import engine.Branch;
 import engine.Commit;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.control.*;
-
-import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.List;
+
 import javafx.fxml.FXML;
 
 public class BodyController {
@@ -55,25 +53,28 @@ public class BodyController {
         tree.beginUpdate();
 
         Map<String, CommitNode> commitNodesMap = new HashMap<>();
-        Map<String, Integer> sha1ToYcoordinate = new HashMap<>();
+        Map<String, Integer> sha1ToYCoordinate = new HashMap<>();
         Map<String, Integer> sha1ToXCoordinate = new HashMap<>();
 
         List<Branch> branches = mainController.GetBranches();
-        Map<String,Commit> commitsMap = mainController.GetAllCommitsMap();
+        Map<String, Commit> commitsMap = mainController.GetAllCommitsMap();
         Set<Edge> edges = new HashSet<>();
 
         Branch headBranch = mainController.GetHeadBranch();
 
-        calculateYCoordinate(commitsMap,commitNodesMap,sha1ToYcoordinate);
-
-        //set edges
-        for (Branch branch : branches) {
-            Commit branchLastCommit;
-            branchLastCommit = branch.getLastCommit();
-            connectCommitNodesEdges(branchLastCommit, commitsMap, commitNodesMap, edges);
-        }
+        calculateYCoordinate(commitsMap, commitNodesMap, sha1ToYCoordinate);
 
         calculateXCoordinate(branches, headBranch, sha1ToXCoordinate, commitsMap);
+
+        //set edges and branches labels
+        for (Branch branch : branches) {
+            Commit branchLastCommit = branch.getLastCommit();
+            if (branchLastCommit != null) {
+                CommitNode branchLastCommitNode = commitNodesMap.get(branchLastCommit.getSha1());
+                branchLastCommitNode.AddPointedBranch(branch.getName());
+                connectCommitNodesEdges(branchLastCommit, commitsMap, commitNodesMap, edges);
+            }
+        }
 
         //adding components to tree's model
         for (Map.Entry<String, CommitNode> entry : commitNodesMap.entrySet()) {
@@ -84,16 +85,16 @@ public class BodyController {
         }
 
         tree.endUpdate();
-        tree.layout(new CommitTreeLayout(sha1ToXCoordinate, sha1ToYcoordinate));
+        tree.layout(new CommitTreeLayout(sha1ToXCoordinate, sha1ToYCoordinate));
     }
 
     private void calculateYCoordinate(Map<String, Commit> commitsMap, Map<String, CommitNode> commitNodesMap, Map<String, Integer> sha1ToYcoordinate) {
         int yCoordinate = 10;
         List<CommitNode> commitNodesList = new ArrayList<>();
-        for(Map.Entry<String, Commit> entry : commitsMap.entrySet()){
-            CommitNode commitNode = new CommitNode(entry.getValue(),this);
+        for (Map.Entry<String, Commit> entry : commitsMap.entrySet()) {
+            CommitNode commitNode = new CommitNode(entry.getValue(), this);
             commitNodesList.add(commitNode);
-            commitNodesMap.put(commitNode.getSha1(),commitNode);
+            commitNodesMap.put(commitNode.getSha1(), commitNode);
         }
 
         Collections.sort(commitNodesList, new Comparator<CommitNode>() {
@@ -112,14 +113,15 @@ public class BodyController {
             }
         });
 
-        for(CommitNode commitNode : commitNodesList){
-            sha1ToYcoordinate.put(commitNode.getSha1(),yCoordinate);
-            yCoordinate+=30;
+        for (CommitNode commitNode : commitNodesList) {
+            sha1ToYcoordinate.put(commitNode.getSha1(), yCoordinate);
+            yCoordinate += 30;
         }
     }
 
     private void calculateXCoordinate(List<Branch> branches, Branch headBranch, Map<String, Integer> sha1ToXCoordinate, Map<String, Commit> commitsMap) {
         int xCoordinate = 10;
+        int numOfBrancheNodes;
         Commit currentCommit = headBranch.getLastCommit();
         String prevCommitSha1;
 
@@ -134,11 +136,13 @@ public class BodyController {
         xCoordinate += 30;
 
         for (Branch branch : branches) {
-            if(!branch.equals(headBranch)){
+            if (!branch.equals(headBranch)) {
+                numOfBrancheNodes = 0;
                 currentCommit = branch.getLastCommit();
                 while (currentCommit != null) {
                     if (!sha1ToXCoordinate.containsKey(currentCommit.getSha1())) {
                         sha1ToXCoordinate.put(currentCommit.getSha1(), xCoordinate);
+                        numOfBrancheNodes++;
                     }
                     prevCommitSha1 = currentCommit.getPrevCommitSha1();
                     if (prevCommitSha1 == null) {
@@ -146,7 +150,9 @@ public class BodyController {
                     }
                     currentCommit = commitsMap.get(prevCommitSha1);
                 }
-                xCoordinate += 30;
+                if(numOfBrancheNodes > 0){
+                    xCoordinate += 30;
+                }
             }
         }
     }
@@ -176,14 +182,34 @@ public class BodyController {
     }
 
     public void ShowDelta(String commit1Sha1, String commit2Sha1) {
-        mainController.GetDeltaBetweenTwoCommits(commit1Sha1,commit2Sha1);
+        mainController.GetDeltaBetweenTwoCommits(commit1Sha1, commit2Sha1);
     }
 
     public void ShowFilesOfCommit(String commitSha1) {
-        try {
-            mainController.ShowSingleCommitFilesTree(commitSha1);
-        } catch (IOException e) {
-            e.printStackTrace(); //////////////////////////////////////////
-        }
+        mainController.ShowSingleCommitFilesTree(commitSha1);
+    }
+
+    public void ShowCommitInfo(String commitSha1) {
+        mainController.ShowCommitInfo(commitSha1);
+    }
+
+    public void Clear() {
+        scrollPane.setContent(new Label(""));
+    }
+
+    public void CreateNewBranchForCommit(String commitSha1) {
+        mainController.CreateNewBranchForCommit(commitSha1);
+    }
+
+    public void RestHeadBranch(String commitSha1) {
+        mainController.ResetHead(commitSha1);
+    }
+
+    public void MergeBranchWithHead(String branchName) {
+        mainController.Merge(branchName);
+    }
+
+    public void DeleteBranchFromCommit(String branchName) {
+        mainController.DeleteBranchFromCommit(branchName);
     }
 }

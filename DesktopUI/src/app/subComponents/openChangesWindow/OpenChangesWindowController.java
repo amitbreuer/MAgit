@@ -1,4 +1,4 @@
-package app.subComponents;
+package app.subComponents.openChangesWindow;
 
 import app.AppController;
 import javafx.event.ActionEvent;

@@ -1,9 +1,9 @@
 package app;
 
 public class AppResourcesConstants {
-    static final String HEADER_FXML_PATH = "/header/headerComponent.fxml";
-    static final String BOTTOM_FXML_PATH = "/bottom/bottomComponent.fxml";
     static final String MAIN_FXML_PATH = "/app/app.fxml";
-    static final String BODY_FXML_PATH = "/body/bodyComponent.fxml";
-    static final String OPEN_CHANGES_WINDOW_FXML_PATH = "/app/subComponents/openChangesWindow.fxml";
+    public static final String CONFLICTS_WINDOW_FXML_PATH = "/app/subComponents/conflictsWindow/conflictsWindow.fxml";
+    static final String SINGLE_CONFLICT_WINDOW_FXML_PATH = "/app/subComponents/singleConflictWindow/singleConflictWindow.fxml";
+    static final String ERROR_POPUP_WINDOW_FXML_PATH = "/app/subComponents/errorPopupWindow/errorPopupWindow.fxml";
+    static final String OPEN_CHANGES_WINDOW_FXML_PATH = "/app/subComponents/openChangesWindow/openChangesWindow.fxml";
 }

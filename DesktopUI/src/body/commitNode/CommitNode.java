@@ -12,6 +12,10 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Region;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class CommitNode extends AbstractCell {
     private String sha1;
@@ -22,6 +26,7 @@ public class CommitNode extends AbstractCell {
     private String mergeChildSha1;
     private CommitNodeController commitNodeController;
     private BodyController bodyController;
+    private Set<String> pointedBranches;
 
     public CommitNode(Commit commit, BodyController bodyController) {
         this.sha1 = commit.getSha1();
@@ -31,6 +36,7 @@ public class CommitNode extends AbstractCell {
         this.branchChildSha1 = commit.getPrevCommitSha1();
         this.mergeChildSha1 = commit.getSecondPrecedingSha1();
         this.bodyController = bodyController;
+        this.pointedBranches = new HashSet<>();
     }
 
     public String getSha1() {
@@ -75,8 +81,8 @@ public class CommitNode extends AbstractCell {
             commitNodeController.setCommitDateCreated(dateCreated);
             commitNodeController.setBranchParentSha1(branchChildSha1);
             commitNodeController.setMergeParentSha1(mergeChildSha1);
+            commitNodeController.setPointedBranches(pointedBranches);
             commitNodeController.setMainController(bodyController);
-
 
             return root;
         } catch (IOException e) {
@@ -103,5 +109,9 @@ public class CommitNode extends AbstractCell {
     @Override
     public int hashCode() {
         return dateCreated != null ? dateCreated.hashCode() : 0;
+    }
+
+    public void AddPointedBranch(String branchName) {
+        this.pointedBranches.add(branchName);
     }
 }

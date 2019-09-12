@@ -8,9 +8,6 @@ import javafx.stage.Stage;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 
-
-import java.awt.*;
-
 public class NewBranchSelectionWindowController {
 
     @FXML
@@ -41,4 +38,9 @@ public class NewBranchSelectionWindowController {
     public void cancelButtonAction(ActionEvent actionEvent) {
         closeStage();
     }
+
+    public void ClearTextField() {
+        textField.clear();
+    }
+
 }

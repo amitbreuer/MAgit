@@ -160,7 +160,7 @@ public class Menu {
                 }
                 System.out.println(magitManager.GetRepositoryDetails());
                 try {
-                    System.out.println(magitManager.GetStatus());
+                    System.out.println(magitManager.GetWCStatusAsString());
                 } catch (IOException e) {
                     System.out.println("Error: runTime failure");
                 }

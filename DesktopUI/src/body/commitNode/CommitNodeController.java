@@ -2,28 +2,44 @@ package body.commitNode;
 
 import body.BodyController;
 import body.binds.ParentIsNullBind;
+import javafx.beans.binding.BooleanBinding;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.shape.Circle;
 
+import java.util.List;
+import java.util.Set;
+
 public class CommitNodeController {
-    @FXML private Label commitDateCreatedLabel;
-    @FXML private Label messageLabel;
-    @FXML private Label committerLabel;
-    @FXML private Label sha1Label;
-    @FXML private Circle CommitCircle;
+    @FXML
+    Label commitDateCreatedLabel;
+    @FXML
+    Label messageLabel;
+    @FXML
+    Label committerLabel;
+    @FXML
+    Label sha1Label;
+    @FXML
+    Circle CommitCircle;
+    @FXML
+    AnchorPane branchesLabels;
 
     private SimpleStringProperty branchParentSha1;
     private SimpleStringProperty mergeParentSha1;
+    private SimpleBooleanProperty hasPointedBranches;
     private BodyController mainController;
+    private Set<String> pointedBranches;
 
     @FXML
-    public void initialize(){
+    public void initialize() {
         branchParentSha1 = new SimpleStringProperty("");
         mergeParentSha1 = new SimpleStringProperty("");
+        hasPointedBranches = new SimpleBooleanProperty();
         setCommitNodeContextMenu();
     }
 
@@ -31,22 +47,57 @@ public class CommitNodeController {
         ContextMenu commitContextMenu = new ContextMenu();
 
         MenuItem showCommitFiles = new MenuItem("Show Files Of Commit");
-        showCommitFiles.setOnAction((x)->mainController.ShowFilesOfCommit(sha1Label.getText()));
+        showCommitFiles.setOnAction(e -> mainController.ShowFilesOfCommit(sha1Label.getText()));
 
         MenuItem branchParentDelta = new MenuItem("Show branch parent Delta");
-        branchParentDelta.setOnAction((x)-> mainController.ShowDelta(sha1Label.getText(),branchParentSha1.getValue()));
+        branchParentDelta.setOnAction(e -> mainController.ShowDelta(sha1Label.getText(), branchParentSha1.getValue()));
         branchParentDelta.disableProperty().bind(new ParentIsNullBind(branchParentSha1));
 
         MenuItem mergeParentDelta = new MenuItem("Show merge parent Delta");
-        mergeParentDelta.setOnAction((x)-> mainController.ShowDelta(sha1Label.getText(),mergeParentSha1.getValue()));
+        mergeParentDelta.setOnAction(e -> mainController.ShowDelta(sha1Label.getText(), mergeParentSha1.getValue()));
         mergeParentDelta.disableProperty().bind(new ParentIsNullBind(mergeParentSha1));
 
-        MenuItem bonus = new MenuItem("bonus");
-        commitContextMenu.getItems().addAll(showCommitFiles,branchParentDelta,mergeParentDelta,new SeparatorMenuItem(),bonus);
+        MenuItem newBranch = new MenuItem("Create New Branch");
+        newBranch.setOnAction(e -> mainController.CreateNewBranchForCommit(sha1Label.getText()));
+
+        MenuItem resetHeadBranch = new MenuItem(("Reset Head Branch"));
+        resetHeadBranch.setOnAction(e -> mainController.RestHeadBranch(sha1Label.getText()));
+
+        Menu mergeWithHead = new Menu(("Merge With Head Branch"));
+//        mergeWithHead.addEventHandler(MouseEvent.MOUSE_ENTERED, new EventHandler<MouseEvent>() {
+//            @Override
+//            public void handle(MouseEvent event) {
+//
+//            }
+//        });
+        mergeWithHead.setOnAction(e->{
+            for (String branchName : pointedBranches) {
+                MenuItem branchItem = new MenuItem(branchName);
+                branchItem.setOnAction(x -> mainController.MergeBranchWithHead(branchName));
+                mergeWithHead.getItems().add(branchItem);
+            }
+            mergeWithHead.show();
+        });
+        mergeWithHead.disableProperty().bind(hasPointedBranches.not());
+
+        Menu deleteBranch = new Menu("Delete Branch");
+        deleteBranch.setOnAction(e->{
+            for (String branchName : pointedBranches) {
+                MenuItem branchItem = new MenuItem(branchName);
+                branchItem.setOnAction(x -> mainController.DeleteBranchFromCommit(branchName));
+                deleteBranch.getItems().add(branchItem);
+            }
+            deleteBranch.show();
+        });
+        deleteBranch.disableProperty().bind(hasPointedBranches.not());
+
+        commitContextMenu.getItems().addAll(showCommitFiles, branchParentDelta, mergeParentDelta,
+                new SeparatorMenuItem(), newBranch, resetHeadBranch, mergeWithHead, deleteBranch);
         CommitCircle.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
-                commitContextMenu.show(CommitCircle,event.getScreenX(),event.getScreenY());
+                commitContextMenu.show(CommitCircle, event.getScreenX(), event.getScreenY());
+                mainController.ShowCommitInfo(sha1Label.getText());
             }
         });
     }
@@ -76,7 +127,7 @@ public class CommitNodeController {
     }
 
     public int getCircleRadius() {
-        return (int)CommitCircle.getRadius();
+        return (int) CommitCircle.getRadius();
     }
 
     public void setBranchParentSha1(String branchParentSha1) {
@@ -85,5 +136,15 @@ public class CommitNodeController {
 
     public void setMergeParentSha1(String mergeParentSha1) {
         this.mergeParentSha1.setValue(mergeParentSha1);
+    }
+
+    public void setPointedBranches(Set<String> pointedBranches) {
+        this.pointedBranches = pointedBranches;
+        for (String branchName : pointedBranches) {
+            Label branchLabel = new Label(branchName);
+            branchLabel.setStyle("-fx-background-color: yellow;");
+            branchesLabels.getChildren().add(branchLabel);
+        }
+        hasPointedBranches.setValue(!pointedBranches.isEmpty());
     }
 }

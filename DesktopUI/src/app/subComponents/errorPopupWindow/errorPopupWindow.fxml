@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.TextFlow?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="128.0" prefWidth="351.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="header.subComponents.errorPopupWindow.ErrorPopupWindowController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="128.0" prefWidth="351.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="app.subComponents.errorPopupWindow.ErrorPopupWindowController">
    <children>
       <Button fx:id="okButton" defaultButton="true" layoutX="146.0" layoutY="86.0" maxWidth="70.0" minHeight="27.0" minWidth="59.0" mnemonicParsing="false" onAction="#okButtonAction" prefHeight="27.0" prefWidth="59.0" text="OK" AnchorPane.bottomAnchor="14.666666666666671" />
       <TextFlow layoutX="6.0" prefHeight="104.0" prefWidth="339.0">
