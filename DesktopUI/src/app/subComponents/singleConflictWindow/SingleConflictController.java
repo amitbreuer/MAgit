@@ -1,6 +1,7 @@
 package app.subComponents.singleConflictWindow;
 
 import app.AppController;
+import app.subComponents.conflictsWindow.ConflictsWindowController;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.event.ActionEvent;
@@ -29,8 +30,8 @@ public class SingleConflictController {
     @FXML
     Button cancelButton;
 
-    private AppController mainController;
-    private SimpleStringProperty mergedContent;
+    private ConflictsWindowController mainController;
+    private String mergedContent;
     private SimpleBooleanProperty oursExists;
     private SimpleBooleanProperty theirsExists;
     private SimpleBooleanProperty fathersExists;
@@ -38,7 +39,7 @@ public class SingleConflictController {
 
     @FXML
     private void initialize() {
-        mergedContent = new SimpleStringProperty();
+        //mergedContent = new SimpleStringProperty();
         oursExists = new SimpleBooleanProperty();
         theirsExists = new SimpleBooleanProperty();
         fathersExists = new SimpleBooleanProperty();
@@ -66,7 +67,7 @@ public class SingleConflictController {
 
     @FXML
     public void okButtonAction(ActionEvent actionEvent) {
-        mergedContent.setValue(editTextArea.getText());
+        mergedContent = editTextArea.getText();
         closeStage();
     }
 
@@ -78,19 +79,19 @@ public class SingleConflictController {
 
     @FXML
     public void chooseOursButtonAction(ActionEvent actionEvent) {
-        mergedContent.setValue(oursTextArea.getText());
+        mergedContent = oursTextArea.getText();
         closeStage();
     }
 
     @FXML
     public void chooseFathersButtonAction(ActionEvent actionEvent) {
-        mergedContent.setValue(fathersTextArea.getText());
+        mergedContent = fathersTextArea.getText();
         closeStage();
     }
 
     @FXML
     public void chooseTheirsButtonAction(ActionEvent actionEvent) {
-        mergedContent.setValue(theirsTextArea.getText());
+        mergedContent = theirsTextArea.getText();
         closeStage();
     }
 
@@ -99,15 +100,15 @@ public class SingleConflictController {
         stage.close();
     }
 
-    public void setMainController(AppController mainController) {
+    public void setMainController(ConflictsWindowController mainController) {
         this.mainController = mainController;
     }
 
     public String getMergedContent() {
-        return mergedContent.get();
+        return mergedContent;//.get();
     }
 
-    public SimpleStringProperty mergedContentProperty() {
-        return mergedContent;
-    }
+//    public SimpleStringProperty mergedContentProperty() {
+//        return mergedContent;
+//    }
 }

@@ -8,14 +8,18 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.shape.Circle;
 
 import java.util.List;
 import java.util.Set;
 
 public class CommitNodeController {
+    @FXML
+    GridPane gridPane;
     @FXML
     Label commitDateCreatedLabel;
     @FXML
@@ -64,42 +68,33 @@ public class CommitNodeController {
         resetHeadBranch.setOnAction(e -> mainController.RestHeadBranch(sha1Label.getText()));
 
         Menu mergeWithHead = new Menu(("Merge With Head Branch"));
-//        mergeWithHead.addEventHandler(MouseEvent.MOUSE_ENTERED, new EventHandler<MouseEvent>() {
-//            @Override
-//            public void handle(MouseEvent event) {
-//
-//            }
-//        });
-        mergeWithHead.setOnAction(e->{
-            for (String branchName : pointedBranches) {
-                MenuItem branchItem = new MenuItem(branchName);
-                branchItem.setOnAction(x -> mainController.MergeBranchWithHead(branchName));
-                mergeWithHead.getItems().add(branchItem);
-            }
-            mergeWithHead.show();
-        });
         mergeWithHead.disableProperty().bind(hasPointedBranches.not());
 
         Menu deleteBranch = new Menu("Delete Branch");
-        deleteBranch.setOnAction(e->{
-            for (String branchName : pointedBranches) {
-                MenuItem branchItem = new MenuItem(branchName);
-                branchItem.setOnAction(x -> mainController.DeleteBranchFromCommit(branchName));
-                deleteBranch.getItems().add(branchItem);
-            }
-            deleteBranch.show();
-        });
         deleteBranch.disableProperty().bind(hasPointedBranches.not());
 
         commitContextMenu.getItems().addAll(showCommitFiles, branchParentDelta, mergeParentDelta,
                 new SeparatorMenuItem(), newBranch, resetHeadBranch, mergeWithHead, deleteBranch);
-        CommitCircle.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
+        gridPane.setOnContextMenuRequested(new EventHandler<ContextMenuEvent>() {
             @Override
-            public void handle(MouseEvent event) {
+            public void handle(ContextMenuEvent event) {
+                deleteBranch.getItems().clear();
+                for (String branchName : pointedBranches) {
+                    MenuItem branchItem = new MenuItem(branchName);
+                    branchItem.setOnAction(x -> mainController.DeleteBranchFromCommit(branchName));
+                    deleteBranch.getItems().add(branchItem);
+                }
+                mergeWithHead.getItems().clear();
+                for (String branchName : pointedBranches) {
+                    MenuItem branchItem = new MenuItem(branchName);
+                    branchItem.setOnAction(x -> mainController.MergeBranchWithHead(branchName));
+                    mergeWithHead.getItems().add(branchItem);
+                }
                 commitContextMenu.show(CommitCircle, event.getScreenX(), event.getScreenY());
                 mainController.ShowCommitInfo(sha1Label.getText());
             }
         });
+
     }
 
     public void setMainController(BodyController mainController) {
