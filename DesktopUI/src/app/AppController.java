@@ -55,11 +55,9 @@ public class AppController {
     private MagitManager magitManager;
     private SimpleBooleanProperty noAvailableRepository;
     private Scene openChangesWindowScene;
-    private Scene singleConflictWindowScene;
     private Scene errorPopupWindowScene;
     private Scene conflictsWindowScene;
     private OpenChangesWindowController openChangesWindowController;
-    private SingleConflictController singleConflictController;
     private ErrorPopupWindowController errorPopupWindowController;
     private ConflictsWindowController conflictsWindowController;
 
@@ -71,7 +69,6 @@ public class AppController {
         leftComponentController.setMainController(this);
         rightComponentController.setMainController(this);
         setOpenChangesWindow();
-        setSingleConflictWindow();
         setErrorPopupWindow();
         setConflictsWindow();
     //    noAvailableRepository = new SimpleBooleanProperty();
@@ -91,20 +88,6 @@ public class AppController {
         }
         conflictsWindowController = fxmlLoader.getController();
         conflictsWindowController.setMainController(this);
-    }
-
-    private void setSingleConflictWindow() {
-        URL url = getClass().getResource(AppResourcesConstants.SINGLE_CONFLICT_WINDOW_FXML_PATH);
-
-        FXMLLoader fxmlLoader = new FXMLLoader(url);
-        try {
-            GridPane popupRoot = fxmlLoader.load();
-            singleConflictWindowScene = new Scene(popupRoot);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        singleConflictController = fxmlLoader.getController();
-        singleConflictController.setMainController(this);
     }
 
     private void setOpenChangesWindow() {
@@ -295,44 +278,6 @@ public class AppController {
         }
     }
 
-    private void ResolveConflicts(Conflicts conflicts) {
-        List<ConflictComponent> conflictComponentList = conflicts.getConflictFiles();
-        for (ConflictComponent cc : conflictComponentList) {
-            resolveSingleConflict(cc);
-        }
-        //conflictsWindowController.ResolveConflicts(conflicts.getConflictFiles());
-        magitManager.ImplementConflictsSolutions(conflicts);
-    }
-
-    private void resolveSingleConflict(ConflictComponent conflictComponent) {
-        Stage stage = new Stage();
-        stage.setTitle("Resolve Conflicts");
-        singleConflictController.SetVersions(conflictComponent.getOursFileContent(),conflictComponent.getTheirsFileContent(),conflictComponent.getAncestorsFileContent());
-        stage.setScene(singleConflictWindowScene);
-        stage.initModality(Modality.APPLICATION_MODAL);
-        stage.showAndWait();
-        conflictComponent.setMergedFileContent(singleConflictController.getMergedContent());
-    }
-
-    public void Merge(String branchName) {
-        try {
-            if(magitManager.thereAreUncommittedChanges()){
-                showErrorWindow("Merge failed. There are open changes.");
-            }
-            Conflicts conflics = new Conflicts();
-            Folder mergedFolder = magitManager.CreateMergedFolderAndFindConflicts(branchName,conflics);
-            ResolveConflicts(conflics);
-            magitManager.CommitMerge(mergedFolder,GetCommitsMessage(),branchName);
-            ShowWCStatus();
-            showCommitTree();
-            //bottomComponentController.setMessage("Merge was done successfully");
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (Exception e) {
-            showErrorWindow(e.getMessage());
-        }
-    }
-
     public Map<String, Commit> GetAllCommitsMap() {
         return magitManager.GetAllCommitsMap();
     }
@@ -406,5 +351,36 @@ public class AppController {
     public void DeleteBranchFromCommit(String branchName) {
         DeleteBranch(branchName);
         headerComponentController.DeleteBranchFromBranchesMenu(branchName);
+    }
+
+    private void ResolveConflicts(Conflicts conflicts) {
+        conflictsWindowController.SetConflictsList(conflicts.getConflictFiles());
+        Stage stage = new Stage();
+        stage.setTitle("Conflicts");
+        stage.setScene(conflictsWindowScene);
+        stage.initModality(Modality.APPLICATION_MODAL);
+        stage.showAndWait();
+
+        magitManager.ImplementConflictsSolutions(conflicts);
+    }
+
+    public void Merge(String branchName) {
+        try {
+            if(magitManager.thereAreUncommittedChanges()){
+                showErrorWindow("Merge failed. There are open changes.");
+            }
+            Conflicts conflicts = new Conflicts();
+            Folder mergedFolder = magitManager.CreateMergedFolderAndFindConflicts(branchName,conflicts);
+            ResolveConflicts(conflicts);
+            magitManager.CommitMerge(mergedFolder,GetCommitsMessage(),branchName);
+            ShowWCStatus();
+            showCommitTree();
+            //bottomComponentController.setMessage("Merge was done successfully");
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            showErrorWindow(e.getMessage());
+            e.printStackTrace();
+        }
     }
 }

@@ -9,7 +9,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.shape.Circle?>
 
-<GridPane hgap="5.0" maxHeight="60.0" maxWidth="1.7976931348623157E308" minHeight="44.0" minWidth="-Infinity" prefHeight="44.0" styleClass="single-commit-row-container" stylesheets="./commitNode.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="body.commitNode.CommitNodeController">
+<GridPane fx:id="gridPane" hgap="5.0" maxHeight="60.0" maxWidth="1.7976931348623157E308" minHeight="44.0" minWidth="-Infinity" prefHeight="44.0" styleClass="single-commit-row-container" stylesheets="./commitNode.css" xmlns="http://javafx.com/javafx/8.0.211" xmlns:fx="http://javafx.com/fxml/1" fx:controller="body.commitNode.CommitNodeController">
   <columnConstraints>
     <ColumnConstraints hgrow="NEVER" maxWidth="30.666676839192704" minWidth="-Infinity" prefWidth="25.333333333333332" />
       <ColumnConstraints hgrow="ALWAYS" maxWidth="83.33334350585938" minWidth="10.0" prefWidth="73.33334350585938" />

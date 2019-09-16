@@ -927,7 +927,7 @@ public class MagitManager {
         Folder theirsFolder = CreateCommitFromSha1(theirsCommitSha1).getMainFolder();
         Folder ancestorsFolder = CreateCommitFromSha1(ancestorCommitSha1).getMainFolder();
 
-        return addFilesToMergedFolderAndConflicts(oursFolder, theirsFolder, ancestorsFolder, conflicts, this.username);
+        return addFilesToMergedFolderAndConflicts(oursFolder, theirsFolder, ancestorsFolder, conflicts,repository.getPath().toString() ,this.username);
     }
 
     private void createObjectsFilesFromMergedFolder(Folder mergedFolder) throws Exception {
@@ -949,7 +949,7 @@ public class MagitManager {
         }
     }
 
-    public static Folder addFilesToMergedFolderAndConflicts(Folder oursFolder, Folder theirsFolder, Folder ancestorsFolder, Conflicts conflicts, String updaterName) {
+    public static Folder addFilesToMergedFolderAndConflicts(Folder oursFolder, Folder theirsFolder, Folder ancestorsFolder, Conflicts conflicts, String path ,String updaterName) {
         Folder mergedFolder = new Folder();
         String minName;
         int oursIndex = 0;
@@ -986,7 +986,7 @@ public class MagitManager {
             minName = getLowestLexicographicFileName(oursFileName, theirsFileName, ancestorsFileName);
 
             fileMerger = getSingleFileMerger(oursComponent, theirsComponent, ancestorsComponent, minName);
-            fileMerger.mergeFiles(oursComponent, theirsComponent, ancestorsComponent, mergedFolder, conflicts, updaterName);
+            fileMerger.mergeFiles(oursComponent, theirsComponent, ancestorsComponent, mergedFolder, conflicts, path,updaterName);
 
             advanceMergeIndicesByEnumValue(fileMerger, indicesArray);
 
