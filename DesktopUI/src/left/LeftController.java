@@ -53,9 +53,9 @@ public class LeftController {
     }
 
     private TreeView<String> createDeltaTree(Delta delta){
-        Image addImage = new Image("/app/resources/add-icon.png");
-        Image deleteImage = new Image("/app/resources/trash-icon.png");
-        Image updateImage = new Image("/app/resources/edit-icon.png");
+        Image addImage = new Image("/resources/add-icon.png");
+        Image deleteImage = new Image("/resources/trash-icon.png");
+        Image updateImage = new Image("/resources/edit-icon.png");
 
 
         List<DeltaComponent> addedComponents = delta.getAddedFiles();
@@ -88,8 +88,8 @@ public class LeftController {
     }
 
     private void addDeltaComponentsToDeltaTree(List<DeltaComponent> components,TreeItem<String> items){
-        Image folderImage = new Image("/app/resources/blue-folder-icon.png");
-        Image textImage = new Image("/app/resources/file-text-icon.png");
+        Image folderImage = new Image("/resources/blue-folder-icon.png");
+        Image textImage = new Image("/resources/file-text-icon.png");
 
         for(DeltaComponent component : components) {
             TreeItem item;

@@ -46,6 +46,8 @@ public class BodyController {
         createCommitNodes(tree);
         PannableCanvas canvas = tree.getCanvas();
         scrollPane.setContent(canvas);
+        tree.getUseViewportGestures().set(false);
+        tree.getUseNodeGestures().set(false);
     }
 
     private void createCommitNodes(Graph tree) {

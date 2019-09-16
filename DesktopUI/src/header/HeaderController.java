@@ -7,6 +7,7 @@ import exceptions.XmlRepositoryAlreadyExistsException;
 import header.binds.BranchNameBind;
 import header.binds.IsHeadBranchBind;
 import header.subComponents.ClickableMenu;
+import header.subComponents.createEmptyRepositoryWindow.CreateEmptyRepositoryWindowController;
 import header.subComponents.newBranchSelectionWindow.NewBranchSelectionWindowController;
 import header.subComponents.textPopupWindow.TextPopupWindowController;
 import header.subComponents.pathContainsRepositoryWindow.PathContainsRepositoryWindowController;
@@ -17,6 +18,8 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
@@ -66,10 +69,13 @@ public class HeaderController {
     private TextPopupWindowController popupWindowController;
     private PathContainsRepositoryWindowController pathContainsRepositoryWindowController;
     private NewBranchSelectionWindowController newBranchSelectionWindowController;
+    private CreateEmptyRepositoryWindowController createEmptyRepositoryWindowController;
 
     private Scene popupWindowScene;
     private Scene pathContainsRepositoryWindowScene;
     private Scene newBranchSelectionWindowScene;
+    private Scene createEmptyRepositryWindowScene;
+
 
     private Map<String, Menu> currentBranchesMenus;
 
@@ -93,11 +99,27 @@ public class HeaderController {
         setTextPopupWindow();
         setPathContainsRepositoryWindow();
         setNewBranchWindow();
+        setCreateEmptyRepositoryWindow();
 
         //adding dynamic buttons
         addCommitClickableMenu();
         addWCStatusClickableMenu();
     }
+
+    private void setCreateEmptyRepositoryWindow() {
+        URL url = getClass().getResource(HeaderResourcesConstants.CREATE_NEW_REPOSITORY_WINDOW_FXML_PATH);
+        FXMLLoader fxmlLoader = new FXMLLoader(url);
+
+        try {
+            AnchorPane emptyRepositoryRoot = fxmlLoader.load();
+            createEmptyRepositryWindowScene = new Scene(emptyRepositoryRoot);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        createEmptyRepositoryWindowController = fxmlLoader.getController();
+        createEmptyRepositoryWindowController.setMainController(this);
+    }
+
 
     private void setTextPopupWindow() {
         URL url = getClass().getResource(HeaderResourcesConstants.TEXT_POPUP_WINDOW_FXML_PATH);
@@ -143,14 +165,15 @@ public class HeaderController {
     }
 
     private void addWCStatusClickableMenu() {
-        ClickableMenu wcStatusClickableMenu = new ClickableMenu("WC Status");
+        ClickableMenu wcStatusClickableMenu = new ClickableMenu("WC Status", null);
         wcStatusClickableMenu.disableProperty().bind(noAvailableRepository);
         wcStatusClickableMenu.setOnAction(event -> mainController.ShowWCStatus());
         topMenuBar.getMenus().add(wcStatusClickableMenu);
     }
 
     private void addCommitClickableMenu() {
-        ClickableMenu commitClickableMenu = new ClickableMenu("Commit");
+        Image greenVImage = new Image("/resources/green-v-icon.png");
+        ClickableMenu commitClickableMenu = new ClickableMenu("Commit", greenVImage);
         commitClickableMenu.disableProperty().bind(noAvailableRepository);
         commitClickableMenu.setOnAction(event -> Commit());
         topMenuBar.getMenus().add(commitClickableMenu);
@@ -160,41 +183,35 @@ public class HeaderController {
     @FXML
     public void updateUsernameButtonAction(ActionEvent actionEvent) {
         Stage stage = new Stage();
-        stage.setTitle("Update Username");
-        popupWindowController.setLabel("Enter Username:");
-        popupWindowController.ClearTextField();
-        stage.setScene(popupWindowScene);
-        stage.initModality(Modality.APPLICATION_MODAL);
+        SetPopupWindowAndStage(stage, "Update Username", "Enter Username:");
         stage.showAndWait();
+
         if (popupWindowController.isActionNotCanelled()) {
             username.setValue(popupWindowController.getText());
             mainController.setUsername(username);
         }
     }
 
+    public void SetPopupWindowAndStage(Stage stage, String stageTitle, String label) {
+        stage.setTitle(stageTitle);
+        popupWindowController.setLabel(label);
+        popupWindowController.ClearTextField();
+        stage.setScene(popupWindowScene);
+        stage.initModality(Modality.APPLICATION_MODAL);
+        stage.setMinHeight(160);
+        stage.setMinWidth(240);
+        stage.setMaxHeight(300);
+        stage.setMaxWidth(450);
+    }
+
     @FXML
     public void newRepositoryButtonAction(ActionEvent actionEvent) {
-        DirectoryChooser directoryChooser = new DirectoryChooser();
-        directoryChooser.setTitle("Select location for repository");
-        File f = directoryChooser.showDialog(new Stage());
-        if (f != null) {
-            Stage stage = new Stage();
-            stage.setTitle("New Repository's Name:");
-            popupWindowController.setLabel("Enter name of repository:");
-            popupWindowController.ClearTextField();
-            stage.setScene(popupWindowScene);
-            stage.initModality(Modality.APPLICATION_MODAL);
-            stage.showAndWait();
-            if (popupWindowController.isActionNotCanelled()) {
-                String repoFullPath = f.getPath();
-                repoFullPath += popupWindowController.getText();
-                currentRepository.setValue(repoFullPath);
-                mainController.createNewRepository(currentRepository.getValue());
-                noAvailableRepository.setValue(Boolean.FALSE);
-                clearBranchesMenu();
-                UpdateBranches();
-            }
-        }
+        Stage stage = new Stage();
+        stage.setTitle("Create new repository");
+        stage.setScene(createEmptyRepositryWindowScene);
+        stage.initModality(Modality.APPLICATION_MODAL);
+
+        stage.showAndWait();
     }
 
     @FXML
@@ -202,7 +219,7 @@ public class HeaderController {
         DirectoryChooser directoryChooser = new DirectoryChooser();
         directoryChooser.setTitle("Select repository");
         File file = directoryChooser.showDialog(new Stage());
-        if(file != null){
+        if (file != null) {
             mainController.SwitchRepository(file.getPath());
             currentRepository.setValue(mainController.getRepositoryName());
             noAvailableRepository.setValue(Boolean.FALSE);
@@ -212,7 +229,7 @@ public class HeaderController {
     }
 
     private void clearBranchesMenu() {
-        for(Map.Entry<String, Menu> branchMenu : currentBranchesMenus.entrySet()){
+        for (Map.Entry<String, Menu> branchMenu : currentBranchesMenus.entrySet()) {
             String branchName = branchMenu.getKey();
             branchesMenu.getItems().remove(currentBranchesMenus.get(branchName));
         }
@@ -252,6 +269,10 @@ public class HeaderController {
             stage.setScene(pathContainsRepositoryWindowScene);
             stage.setAlwaysOnTop(true);
             stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setMinWidth(370);
+            stage.setMinHeight(240);
+            stage.setMaxWidth(470);
+            stage.setMaxHeight(340);
             stage.showAndWait();
         } catch (XmlPathContainsNonRepositoryObjectsException e) {
             mainController.showErrorWindow(e.getMessage());
@@ -313,6 +334,9 @@ public class HeaderController {
 
         MenuItem delete = new MenuItem();
         delete.setText("Delete");
+        Image addImage = new Image("/resources/trash-icon.png");
+
+        delete.setGraphic(new ImageView(addImage));
         delete.disableProperty().bind(isHeadBranch);
         delete.visibleProperty().bind(isHeadBranch.not());
         delete.setOnAction((x) -> deleteBranch(branchName));
@@ -344,12 +368,9 @@ public class HeaderController {
 
     private void resetHead() {
         Stage stage = new Stage();
-        stage.setTitle("Reset Head");
-        popupWindowController.setLabel("Enter sha1 of commit:");
-        popupWindowController.ClearTextField();
-        stage.setScene(popupWindowScene);
-        stage.initModality(Modality.APPLICATION_MODAL);
+        SetPopupWindowAndStage(stage, "Reset Head", "Enter sha1 of commit:");
         stage.showAndWait();
+
         if (popupWindowController.isActionNotCanelled()) {
             mainController.ResetHead(popupWindowController.getText());
         }
@@ -397,7 +418,7 @@ public class HeaderController {
         return message;
     }
 
-    public String GetNewBranchName(){
+    public String GetNewBranchName() {
         String branchName = null;
         Stage stage = new Stage();
         stage.setTitle("New Branch");
@@ -410,5 +431,13 @@ public class HeaderController {
             branchName = popupWindowController.getText();
         }
         return branchName;
+    }
+
+    public void createNewRepository(String repositoryPath, String mainFolderName, String repositoryName) {
+        mainController.createNewRepository(repositoryPath + File.separator + mainFolderName, repositoryName);
+        currentRepository.setValue(repositoryName);
+        noAvailableRepository.setValue(Boolean.FALSE);
+        clearBranchesMenu();
+        UpdateBranches();
     }
 }

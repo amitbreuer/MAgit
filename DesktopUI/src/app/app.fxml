@@ -1,22 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.Cursor?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
 
-<BorderPane fx:id="borderPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="513.0" prefWidth="910.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="app.AppController">
+<BorderPane fx:id="borderPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="600.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="app.AppController">
    <top>
-      <fx:include fx:id="headerComponent" source="../header/headerComponent.fxml" />
+      <fx:include fx:id="headerComponent" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" prefHeight="90.0" prefWidth="90.0" source="../header/headerComponent.fxml" />
    </top>
    <center>
-      <fx:include fx:id="bodyComponent" maxWidth="1.7976931348623157E308" source="../body/bodyComponent.fxml" />
+      <fx:include fx:id="bodyComponent" minWidth="-Infinity" prefWidth="200.0" source="../body/bodyComponent.fxml" BorderPane.alignment="BOTTOM_CENTER" />
    </center>
    <left>
-      <fx:include fx:id="leftComponent" source="../left/leftComponent.fxml" />
+      <fx:include fx:id="leftComponent" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minWidth="-Infinity" prefWidth="200.0" source="../left/leftComponent.fxml" BorderPane.alignment="CENTER_LEFT" />
    </left>
    <right>
-      <fx:include fx:id="rightComponent" source="../right/rightComponent.fxml" />
+      <fx:include fx:id="rightComponent" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minWidth="-Infinity" prefWidth="200.0" source="../right/rightComponent.fxml" BorderPane.alignment="CENTER_RIGHT" />
    </right>
    <bottom>
-      <AnchorPane prefHeight="39.0" prefWidth="910.0" style="-fx-border-color: gray;" BorderPane.alignment="CENTER" />
+      <AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" prefHeight="39.0" prefWidth="910.0" style="-fx-border-color: gray;" />
    </bottom>
+   <cursor>
+      <Cursor fx:constant="DEFAULT" />
+   </cursor>
 </BorderPane>

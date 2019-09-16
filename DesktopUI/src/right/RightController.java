@@ -37,8 +37,8 @@ public class RightController {
     }
 
     public void ShowSingleCommitFilesTree(Commit commit,String repositoryName) {
-        Image folderImage = new Image("/app/resources/blue-folder-icon.png");
-        Image textImage = new Image("/app/resources/file-text-icon.png"); //move to right resources constants?
+        Image folderImage = new Image("/resources/blue-folder-icon.png");
+        Image textImage = new Image("/resources/file-text-icon.png"); //move to right resources constants?
 
         TreeItem<String> root = new TreeItem<>(repositoryName, new ImageView(folderImage));
         root.setExpanded(Boolean.TRUE);

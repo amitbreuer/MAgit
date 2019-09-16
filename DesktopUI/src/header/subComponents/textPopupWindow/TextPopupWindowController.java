@@ -24,7 +24,7 @@ public class TextPopupWindowController {
     @FXML private void initialize(){
         text = new SimpleStringProperty();
         text.bind(textField.textProperty());
-        //okButton.setDisable(textField.textProperty().isEmpty().getValue().equals(true));
+        okButton.disableProperty().bind(textField.textProperty().isEmpty());
     }
 
     public void setMainController(HeaderController mainController) {

@@ -147,9 +147,9 @@ public class AppController {
         magitManager.SetUsername(text.getValue());
     }
 
-    public void createNewRepository(String repositoryPath){
+    public void createNewRepository(String repositoryPath, String repositoryName){
         try {
-            magitManager.CreateEmptyRepository(repositoryPath);
+            magitManager.CreateEmptyRepository(repositoryPath,repositoryName);
             clearDisplay();
             //bottomComponentController.setMessage("Created and Switched to " + repositoryPath);
         } catch (Exception e) {
@@ -378,7 +378,8 @@ public class AppController {
         errorPopupWindowController.SetErrorMessage(errorMessage);
         stage.setScene(errorPopupWindowScene);
         stage.initModality(Modality.APPLICATION_MODAL);
-        stage.show();
+        stage.setResizable(false);
+        stage.showAndWait();
     }
 
     private void clearDisplay() {

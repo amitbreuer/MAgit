@@ -5,11 +5,11 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="128.0" prefWidth="328.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="header.subComponents.textPopupWindow.TextPopupWindowController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="150.0" prefWidth="328.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="header.subComponents.textPopupWindow.TextPopupWindowController">
    <children>
-      <Label fx:id="label" layoutX="27.0" layoutY="17.0" text="Label" />
-      <TextField fx:id="textField" layoutX="27.0" layoutY="44.0" prefHeight="25.0" prefWidth="184.0" />
-      <Button fx:id="cancelButton" cancelButton="true" layoutX="247.0" layoutY="90.0" mnemonicParsing="false" onAction="#cancelButtonAction" prefHeight="25.0" prefWidth="67.0" text="Cancel" AnchorPane.bottomAnchor="12.666666666666668" />
-      <Button fx:id="okButton" defaultButton="true" layoutX="166.0" layoutY="90.0" mnemonicParsing="false" onAction="#okButtonAction" prefHeight="25.0" prefWidth="67.0" text="OK" AnchorPane.bottomAnchor="12.666666666666668" />
+      <Label fx:id="label" layoutX="27.0" layoutY="17.0" text="Label" AnchorPane.topAnchor="17.0" />
+      <TextField fx:id="textField" layoutX="27.0" layoutY="44.0" prefHeight="25.0" prefWidth="184.0" AnchorPane.topAnchor="44.0" />
+      <Button fx:id="cancelButton" cancelButton="true" layoutX="247.0" layoutY="90.0" mnemonicParsing="false" onAction="#cancelButtonAction" prefHeight="25.0" prefWidth="67.0" text="Cancel" AnchorPane.bottomAnchor="12.0" AnchorPane.rightAnchor="13.666666666666615" />
+      <Button fx:id="okButton" defaultButton="true" layoutX="166.0" layoutY="90.0" mnemonicParsing="false" onAction="#okButtonAction" prefHeight="25.0" prefWidth="67.0" text="OK" AnchorPane.bottomAnchor="12.666666666666668" AnchorPane.rightAnchor="100.0" />
    </children>
 </AnchorPane>

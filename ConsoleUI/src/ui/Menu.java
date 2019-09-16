@@ -310,7 +310,7 @@ public class Menu {
                     repositoryPath = scanner.nextLine();
                     System.out.println("Enter the name of the new repository:");
                     repositoryName = scanner.nextLine();
-                    magitManager.CreateEmptyRepository(repositoryPath + ":/" + repositoryName);
+                    magitManager.CreateEmptyRepository(repositoryPath,repositoryName);
 
                 }catch (FileAlreadyExistsException ex){
                     System.out.println(ex.getMessage());

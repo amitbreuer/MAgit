@@ -26,6 +26,7 @@ public class MagitManager {
     private String username;
     private Repository repository;
     private XmlManager xmlManager;
+    private String repositoryName;
 
     public Repository GetCurrentRepository() {
         return repository;
@@ -47,17 +48,19 @@ public class MagitManager {
         return this.repository != null;
     }
 
-    public void CreateEmptyRepository(String repositoryPath) throws Exception {
+    public void CreateEmptyRepository(String repositoryPath,String repositoryName) throws Exception {
         if (Files.exists(Paths.get(repositoryPath))) {
             throw new FileAlreadyExistsException("The path you have entered already exists");
         } else {
             this.repository = new Repository(repositoryPath);
+            this.repositoryName = repositoryName;
 
             new File(repositoryPath).mkdirs();
-            new File(repositoryPath + "/.magit").mkdir();
+            new File(repositoryPath + File.separator + ".magit").mkdir();
             new File(this.repository.GetBranchesDirPath()).mkdir();
             new File(this.repository.GetObjectsDirPath()).mkdir();
 
+            createTextFile(repositoryPath + File.separator+ ".magit" + File.separator +"repositoryName.txt",repositoryName);
             createTextFile(this.repository.GetBranchesDirPath() + File.separator + "HEAD.txt", "master");
             createTextFile(this.repository.GetBranchesDirPath() + File.separator + "master.txt", "");
             Branch masterBranch = new Branch("master", null);
@@ -86,6 +89,7 @@ public class MagitManager {
 
             if (isRepository) {
                 this.repository = new Repository(repositoryPath);
+                this.repositoryName = convertTextFileToString(this.repository.getPath().toString()+File.separator + ".magit" + File.separator + "repositoryName.txt");
                 headBranchName = this.repository.getHeadBranchNameFromBranchesDir();
                 headBranchContent = convertTextFileToString(this.repository.GetBranchesDirPath() + File.separator + headBranchName + ".txt");
                 if (!headBranchContent.equals("")) { // if there is a commit sha1 in head branch file
@@ -790,7 +794,7 @@ public class MagitManager {
             Path commitTextFilePath = Paths.get(this.repository.GetObjectsDirPath()
                     + File.separator + sha1 + File.separator + ".zip");
             if (!Files.exists(commitTextFilePath)) {
-                throw new Exception("There is no commit " + sha1);
+                throw new Exception("There is no commit with the sha1: " + sha1);
             }
             commitToResetTo = CreateCommitFromSha1(sha1);
         }
@@ -828,7 +832,7 @@ public class MagitManager {
 
     public void createRepositoryFromMagitRepository() throws Exception {
         deleteDirectory(Paths.get(this.xmlManager.getMagitRepository().getLocation()));
-        CreateEmptyRepository(this.xmlManager.getMagitRepository().getLocation());
+        CreateEmptyRepository(this.xmlManager.getMagitRepository().getLocation(),this.xmlManager.getMagitRepository().getName());
         this.repository.getBranches().clear();
         File masterBranch = new File(this.repository.GetBranchesDirPath() + File.separator + "master.txt");
         masterBranch.delete();
@@ -898,8 +902,7 @@ public class MagitManager {
     }
 
     public String getRepositoryName() {
-        String absolutePath = repository.getPath().toString();
-        return new File(absolutePath).getAbsolutePath();
+        return this.repositoryName;
     }
 
     public Folder CreateMergedFolderAndFindConflicts(String branchToMergeName,Conflicts conflicts) throws Exception {
