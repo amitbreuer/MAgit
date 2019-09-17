@@ -400,8 +400,8 @@ public class MagitManager {
         return allBranchesDetails;
     }
 
-    private Branch createBranchFromObjectFileSha1(String branchName, String sha1) throws IOException {
-        Commit newCommit = createCommitFromObjectFile(sha1);
+    private Branch createBranchFromObjectFileSha1(String branchName, String sha1) {
+        Commit newCommit = CreateCommitFromSha1(sha1);
         StringTokenizer tokenizer = new StringTokenizer(branchName, "."); // to cut the extension ".txt"
         Branch newBranch = new Branch(tokenizer.nextToken(), newCommit);
         return newBranch;
