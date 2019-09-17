@@ -1,6 +1,7 @@
 package engine;
 
 import app.AppController;
+import exceptions.ActiveBranchContainsMergedBranchException;
 import exceptions.XmlPathContainsNonRepositoryObjectsException;
 import exceptions.XmlRepositoryAlreadyExistsException;
 import generated.*;
@@ -596,13 +597,12 @@ public class MagitManager {
             createNewObjectFileFromDelta(delta);//create new object files for all new/updated files
             createNewObjectFile(currentWC.toString());//create object file that contains the new app folder
             createNewObjectFile(newCommit.toString());//create object file that contains the new commit
-        } else {
-            throw new Exception("There are no open changes");
         }
 
         try {
             writeToFile(headBranchFilePath, newCommit.Sha1Commit());
         } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -922,6 +922,16 @@ public class MagitManager {
         String oursCommitSha1 = this.repository.getHeadBranch().getLastCommit().Sha1Commit();
         String ancestorCommitSha1 = ancestorFinder.traceAncestor(oursCommitSha1, theirsCommitSha1);
 
+        // Fast Forward
+        if(oursCommitSha1.equals(ancestorCommitSha1)){
+            Commit theirsCommit = CreateCommitFromSha1(theirsCommitSha1);
+            this.repository.getHeadBranch().setLastCommit(theirsCommit);
+            return theirsCommit.getMainFolder();
+        }
+        if(theirsCommitSha1.equals(ancestorCommitSha1)){
+            throw new ActiveBranchContainsMergedBranchException();
+        }
+
         //create three folders - ours,theirs,ancestor
         Folder oursFolder = CreateCommitFromSha1(oursCommitSha1).getMainFolder();
         Folder theirsFolder = CreateCommitFromSha1(theirsCommitSha1).getMainFolder();
@@ -1190,5 +1200,9 @@ public class MagitManager {
         for (ConflictComponent cc : conflictComponentList) {
             cc.updateContainingFolder();
         }
+    }
+
+    public String GetHeadBranchName(){
+        return this.repository.getHeadBranch().getName();
     }
 }
