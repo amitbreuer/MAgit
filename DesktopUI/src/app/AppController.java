@@ -393,4 +393,12 @@ public class AppController {
             e.printStackTrace();
         }
     }
+
+    public void Clone() {
+        magitManager.CloneRepository("C:\\repo1","C:","amitrepository","amit");
+    }
+    public void Fetch(){
+
+
+    }
 }

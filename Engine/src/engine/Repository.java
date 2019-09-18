@@ -11,10 +11,27 @@ import java.util.Map;
 
 public class Repository {
     private Path path;
-    private Map<String,Commit> recentlyUsedCommits;
-    private List<Branch> branches;
+    private Map<String, Commit> recentlyUsedCommits;
+    private Map<String, Branch> branches;
     private Branch headBranch;
+    private Path remoteRepositoryPath;
+    private String remoteRepositoryname;
 
+    public void setRemoteRepositoryname(String remoteRepositoryname) {
+        this.remoteRepositoryname = remoteRepositoryname;
+    }
+
+    public String getRemoteRepositoryname() {
+        return remoteRepositoryname;
+    }
+
+    public void setRemoteRepositoryPath(Path remoteRepositoryPath) {
+        this.remoteRepositoryPath = remoteRepositoryPath;
+    }
+
+    public Path getRemoteRepositoryPath() {
+        return remoteRepositoryPath;
+    }
 
     public Repository(String path) {
         this.path = Paths.get(path);
@@ -26,7 +43,7 @@ public class Repository {
         return headBranch;
     }
 
-    public List<Branch> getBranches() {
+    public Map<String, Branch> getBranches() {
         return branches;
     }
 
@@ -54,33 +71,19 @@ public class Repository {
         return headBranchName;
     }
 
-     boolean branchExistsInList(String name) {
-        boolean branchExists = false;
-        for (Branch b : branches) {
-            if (b.getName().equals(name)){
-                branchExists = true;
-            }
-        }
-        return branchExists;
+    boolean branchExistsInList(String name) {
+        return branches.containsKey(name);
     }
 
     public Branch FindBranchByName(String branchName) {
-        Branch branchToFind = null;
-        for(Branch branch : branches){
-            if(branch.getName().equals(branchName)){
-                branchToFind = branch;
-                break;
-            }
-        }
-
-        return branchToFind;
+        return branches.get(branchName);
     }
 
-    public String GetBranchesDirPath(){
+    public String GetBranchesDirPath() {
         return this.getPath().toString() + File.separator + ".magit" + File.separator + "branches";
     }
 
-    public String GetObjectsDirPath(){
+    public String GetObjectsDirPath() {
         return this.getPath().toString() + File.separator + ".magit" + File.separator + "objects";
     }
 }

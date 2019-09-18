@@ -4,10 +4,28 @@ public class Branch {
 
     private String name;
     private Commit lastCommit;
+    private boolean isRB;
+    private boolean isRTB;
 
     public Branch(String name, Commit lastCommit) {
         this.name = name;
         this.lastCommit = lastCommit;
+    }
+
+    public void setIsRB(Boolean isRB) {
+        this.isRB = isRB;
+    }
+
+    public void setIsRTB(Boolean isRTB) {
+        this.isRTB = isRTB;
+    }
+
+    public Boolean getIsRB() {
+        return isRB;
+    }
+
+    public Boolean getIsRTB() {
+        return isRTB;
     }
 
     public String getName() {

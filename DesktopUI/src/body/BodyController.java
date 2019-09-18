@@ -73,7 +73,7 @@ public class BodyController {
             Commit branchLastCommit = branch.getLastCommit();
             if (branchLastCommit != null) {
                 CommitNode branchLastCommitNode = commitNodesMap.get(branchLastCommit.getSha1());
-                branchLastCommitNode.AddPointedBranch(branch.getName());
+                branchLastCommitNode.AddPointedBranch(branch);
                 connectCommitNodesEdges(branchLastCommit, commitsMap, commitNodesMap, edges);
             }
         }

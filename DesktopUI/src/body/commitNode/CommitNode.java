@@ -4,6 +4,7 @@ import body.BodyController;
 import com.fxgraph.cells.AbstractCell;
 import com.fxgraph.graph.Graph;
 import com.fxgraph.graph.IEdge;
+import engine.Branch;
 import engine.Commit;
 import javafx.beans.binding.DoubleBinding;
 import javafx.fxml.FXMLLoader;
@@ -26,7 +27,7 @@ public class CommitNode extends AbstractCell {
     private String mergeChildSha1;
     private CommitNodeController commitNodeController;
     private BodyController bodyController;
-    private Set<String> pointedBranches;
+    private Set<Branch> pointedBranches;
 
     public CommitNode(Commit commit, BodyController bodyController) {
         this.sha1 = commit.getSha1();
@@ -111,7 +112,7 @@ public class CommitNode extends AbstractCell {
         return dateCreated != null ? dateCreated.hashCode() : 0;
     }
 
-    public void AddPointedBranch(String branchName) {
-        this.pointedBranches.add(branchName);
+    public void AddPointedBranch(Branch branch) {
+        this.pointedBranches.add(branch);
     }
 }
