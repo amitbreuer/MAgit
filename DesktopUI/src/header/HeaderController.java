@@ -182,14 +182,15 @@ public class HeaderController {
     //on actions
     @FXML
     public void updateUsernameButtonAction(ActionEvent actionEvent) {
-        Stage stage = new Stage();
+        mainController.Clone();
+        /*Stage stage = new Stage();
         SetPopupWindowAndStage(stage, "Update Username", "Enter Username:");
         stage.showAndWait();
 
         if (popupWindowController.isActionNotCanelled()) {
             username.setValue(popupWindowController.getText());
             mainController.setUsername(username);
-        }
+        }*/
     }
 
     public void SetPopupWindowAndStage(Stage stage, String stageTitle, String label) {

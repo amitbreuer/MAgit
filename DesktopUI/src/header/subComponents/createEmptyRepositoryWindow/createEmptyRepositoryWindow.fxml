@@ -6,7 +6,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 
 
-<AnchorPane fx:id="createEmptyrepositoryAnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="255.0" prefWidth="495.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="header.subComponents.createEmptyRepositoryWindow.CreateEmptyRepositoryWindowController">
+<AnchorPane fx:id="createEmptyrepositoryAnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="255.0" prefWidth="495.0" xmlns="http://javafx.com/javafx/8.0.211" xmlns:fx="http://javafx.com/fxml/1" fx:controller="header.subComponents.createEmptyRepositoryWindow.CreateEmptyRepositoryWindowController">
    <children>
       <Label layoutX="27.0" layoutY="49.0" text="Repository name: " />
       <Label layoutX="27.0" layoutY="148.0" text="Main folder name:" />

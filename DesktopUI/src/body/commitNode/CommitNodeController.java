@@ -2,16 +2,19 @@ package body.commitNode;
 
 import body.BodyController;
 import body.binds.ParentIsNullBind;
+import engine.Branch;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.shape.Circle;
 
 import java.util.List;
@@ -31,13 +34,13 @@ public class CommitNodeController {
     @FXML
     Circle CommitCircle;
     @FXML
-    AnchorPane branchesLabels;
+    HBox branchesLabels;
 
     private SimpleStringProperty branchParentSha1;
     private SimpleStringProperty mergeParentSha1;
     private SimpleBooleanProperty hasPointedBranches;
     private BodyController mainController;
-    private Set<String> pointedBranches;
+    private Set<Branch> pointedBranches;
 
     @FXML
     public void initialize() {
@@ -79,13 +82,15 @@ public class CommitNodeController {
             @Override
             public void handle(ContextMenuEvent event) {
                 deleteBranch.getItems().clear();
-                for (String branchName : pointedBranches) {
+                for (Branch branch : pointedBranches) {
+                    String branchName = branch.getName();
                     MenuItem branchItem = new MenuItem(branchName);
                     branchItem.setOnAction(x -> mainController.DeleteBranchFromCommit(branchName));
                     deleteBranch.getItems().add(branchItem);
                 }
                 mergeWithHead.getItems().clear();
-                for (String branchName : pointedBranches) {
+                for (Branch branch : pointedBranches) {
+                    String branchName = branch.getName();
                     MenuItem branchItem = new MenuItem(branchName);
                     branchItem.setOnAction(x -> mainController.MergeBranchWithHead(branchName));
                     mergeWithHead.getItems().add(branchItem);
@@ -133,11 +138,17 @@ public class CommitNodeController {
         this.mergeParentSha1.setValue(mergeParentSha1);
     }
 
-    public void setPointedBranches(Set<String> pointedBranches) {
+    public void setPointedBranches(Set<Branch> pointedBranches) {
         this.pointedBranches = pointedBranches;
-        for (String branchName : pointedBranches) {
-            Label branchLabel = new Label(branchName);
-            branchLabel.setStyle("-fx-background-color: yellow;");
+        for (Branch branch : pointedBranches) {
+            Label branchLabel = new Label(branch.getName());
+            branchLabel.setPadding(new Insets(0,20,0,20));
+
+            if(branch.getIsRB()) {
+                branchLabel.setStyle("-fx-background-color: green;");
+            } else {
+                branchLabel.setStyle("-fx-background-color: yellow;");
+            }
             branchesLabels.getChildren().add(branchLabel);
         }
         hasPointedBranches.setValue(!pointedBranches.isEmpty());

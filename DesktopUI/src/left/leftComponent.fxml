@@ -12,6 +12,6 @@
             <Font name="System Bold" size="12.0" />
          </font>
       </Label>
-      <ScrollPane fx:id="displayScrollPane" prefHeight="349.0" prefWidth="199.0" />
+      <ScrollPane fx:id="displayScrollPane" fitToHeight="true" prefHeight="361.0" prefWidth="199.0" />
   </items>
 </SplitPane>
