@@ -1,9 +1,11 @@
 package engine;
 
 import app.AppController;
+import exceptions.ActiveBranchContainsMergedBranchException;
 import exceptions.XmlPathContainsNonRepositoryObjectsException;
 import exceptions.XmlRepositoryAlreadyExistsException;
 import generated.*;
+import header.binds.BranchNameBind;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import puk.team.course.magit.ancestor.finder.AncestorFinder;
@@ -86,7 +88,7 @@ public class MagitManager {
         if (this.repository != null && this.repository.getPath().equals(path)) {
             throw new Exception("You already working with the repository - " + path.toString());
         } else {
-            isRepository = Files.exists(Paths.get(repositoryPath + "/.magit"));
+            isRepository = Files.exists(Paths.get(repositoryPath + File.separator + ".magit"));
 
             if (isRepository) {
                 this.repository = new Repository(repositoryPath);
@@ -634,13 +636,12 @@ public class MagitManager {
             createNewObjectFileFromDelta(delta);//create new object files for all new/updated files
             createNewObjectFile(currentWC.toString());//create object file that contains the new app folder
             createNewObjectFile(newCommit.toString());//create object file that contains the new commit
-        } else {
-            throw new Exception("There are no open changes");
         }
 
         try {
             writeToFile(headBranchFilePath, newCommit.Sha1Commit());
         } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -856,7 +857,7 @@ public class MagitManager {
         createRepositoryFromMagitRepository();
     }
 
-    private void deleteDirectory(Path path) throws IOException {
+    private void deleteDirectory(Path path) {
         File file = path.toFile();
         if (file.isDirectory()) {
             for (File f : file.listFiles())
@@ -885,6 +886,8 @@ public class MagitManager {
         for (MagitSingleBranch mb : magitBranches) {
             commitToCreate = createCommitFromMagitCommit(this.xmlManager.existingCommits.get(mb.getPointedCommit().getId()));
             branchToCreate = new Branch(mb.getName(), commitToCreate);
+            branchToCreate.setIsRB(mb.isIsRemote());
+            branchToCreate.setIsRTB(mb.isTracking());
             this.repository.getBranches().put(branchToCreate.getName(), branchToCreate);
             if (branchToCreate.getName().equals(headBranchName)) {
                 this.repository.setHeadBranch(branchToCreate);
@@ -892,8 +895,18 @@ public class MagitManager {
                         + "HEAD.txt", headBranchName);
             }
 
-            createTextFile(this.repository.GetBranchesDirPath() + File.separator
-                    + branchToCreate.getName() + ".txt", commitToCreate.Sha1Commit());
+            if (branchToCreate.getIsRB()) {
+                StringTokenizer tokenizer = new StringTokenizer(branchToCreate.getName(), "\\");
+                String RRName = tokenizer.nextToken();
+                if (!Files.exists(Paths.get(this.repository.GetBranchesDirPath() + File.separator + RRName))) {
+                    new File(this.repository.GetBranchesDirPath() + File.separator + RRName).mkdirs();
+                }
+                createTextFile(this.repository.GetBranchesDirPath() + File.separator
+                        + RRName + File.separator + tokenizer.nextToken() + ".txt", commitToCreate.Sha1Commit());
+            } else {
+                createTextFile(this.repository.GetBranchesDirPath() + File.separator
+                        + branchToCreate.getName() + ".txt", commitToCreate.Sha1Commit());
+            }
         }
     }
 
@@ -940,6 +953,10 @@ public class MagitManager {
         return this.repositoryName;
     }
 
+    public String getRepositoryPath() {
+        return this.repository.getPath().toString();
+    }
+
     public Folder CreateMergedFolderAndFindConflicts(String branchToMergeName, Conflicts conflicts) throws Exception {
         try {
             if (thereAreUncommittedChanges()) {
@@ -957,6 +974,16 @@ public class MagitManager {
         String oursCommitSha1 = this.repository.getHeadBranch().getLastCommit().Sha1Commit();
         String ancestorCommitSha1 = ancestorFinder.traceAncestor(oursCommitSha1, theirsCommitSha1);
         String objectsDirPath = this.repository.GetObjectsDirPath();
+
+        // Fast Forward
+        if (oursCommitSha1.equals(ancestorCommitSha1)) {
+            Commit theirsCommit = CreateCommitFromSha1(theirsCommitSha1);
+            this.repository.getHeadBranch().setLastCommit(theirsCommit);
+            return theirsCommit.getMainFolder();
+        }
+        if (theirsCommitSha1.equals(ancestorCommitSha1)) {
+            throw new ActiveBranchContainsMergedBranchException();
+        }
 
         //create three folders - ours,theirs,ancestor
         Folder oursFolder = CreateCommitFromSha1(oursCommitSha1, objectsDirPath).getMainFolder();

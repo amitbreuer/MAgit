@@ -10,7 +10,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.VBox?>
 
-<ScrollPane fitToWidth="true" xmlns="http://javafx.com/javafx/8.0.211" xmlns:fx="http://javafx.com/fxml/1" fx:controller="header.HeaderController">
+<ScrollPane fitToWidth="true" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="header.HeaderController">
    <content>
       <VBox fx:id="topVBOX">
          <children>
@@ -23,6 +23,14 @@
                         <MenuItem fx:id="switchRepositoryButton" mnemonicParsing="false" onAction="#switchRepositoryButtonAction" text="Switch Repository" />
                         <MenuItem fx:id="loadViaXMLButton" mnemonicParsing="false" onAction="#loadViaXMLButtonAction" text="Load Via XML" />
                      </items>
+                  </Menu>
+                  <Menu mnemonicParsing="false" text="Remote">
+                    <items>
+                      <MenuItem fx:id="cloneButton" mnemonicParsing="false" onAction="#cloneButtonAction" text="Clone" />
+                        <MenuItem fx:id="fetchButton" mnemonicParsing="false" onAction="#fetchButtonAction" text="Fetch" />
+                        <MenuItem fx:id="pullButton" mnemonicParsing="false" onAction="#pullButtonAction" text="Pull" />
+                        <MenuItem fx:id="pushButton" mnemonicParsing="false" onAction="#pushButtonAction" text="Push" />
+                    </items>
                   </Menu>
                   <Menu fx:id="branchesMenu" mnemonicParsing="false" text="Branches">
                      <items>
@@ -47,7 +55,9 @@
             <AnchorPane>
                <children>
                   <Label fx:id="currentRepositoryLabel" layoutX="6.0" text="Current Repository:" />
-                  <Label fx:id="repositoryLabel" layoutX="149.0" text="...." />
+                  <Label fx:id="repositoryNameLabel" layoutX="149.0" text="...." />
+                  <Label layoutX="272.0" text="Path:" />
+                  <Label fx:id="repositoryPathLabel" layoutX="335.0" text="..." />
                </children>
             </AnchorPane>
             <AnchorPane>

@@ -11,7 +11,6 @@ import engine.Branch;
 import engine.Commit;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.control.*;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -137,7 +136,6 @@ public class BodyController {
             currentCommit = commitsMap.get(prevCommitSha1);
         }
         xCoordinate += 30;
-        for (Map.Entry<String,Branch> entry: branches.entrySet()) ;
 
         for (Map.Entry<String,Branch> entry: branches.entrySet()) {
             if (!entry.getValue().equals(headBranch)) {

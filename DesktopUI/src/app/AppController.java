@@ -6,6 +6,7 @@ import app.subComponents.singleConflictWindow.SingleConflictController;
 import app.subComponents.errorPopupWindow.ErrorPopupWindowController;
 import body.BodyController;
 import engine.*;
+import exceptions.ActiveBranchContainsMergedBranchException;
 import exceptions.XmlPathContainsNonRepositoryObjectsException;
 import exceptions.XmlRepositoryAlreadyExistsException;
 import header.HeaderController;
@@ -157,6 +158,10 @@ public class AppController {
 
     public String getRepositoryName() {
         return magitManager.getRepositoryName();
+    }
+
+    public String getRepositoryPath() {
+        return magitManager.getRepositoryPath();
     }
 
     public void replaceExistingRepositoryWithXmlRepository() {
@@ -366,16 +371,25 @@ public class AppController {
 
     public void Merge(String branchName) {
         try {
-            if(magitManager.thereAreUncommittedChanges()){
+            if (magitManager.thereAreUncommittedChanges()) {
                 showErrorWindow("Merge failed. There are open changes.");
             }
             Conflicts conflicts = new Conflicts();
-            Folder mergedFolder = magitManager.CreateMergedFolderAndFindConflicts(branchName,conflicts);
+            Folder mergedFolder = magitManager.CreateMergedFolderAndFindConflicts(branchName, conflicts);
             ResolveConflicts(conflicts);
-            magitManager.CommitMerge(mergedFolder,GetCommitsMessage(),branchName);
+            magitManager.CommitMerge(mergedFolder, GetCommitsMessage(), branchName);
             ShowWCStatus();
             showCommitTree();
             //bottomComponentController.setMessage("Merge was done successfully");
+        } catch (ActiveBranchContainsMergedBranchException e){
+            Stage stage = new Stage();
+            stage.setTitle("No Merge Was Done");
+            errorPopupWindowController.SetErrorMessage(magitManager.GetHeadBranchName() +
+                    " contains all " + branchName + "'s updates");
+            stage.setScene(errorPopupWindowScene);
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setResizable(false);
+            stage.showAndWait();
         } catch (IOException e) {
             e.printStackTrace();
         } catch (Exception e) {
@@ -384,12 +398,12 @@ public class AppController {
         }
     }
 
-    public void Clone() {
-        magitManager.CloneRepository("C:\\remoteTest2","C:\\amitrepository","amit");
+    public void Clone(String RRPath, String LRPath, String LRName) {
+        //magitManager.CloneReposotory(RRPath,LRPath,LRName);
     }
+
     public void Fetch(){
-        magitManager.Fetch();
-
-
+        //magitManager.Fetch();
     }
+
 }
