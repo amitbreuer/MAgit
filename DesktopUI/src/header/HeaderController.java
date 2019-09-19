@@ -249,7 +249,8 @@ public class HeaderController {
 
     @FXML
     public void loadViaXMLButtonAction(ActionEvent actionEvent) {
-        FileChooser fileChooser = new FileChooser();
+        mainController.Fetch();
+        /*FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Select xml file");
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("xml files", "*.xml"));
         Stage fileChooserStage = new Stage();
@@ -282,7 +283,7 @@ public class HeaderController {
             e.printStackTrace();
         }
         clearBranchesMenu();
-        UpdateBranches();
+        UpdateBranches();*/
     }
 
     @FXML
@@ -312,10 +313,10 @@ public class HeaderController {
     }
 
     public void UpdateBranches() {
-        List<Branch> branches = mainController.GetBranches();
-        for (Branch br : branches) {
-            if (!currentBranchesMenus.containsKey(br.getName())) {
-                AddBranchToBranches(br.getName());
+        Map<String,Branch> branches = mainController.GetBranches();
+        for (Map.Entry<String,Branch> entry: branches.entrySet()) {
+            if (!currentBranchesMenus.containsKey(entry.getKey())) {
+                AddBranchToBranches(entry.getKey());
             }
         }
         updateHeadBranch();

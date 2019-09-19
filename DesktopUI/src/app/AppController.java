@@ -251,7 +251,7 @@ public class AppController {
     }
 
     public void ShowSingleCommitFilesTree(String commitSha1) {
-        Commit commit = magitManager.CreateCommitFromSha1(commitSha1);
+        Commit commit = magitManager.CreateCommitFromSha1(commitSha1,magitManager.GetObjectsDirPath());
         String repositoryName = magitManager.getRepositoryName();
         rightComponentController.ShowSingleCommitFilesTree(commit,repositoryName);
     }
@@ -282,7 +282,7 @@ public class AppController {
         return magitManager.GetAllCommitsMap();
     }
 
-    public List<Branch> GetBranches() {
+    public Map<String,Branch> GetBranches() {
         return magitManager.GetCurrentRepository().getBranches();
     }
 
@@ -313,7 +313,7 @@ public class AppController {
     }
 
     public void ShowCommitInfo(String commitSha1) {
-        Commit commit = magitManager.CreateCommitFromSha1(commitSha1);
+        Commit commit = magitManager.CreateCommitFromSha1(commitSha1,magitManager.GetObjectsDirPath());
         rightComponentController.ShowCommitInfo(commit.toString());
     }
 
@@ -385,9 +385,10 @@ public class AppController {
     }
 
     public void Clone() {
-        magitManager.CloneRepository("C:\\repo1","C:","amitrepository","amit");
+        magitManager.CloneRepository("C:\\remoteTest2","C:\\amitrepository","amit");
     }
     public void Fetch(){
+        magitManager.Fetch();
 
 
     }

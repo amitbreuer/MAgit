@@ -16,7 +16,7 @@ public class Sha1ToCommitFunction implements Function {
     public CommitRepresentative apply(Object sha1) {
         CommitRepresentative commitRepresentative = null;
         try {
-            commitRepresentative = magitManager.CreateCommitFromSha1(((String)sha1));
+            commitRepresentative = magitManager.CreateCommitFromSha1(((String)sha1),magitManager.GetObjectsDirPath());
         } catch (Exception e) {
         }
         return commitRepresentative;

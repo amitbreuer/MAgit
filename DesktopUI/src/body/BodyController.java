@@ -11,6 +11,7 @@ import engine.Branch;
 import engine.Commit;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.control.*;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -58,7 +59,7 @@ public class BodyController {
         Map<String, Integer> sha1ToYCoordinate = new HashMap<>();
         Map<String, Integer> sha1ToXCoordinate = new HashMap<>();
 
-        List<Branch> branches = mainController.GetBranches();
+        Map<String, Branch> branches = mainController.GetBranches();
         Map<String, Commit> commitsMap = mainController.GetAllCommitsMap();
         Set<Edge> edges = new HashSet<>();
 
@@ -69,11 +70,11 @@ public class BodyController {
         calculateXCoordinate(branches, headBranch, sha1ToXCoordinate, commitsMap);
 
         //set edges and branches labels
-        for (Branch branch : branches) {
-            Commit branchLastCommit = branch.getLastCommit();
+        for (Map.Entry<String,Branch> entry:  branches.entrySet()) {
+            Commit branchLastCommit = entry.getValue().getLastCommit();
             if (branchLastCommit != null) {
                 CommitNode branchLastCommitNode = commitNodesMap.get(branchLastCommit.getSha1());
-                branchLastCommitNode.AddPointedBranch(branch);
+                branchLastCommitNode.AddPointedBranch(entry.getValue());
                 connectCommitNodesEdges(branchLastCommit, commitsMap, commitNodesMap, edges);
             }
         }
@@ -121,7 +122,7 @@ public class BodyController {
         }
     }
 
-    private void calculateXCoordinate(List<Branch> branches, Branch headBranch, Map<String, Integer> sha1ToXCoordinate, Map<String, Commit> commitsMap) {
+    private void calculateXCoordinate(Map<String, Branch> branches, Branch headBranch, Map<String, Integer> sha1ToXCoordinate, Map<String, Commit> commitsMap) {
         int xCoordinate = 10;
         int numOfBrancheNodes;
         Commit currentCommit = headBranch.getLastCommit();
@@ -136,11 +137,12 @@ public class BodyController {
             currentCommit = commitsMap.get(prevCommitSha1);
         }
         xCoordinate += 30;
+        for (Map.Entry<String,Branch> entry: branches.entrySet()) ;
 
-        for (Branch branch : branches) {
-            if (!branch.equals(headBranch)) {
+        for (Map.Entry<String,Branch> entry: branches.entrySet()) {
+            if (!entry.getValue().equals(headBranch)) {
                 numOfBrancheNodes = 0;
-                currentCommit = branch.getLastCommit();
+                currentCommit = entry.getValue().getLastCommit();
                 while (currentCommit != null) {
                     if (!sha1ToXCoordinate.containsKey(currentCommit.getSha1())) {
                         sha1ToXCoordinate.put(currentCommit.getSha1(), xCoordinate);
@@ -152,7 +154,7 @@ public class BodyController {
                     }
                     currentCommit = commitsMap.get(prevCommitSha1);
                 }
-                if(numOfBrancheNodes > 0){
+                if (numOfBrancheNodes > 0) {
                     xCoordinate += 30;
                 }
             }
