@@ -36,7 +36,7 @@ public class Repository {
     public Repository(String path) {
         this.path = Paths.get(path);
         this.recentlyUsedCommits = new HashMap<>();
-        this.branches = new ArrayList<>();
+        this.branches = new HashMap<>();
     }
 
     public Branch getHeadBranch() {

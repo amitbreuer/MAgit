@@ -5,6 +5,7 @@ import generated.*;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -19,6 +20,7 @@ public class XmlManager {
     Map<String, MagitBlob> existingBlobs;
     Map<String, MagitSingleFolder> existingFolders;
     Map<String,MagitSingleCommit> existingCommits;
+    Map<String,MagitSingleBranch> existingBranches;
 
     public MagitRepository getMagitRepository() {
         return magitRepository;
@@ -28,14 +30,29 @@ public class XmlManager {
         this.existingBlobs = createExistingBlobsMap();
         this.existingFolders = createExistingFoldersMap();
         this.existingCommits = createExistingCommitsMap();
+        this.existingBranches = createExistingBrancesMap();
     }
 
     void createMagitRepositoryFromXml(String fileFullName) throws Exception {
         validateName(fileFullName);
         InputStream inputStream = new FileInputStream(fileFullName);
         this.magitRepository = deserializeFrom(inputStream);
+        MagitRepository.MagitRemoteReference remoteReference = this.magitRepository.getMagitRemoteReference();
+        if(remoteReference != null){
+            if(remoteReference.getLocation() != null && !remoteReference.getLocation().equals("") &&
+                    remoteReference.getName() != null && !remoteReference.getName().equals("")){
+                if(!isRepository(magitRepository.getMagitRemoteReference().getLocation())){
+                    throw new Exception(magitRepository.getMagitRemoteReference().getName() + " is not a repository");
+                }
+            }
+        }
+
         setExisitngMaps();
         validateMagitRepository();
+    }
+
+    private boolean isRepository(String repositoryPath) {
+        return Files.exists(Paths.get(repositoryPath + File.separator +".magit"));
     }
 
     private void validateName(String fileFullName) throws Exception {
@@ -97,10 +114,31 @@ public class XmlManager {
             if(!existingCommits.containsKey(mb.getPointedCommit().getId())){
                 throw new Exception("The commit pointed by branch " + mb.getName() + " does not exist");
             }
+            if(mb.isTracking()){
+                if(!existingBranches.containsKey(mb.getTrackingAfter())){
+                    throw new Exception("The branch " + mb.getName() + " is tracking after does not exist");
+                } else {
+                    MagitSingleBranch trackingAfter = existingBranches.get(mb.getTrackingAfter());
+                    if(!trackingAfter.isIsRemote()){
+                        throw new Exception("The branch " + mb.getName() + " is tracking after is not a remote branch");
+                    }
+                }
+            }
         }
         if(!headExists){
             throw new Exception("The branch " + headBranchName + " which is pointed by the head, does not exist");
         }
+    }
+
+    private Map<String, MagitSingleBranch> createExistingBrancesMap() {
+        Map<String, MagitSingleBranch> existingBranches = new HashMap<>();
+        List<MagitSingleBranch> branches = magitRepository.getMagitBranches().getMagitSingleBranch();
+        for(MagitSingleBranch mb : branches){
+            if(!existingBranches.containsKey(mb.getName())){
+                existingBranches.put(mb.getName(),mb);
+            }
+        }
+        return existingBranches;
     }
 
     private Map<String, MagitSingleCommit> createExistingCommitsMap() throws Exception {

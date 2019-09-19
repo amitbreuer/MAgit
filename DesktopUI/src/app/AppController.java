@@ -160,6 +160,10 @@ public class AppController {
         return magitManager.getRepositoryName();
     }
 
+    public String getRepositoryPath() {
+        return magitManager.getRepositoryPath();
+    }
+
     public void replaceExistingRepositoryWithXmlRepository() {
         try {
             magitManager.createRepositoryFromMagitRepository();
@@ -283,7 +287,7 @@ public class AppController {
         return magitManager.GetAllCommitsMap();
     }
 
-    public List<Branch> GetBranches() {
+    public Map<String,Branch> GetBranches() {
         return magitManager.GetCurrentRepository().getBranches();
     }
 
@@ -394,11 +398,12 @@ public class AppController {
         }
     }
 
-    public void Clone() {
-        magitManager.CloneRepository("C:\\repo1","C:","amitrepository","amit");
+    public void Clone(String RRPath, String LRPath, String LRName) {
+        //magitManager.CloneReposotory(RRPath,LRPath,LRName);
     }
+
     public void Fetch(){
-
-
+        //magitManager.Fetch();
     }
+
 }

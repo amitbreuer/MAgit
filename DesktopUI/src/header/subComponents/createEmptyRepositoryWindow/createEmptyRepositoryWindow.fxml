@@ -5,17 +5,16 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 
-
-<AnchorPane fx:id="createEmptyrepositoryAnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="255.0" prefWidth="495.0" xmlns="http://javafx.com/javafx/8.0.211" xmlns:fx="http://javafx.com/fxml/1" fx:controller="header.subComponents.createEmptyRepositoryWindow.CreateEmptyRepositoryWindowController">
+<AnchorPane fx:id="createEmptyrepositoryAnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="255.0" prefWidth="495.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="header.subComponents.createEmptyRepositoryWindow.CreateEmptyRepositoryWindowController">
    <children>
-      <Label layoutX="27.0" layoutY="49.0" text="Repository name: " />
-      <Label layoutX="27.0" layoutY="148.0" text="Main folder name:" />
-      <Label layoutX="27.0" layoutY="99.0" text="Repository location: " />
+      <Label layoutX="27.0" layoutY="49.0" text="Repository Name: " />
+      <Label layoutX="27.0" layoutY="148.0" text="Main Folder Name:" />
+      <Label layoutX="27.0" layoutY="99.0" text="Repository Location: " />
       <TextField fx:id="repositoryPathTextField" layoutX="146.0" layoutY="95.0" prefHeight="25.0" prefWidth="197.0" />
       <Button fx:id="directorySelectionButton" layoutX="369.0" layoutY="95.0" mnemonicParsing="false" onAction="#directorySelectionButtonAction" text="select location" />
       <TextField fx:id="repositoryNameTextField" layoutX="146.0" layoutY="45.0" prefHeight="25.0" prefWidth="197.0" />
       <TextField fx:id="mainFolderNameTextFiled" layoutX="146.0" layoutY="145.0" prefHeight="25.0" prefWidth="197.0" />
-      <Button fx:id="okButton" disable="true" layoutX="302.0" layoutY="199.0" mnemonicParsing="false" onAction="#okButtonAction" prefHeight="25.0" prefWidth="58.0" text="OK" />
-      <Button fx:id="cancelButton" layoutX="390.0" layoutY="199.0" mnemonicParsing="false" onAction="#cancelButtonAction" prefHeight="25.0" prefWidth="58.0" text="Cancel" />
+      <Button fx:id="okButton" defaultButton="true" disable="true" layoutX="302.0" layoutY="199.0" mnemonicParsing="false" onAction="#okButtonAction" prefHeight="25.0" prefWidth="58.0" text="OK" />
+      <Button fx:id="cancelButton" cancelButton="true" layoutX="390.0" layoutY="199.0" mnemonicParsing="false" onAction="#cancelButtonAction" prefHeight="25.0" prefWidth="58.0" text="Cancel" />
    </children>
 </AnchorPane>

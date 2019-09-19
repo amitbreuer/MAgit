@@ -29,8 +29,9 @@ public class CreateEmptyRepositoryWindowController {
     @FXML
     Button directorySelectionButton;
 
-    HeaderController mainController;
-    SimpleStringProperty repositoryPathProperty;
+    private HeaderController mainController;
+    private SimpleStringProperty repositoryPathProperty;
+    private boolean actionNotCanelled;
 
     @FXML
     private void initialize() {
@@ -50,12 +51,13 @@ public class CreateEmptyRepositoryWindowController {
         directoryChooser.setTitle("Select location for repository");
         File f = directoryChooser.showDialog(new Stage());
         if (f != null) {
-            repositoryPathProperty.setValue(f.getPath());
+            repositoryPathProperty.setValue(f.getPath() + File.separator +mainFolderNameTextFiled.getText());
         }
     }
 
     public void okButtonAction(ActionEvent actionEvent) {
         mainController.createNewRepository(repositoryPathProperty.get(),mainFolderNameTextFiled.getText(),repositoryNameTextField.getText());
+        actionNotCanelled = true;
         closeStage();
     }
 
@@ -65,6 +67,23 @@ public class CreateEmptyRepositoryWindowController {
     }
 
     public void cancelButtonAction(ActionEvent actionEvent) {
+        actionNotCanelled = false;
         closeStage();
+    }
+
+    public boolean isActionNotCanelled() {
+        return actionNotCanelled;
+    }
+
+    public String getRepositoryPath() {
+        return repositoryPathProperty.get();
+    }
+
+    public SimpleStringProperty getRepositoryPathProperty() {
+        return repositoryPathProperty;
+    }
+
+    public String getRepositoryName(){
+        return repositoryNameTextField.getText();
     }
 }

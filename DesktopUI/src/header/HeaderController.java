@@ -56,14 +56,26 @@ public class HeaderController {
     @FXML
     Label usernameLabel;
     @FXML
-    Label repositoryLabel;
+    Label repositoryNameLabel;
+    @FXML
+    Label repositoryPathLabel;
     @FXML
     Label activeBranchLabel;
+    @FXML
+    MenuItem cloneButton;
+    @FXML
+    MenuItem fetchButton;
+    @FXML
+    MenuItem pullButton;
+    @FXML
+    MenuItem pushButton;
 
-    public SimpleBooleanProperty noAvailableRepository;
+    private SimpleBooleanProperty noAvailableRepository;
     private SimpleStringProperty headBranchName;
     private SimpleStringProperty username;
     private SimpleStringProperty currentRepository;
+    private SimpleStringProperty repositoryPath;
+    private SimpleBooleanProperty isTrackingRemoteRepository;
     private AppController mainController;
 
     private TextPopupWindowController popupWindowController;
@@ -86,14 +98,20 @@ public class HeaderController {
         headBranchName = new SimpleStringProperty();
         username = new SimpleStringProperty();
         currentRepository = new SimpleStringProperty();
+        repositoryPath = new SimpleStringProperty();
         currentBranchesMenus = new HashMap<>();
+        isTrackingRemoteRepository = new SimpleBooleanProperty(Boolean.FALSE);
 
         //bindings
         branchesMenu.disableProperty().bind(noAvailableRepository);
         usernameLabel.textProperty().bind(username);
         username.setValue("Administrator");
-        repositoryLabel.textProperty().bind(currentRepository);
+        repositoryNameLabel.textProperty().bind(currentRepository);
+        repositoryPathLabel.textProperty().bind(repositoryPath);
         activeBranchLabel.textProperty().bind(headBranchName);
+        fetchButton.disableProperty().bind(isTrackingRemoteRepository.not());
+        pullButton.disableProperty().bind(isTrackingRemoteRepository.not());
+        pushButton.disableProperty().bind(isTrackingRemoteRepository.not());
 
         //set relevant windows controllers and scenes
         setTextPopupWindow();
@@ -119,7 +137,6 @@ public class HeaderController {
         createEmptyRepositoryWindowController = fxmlLoader.getController();
         createEmptyRepositoryWindowController.setMainController(this);
     }
-
 
     private void setTextPopupWindow() {
         URL url = getClass().getResource(HeaderResourcesConstants.TEXT_POPUP_WINDOW_FXML_PATH);
@@ -182,15 +199,15 @@ public class HeaderController {
     //on actions
     @FXML
     public void updateUsernameButtonAction(ActionEvent actionEvent) {
-        mainController.Clone();
-        /*Stage stage = new Stage();
+        //mainController.Clone();
+        Stage stage = new Stage();
         SetPopupWindowAndStage(stage, "Update Username", "Enter Username:");
         stage.showAndWait();
 
         if (popupWindowController.isActionNotCanelled()) {
             username.setValue(popupWindowController.getText());
             mainController.setUsername(username);
-        }*/
+        }
     }
 
     public void SetPopupWindowAndStage(Stage stage, String stageTitle, String label) {
@@ -223,6 +240,7 @@ public class HeaderController {
         if (file != null) {
             mainController.SwitchRepository(file.getPath());
             currentRepository.setValue(mainController.getRepositoryName());
+            repositoryPath.setValue(mainController.getRepositoryPath());
             noAvailableRepository.setValue(Boolean.FALSE);
             clearBranchesMenu();
             UpdateBranches();
@@ -312,10 +330,10 @@ public class HeaderController {
     }
 
     public void UpdateBranches() {
-        List<Branch> branches = mainController.GetBranches();
-        for (Branch br : branches) {
-            if (!currentBranchesMenus.containsKey(br.getName())) {
-                AddBranchToBranches(br.getName());
+        Map<String,Branch> branches = mainController.GetBranches();
+        for (Map.Entry<String,Branch> entry : branches.entrySet()) {
+            if (!currentBranchesMenus.containsKey(entry.getValue().getName())) {
+                AddBranchToBranches(entry.getValue().getName());
             }
         }
         updateHeadBranch();
@@ -335,9 +353,8 @@ public class HeaderController {
 
         MenuItem delete = new MenuItem();
         delete.setText("Delete");
-        Image addImage = new Image("/resources/trash-icon.png");
-
-        delete.setGraphic(new ImageView(addImage));
+        Image deleteImage = new Image("/resources/trash-icon.png");
+        delete.setGraphic(new ImageView(deleteImage));
         delete.disableProperty().bind(isHeadBranch);
         delete.visibleProperty().bind(isHeadBranch.not());
         delete.setOnAction((x) -> deleteBranch(branchName));
@@ -350,12 +367,16 @@ public class HeaderController {
 
         MenuItem reset = new MenuItem();
         reset.setText("Reset");
+        Image resetImage = new Image("/resources/undo-arrow.png");
+        reset.setGraphic(new ImageView(resetImage));
         reset.disableProperty().bind(isHeadBranch.not());
         reset.visibleProperty().bind(isHeadBranch);
         reset.setOnAction((x) -> resetHead());
 
         MenuItem merge = new MenuItem();
         merge.setText("Merge into Head");
+        Image mergeImage = new Image("/resources/merge-icon.png");
+        merge.setGraphic(new ImageView(mergeImage));
         merge.disableProperty().bind(isHeadBranch);
         merge.visibleProperty().bind(isHeadBranch.not());
         merge.setOnAction((x) -> merge(branchName));
@@ -440,5 +461,28 @@ public class HeaderController {
         noAvailableRepository.setValue(Boolean.FALSE);
         clearBranchesMenu();
         UpdateBranches();
+    }
+
+    public void cloneButtonAction(ActionEvent actionEvent) {
+        DirectoryChooser directoryChooser = new DirectoryChooser();
+        directoryChooser.setTitle("Repository To Clone");
+        File RRPath = directoryChooser.showDialog(new Stage());
+        newRepositoryButtonAction(actionEvent);
+        if (RRPath != null && createEmptyRepositoryWindowController.isActionNotCanelled()) {
+            mainController.Clone(RRPath.getPath(),createEmptyRepositoryWindowController.getRepositoryPath(),
+                    createEmptyRepositoryWindowController.getRepositoryName());
+        }
+    }
+
+    public void fetchButtonAction(ActionEvent actionEvent) {
+        mainController.Fetch();
+    }
+
+    public void pullButtonAction(ActionEvent actionEvent) {
+
+    }
+
+    public void pushButtonAction(ActionEvent actionEvent) {
+
     }
 }
