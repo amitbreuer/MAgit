@@ -13,6 +13,8 @@ import header.subComponents.textPopupWindow.TextPopupWindowController;
 import header.subComponents.pathContainsRepositoryWindow.PathContainsRepositoryWindowController;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -70,6 +72,7 @@ public class HeaderController {
     @FXML
     MenuItem pushButton;
 
+
     private SimpleBooleanProperty noAvailableRepository;
     private SimpleStringProperty headBranchName;
     private SimpleStringProperty username;
@@ -105,6 +108,7 @@ public class HeaderController {
         //bindings
         branchesMenu.disableProperty().bind(noAvailableRepository);
         usernameLabel.textProperty().bind(username);
+
         username.setValue("Administrator");
         repositoryNameLabel.textProperty().bind(currentRepository);
         repositoryPathLabel.textProperty().bind(repositoryPath);
@@ -199,7 +203,6 @@ public class HeaderController {
     //on actions
     @FXML
     public void updateUsernameButtonAction(ActionEvent actionEvent) {
-        //mainController.Clone();
         Stage stage = new Stage();
         SetPopupWindowAndStage(stage, "Update Username", "Enter Username:");
         stage.showAndWait();
@@ -214,6 +217,7 @@ public class HeaderController {
         stage.setTitle(stageTitle);
         popupWindowController.setLabel(label);
         popupWindowController.ClearTextField();
+
         stage.setScene(popupWindowScene);
         stage.initModality(Modality.APPLICATION_MODAL);
         stage.setMinHeight(160);
@@ -228,7 +232,10 @@ public class HeaderController {
         stage.setTitle("Create new repository");
         stage.setScene(createEmptyRepositryWindowScene);
         stage.initModality(Modality.APPLICATION_MODAL);
-
+        stage.setMinHeight(280);
+        stage.setMinWidth(480);
+        stage.setMaxHeight(350);
+        stage.setMaxWidth(550);
         stage.showAndWait();
     }
 
@@ -242,12 +249,12 @@ public class HeaderController {
             currentRepository.setValue(mainController.getRepositoryName());
             repositoryPath.setValue(mainController.getRepositoryPath());
             noAvailableRepository.setValue(Boolean.FALSE);
-            clearBranchesMenu();
+            ClearBranchesMenu();
             UpdateBranches();
         }
     }
 
-    private void clearBranchesMenu() {
+    public void ClearBranchesMenu() {
         for (Map.Entry<String, Menu> branchMenu : currentBranchesMenus.entrySet()) {
             String branchName = branchMenu.getKey();
             branchesMenu.getItems().remove(currentBranchesMenus.get(branchName));
@@ -262,6 +269,7 @@ public class HeaderController {
         newBranchSelectionWindowController.ClearTextField();
         stage.setScene(newBranchSelectionWindowScene);
         stage.initModality(Modality.APPLICATION_MODAL);
+
         stage.showAndWait();
     }
 
@@ -278,29 +286,8 @@ public class HeaderController {
         }
 
         String absolutePath = selectedFile.getAbsolutePath();
-        try {
-            mainController.loadRepositoryFromXml(absolutePath);
-            currentRepository.setValue(mainController.getRepositoryName());
-            noAvailableRepository.setValue(Boolean.FALSE);
-        } catch (XmlRepositoryAlreadyExistsException e) {
-            Stage stage = new Stage();
-            stage.setTitle(e.getMessage());
-            stage.setScene(pathContainsRepositoryWindowScene);
-            stage.setAlwaysOnTop(true);
-            stage.initModality(Modality.APPLICATION_MODAL);
-            stage.setMinWidth(370);
-            stage.setMinHeight(240);
-            stage.setMaxWidth(470);
-            stage.setMaxHeight(340);
-            stage.showAndWait();
-        } catch (XmlPathContainsNonRepositoryObjectsException e) {
-            mainController.showErrorWindow(e.getMessage());
-            return;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        clearBranchesMenu();
-        UpdateBranches();
+
+        mainController.loadRepositoryFromXml(absolutePath);
     }
 
     @FXML
@@ -321,7 +308,7 @@ public class HeaderController {
         mainController.replaceExistingRepositoryWithXmlRepository();
         currentRepository.setValue(mainController.getRepositoryName());
         noAvailableRepository.setValue(Boolean.FALSE);
-        clearBranchesMenu();
+        ClearBranchesMenu();
         UpdateBranches();
     }
 
@@ -330,8 +317,8 @@ public class HeaderController {
     }
 
     public void UpdateBranches() {
-        Map<String,Branch> branches = mainController.GetBranches();
-        for (Map.Entry<String,Branch> entry : branches.entrySet()) {
+        Map<String, Branch> branches = mainController.GetBranches();
+        for (Map.Entry<String, Branch> entry : branches.entrySet()) {
             if (!currentBranchesMenus.containsKey(entry.getValue().getName())) {
                 AddBranchToBranches(entry.getValue().getName());
             }
@@ -459,7 +446,7 @@ public class HeaderController {
         mainController.createNewRepository(repositoryPath + File.separator + mainFolderName, repositoryName);
         currentRepository.setValue(repositoryName);
         noAvailableRepository.setValue(Boolean.FALSE);
-        clearBranchesMenu();
+        ClearBranchesMenu();
         UpdateBranches();
     }
 
@@ -469,7 +456,7 @@ public class HeaderController {
         File RRPath = directoryChooser.showDialog(new Stage());
         newRepositoryButtonAction(actionEvent);
         if (RRPath != null && createEmptyRepositoryWindowController.isActionNotCanelled()) {
-            mainController.Clone(RRPath.getPath(),createEmptyRepositoryWindowController.getRepositoryPath(),
+            mainController.Clone(RRPath.getPath(), createEmptyRepositoryWindowController.getRepositoryPath(),
                     createEmptyRepositoryWindowController.getRepositoryName());
         }
     }
@@ -484,5 +471,62 @@ public class HeaderController {
 
     public void pushButtonAction(ActionEvent actionEvent) {
 
+    }
+
+    public void defaultSkinButtonAction(ActionEvent actionEvent) {
+        mainController.changeToDefaultSkin();
+    }
+
+    public void lightBlueSkinButtonAction(ActionEvent actionEvent) {
+        mainController.changeToLightBlueSkin();
+    }
+
+    public void lightOrangeSkinButtonAction(ActionEvent actionEvent) {
+        mainController.changeToLightOrangeSkin();
+    }
+
+    public void AddListenersToCssPathProperty(SimpleStringProperty cssFilePathProperty) {
+        cssFilePathProperty.addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                createEmptyRepositryWindowScene.getStylesheets().clear();
+                newBranchSelectionWindowScene.getStylesheets().clear();
+                pathContainsRepositoryWindowScene.getStylesheets().clear();
+                popupWindowScene.getStylesheets().clear();
+
+                if (!newValue.equals("")) {
+                    String newCssFilePath = getClass().getResource(cssFilePathProperty.getValue()).toExternalForm();
+                    createEmptyRepositryWindowScene.getStylesheets().add(newCssFilePath);
+                    newBranchSelectionWindowScene.getStylesheets().add(newCssFilePath);
+                    pathContainsRepositoryWindowScene.getStylesheets().add(newCssFilePath);
+                    popupWindowScene.getStylesheets().add(newCssFilePath);
+                }
+            }
+        });
+    }
+
+    public void ShowPathContainsRepositoryWindow() {
+        Stage stage = new Stage();
+        stage.setTitle("Xml repository already exists");
+        stage.setScene(pathContainsRepositoryWindowScene);
+        stage.setAlwaysOnTop(true);
+        stage.initModality(Modality.APPLICATION_MODAL);
+        stage.setMinWidth(370);
+        stage.setMinHeight(240);
+        stage.setMaxWidth(470);
+        stage.setMaxHeight(340);
+        stage.showAndWait();
+    }
+
+    public void SetCurrentRepository(String repositoryName) {
+        currentRepository.setValue(repositoryName);
+    }
+
+    public void SetNoAvailableRepository(Boolean aFalse) {
+        noAvailableRepository.setValue(aFalse);
+    }
+
+    public void SetRepositoryPath(String repositoryPath) {
+        this.repositoryPath.setValue(repositoryPath);
     }
 }

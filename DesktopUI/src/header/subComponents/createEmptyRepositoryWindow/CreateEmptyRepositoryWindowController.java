@@ -51,7 +51,7 @@ public class CreateEmptyRepositoryWindowController {
         directoryChooser.setTitle("Select location for repository");
         File f = directoryChooser.showDialog(new Stage());
         if (f != null) {
-            repositoryPathProperty.setValue(f.getPath() + File.separator +mainFolderNameTextFiled.getText());
+            repositoryPathProperty.setValue(f.getPath());
         }
     }
 

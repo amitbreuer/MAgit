@@ -10,13 +10,20 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.VBox?>
 
-<ScrollPane fitToWidth="true" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="header.HeaderController">
+<ScrollPane fitToWidth="true" styleClass="component" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="header.HeaderController">
    <content>
-      <VBox fx:id="topVBOX">
+      <VBox fx:id="topVBOX" styleClass="BackgroundColor">
          <children>
-            <MenuBar fx:id="topMenuBar" prefHeight="25.0" prefWidth="600.0">
+            <MenuBar fx:id="topMenuBar" prefHeight="25.0" prefWidth="600.0" styleClass="BackgroundColor">
                <menus>
-                  <Menu fx:id="repositoryMenu" mnemonicParsing="false" text="Repository">
+                  <Menu fx:id="skinChangeMenu" mnemonicParsing="false" text="Skin Change">
+                    <items>
+                      <MenuItem fx:id="defaultSkinButton" mnemonicParsing="false" onAction="#defaultSkinButtonAction" text="Default" />
+                        <MenuItem fx:id="lightOrangeSkinButton" mnemonicParsing="false" onAction="#lightOrangeSkinButtonAction" text="Light Orange" />
+                        <MenuItem fx:id="lightBlueSkinButton" mnemonicParsing="false" onAction="#lightBlueSkinButtonAction" text="Light Blue" />
+                    </items>
+                  </Menu>
+                  <Menu fx:id="repositoryMenu" mnemonicParsing="false" styleClass="BackgroundColor" text="Repository">
                      <items>
                         <MenuItem fx:id="updateUsernameButton" mnemonicParsing="false" onAction="#updateUsernameButtonAction" text="Update Username" />
                         <MenuItem fx:id="newRepositoryButton" mnemonicParsing="false" onAction="#newRepositoryButtonAction" text="Create New Repository" />
@@ -24,7 +31,7 @@
                         <MenuItem fx:id="loadViaXMLButton" mnemonicParsing="false" onAction="#loadViaXMLButtonAction" text="Load Via XML" />
                      </items>
                   </Menu>
-                  <Menu mnemonicParsing="false" text="Remote">
+                  <Menu mnemonicParsing="false" styleClass="BackgroundColor" text="Remote">
                     <items>
                       <MenuItem fx:id="cloneButton" mnemonicParsing="false" onAction="#cloneButtonAction" text="Clone" />
                         <MenuItem fx:id="fetchButton" mnemonicParsing="false" onAction="#fetchButtonAction" text="Fetch" />
@@ -32,7 +39,7 @@
                         <MenuItem fx:id="pushButton" mnemonicParsing="false" onAction="#pushButtonAction" text="Push" />
                     </items>
                   </Menu>
-                  <Menu fx:id="branchesMenu" mnemonicParsing="false" text="Branches">
+                  <Menu fx:id="branchesMenu" mnemonicParsing="false" styleClass="BackgroundColor" text="Branches">
                      <items>
                         <MenuItem fx:id="newBranchButton" mnemonicParsing="false" onAction="#newBranchButtonAction" text="Create New Branch" />
                      </items>
@@ -46,13 +53,13 @@
                   </Menu>
                </menus>
             </MenuBar>
-            <AnchorPane>
+            <AnchorPane styleClass="BackgroundColor">
                <children>
                   <Label fx:id="currentUsernameLabel" layoutX="6.0" layoutY="2.0" text="Current User:" />
                   <Label fx:id="usernameLabel" layoutX="139.0" text="......" />
                </children>
             </AnchorPane>
-            <AnchorPane>
+            <AnchorPane styleClass="BackgroundColor">
                <children>
                   <Label fx:id="currentRepositoryLabel" layoutX="6.0" text="Current Repository:" />
                   <Label fx:id="repositoryNameLabel" layoutX="149.0" text="...." />
@@ -60,7 +67,7 @@
                   <Label fx:id="repositoryPathLabel" layoutX="335.0" text="..." />
                </children>
             </AnchorPane>
-            <AnchorPane>
+            <AnchorPane styleClass="BackgroundColor">
                <children>
                   <Label fx:id="headBranchLabel" layoutX="6.0" text="Head Branch" />
                   <Label fx:id="activeBranchLabel" layoutX="149.0" text="...." />

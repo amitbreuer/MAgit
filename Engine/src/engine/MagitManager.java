@@ -10,6 +10,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import puk.team.course.magit.ancestor.finder.AncestorFinder;
 import puk.team.course.magit.ancestor.finder.CommitRepresentative;
+import tasks.LoadRepositoryFromXmlTask;
 
 import java.io.*;
 import java.nio.file.FileAlreadyExistsException;
@@ -19,6 +20,7 @@ import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -115,7 +117,7 @@ public class MagitManager {
         }
     }
 
-    private Boolean directoryIsEmpty(Path path) {
+    public static Boolean directoryIsEmpty(Path path) {
         File file = new File(path.toString());
         return file.list().length == 0;
     }
@@ -841,7 +843,15 @@ public class MagitManager {
         spanWCFromFolder(commitToResetTo.getMainFolder());
     }
 
+
+    public void LoadRepositoryFromXML(String fileFullName, Consumer<String> errorNotifier, Runnable runIfPathContainsRepository, Runnable runIfFinishedProperly) {
+        LoadRepositoryFromXmlTask loadRepositoryFromXmlTask = new LoadRepositoryFromXmlTask(this, fileFullName, errorNotifier, runIfPathContainsRepository,runIfFinishedProperly);
+        new Thread(loadRepositoryFromXmlTask).start();
+
+    }
+
     public void ValidateAndLoadXMLRepository(String fileFullName) throws Exception {
+
         this.xmlManager = new XmlManager();
         this.xmlManager.createMagitRepositoryFromXml(fileFullName);
         if (Files.exists(Paths.get(this.xmlManager.getMagitRepository().getLocation()))) {
@@ -977,7 +987,7 @@ public class MagitManager {
 
         // Fast Forward
         if (oursCommitSha1.equals(ancestorCommitSha1)) {
-            Commit theirsCommit = CreateCommitFromSha1(theirsCommitSha1);
+            Commit theirsCommit = CreateCommitFromSha1(theirsCommitSha1, this.repository.GetObjectsDirPath());
             this.repository.getHeadBranch().setLastCommit(theirsCommit);
             return theirsCommit.getMainFolder();
         }
@@ -1361,17 +1371,16 @@ public class MagitManager {
             createNewObjectFile(commit.toString());
             createObjectsFilesFromFolder(commit.getMainFolder());
 
-            if(!commit.getPrevCommitSha1().equals("")){
+            if (!commit.getPrevCommitSha1().equals("")) {
                 addRRCommitsObjectFilesToLRObjectsDirectory(commit.getPrevCommitSha1());
             }
-            if(!commit.getSecondPrecedingSha1().equals("")){
+            if (!commit.getSecondPrecedingSha1().equals("")) {
                 addRRCommitsObjectFilesToLRObjectsDirectory(commit.getSecondPrecedingSha1());
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-
 
 
     private void updateBranchesAfterSingleBranchFetch(Branch RRBranch) {
@@ -1423,5 +1432,9 @@ public class MagitManager {
 
     public String GetObjectsDirPath() {
         return this.repository.GetObjectsDirPath();
+    }
+
+    public String GetHeadBranchName() {
+        return this.repository.getHeadBranch().getName();
     }
 }
