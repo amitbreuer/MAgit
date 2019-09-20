@@ -224,11 +224,23 @@ public class HeaderController {
 
     @FXML
     public void newRepositoryButtonAction(ActionEvent actionEvent) {
+        String repositoryPath;
+        String repositoryName;
+        showNewRepositoryDialog();
+
+        if(createEmptyRepositoryWindowController.isActionNotCanelled()){
+            repositoryName = createEmptyRepositoryWindowController.getRepositoryName();
+            repositoryPath = createEmptyRepositoryWindowController.getRepositoryPath();
+            createNewRepository(repositoryPath,repositoryName);
+            isTrackingRemoteRepository.setValue(Boolean.FALSE);
+        }
+    }
+
+    private void showNewRepositoryDialog() {
         Stage stage = new Stage();
         stage.setTitle("Create new repository");
         stage.setScene(createEmptyRepositryWindowScene);
         stage.initModality(Modality.APPLICATION_MODAL);
-
         stage.showAndWait();
     }
 
@@ -244,6 +256,7 @@ public class HeaderController {
             noAvailableRepository.setValue(Boolean.FALSE);
             clearBranchesMenu();
             UpdateBranches();
+            isTrackingRemoteRepository.setValue(mainController.isTrackingRemoteRepository());
         }
     }
 
@@ -281,6 +294,7 @@ public class HeaderController {
         try {
             mainController.loadRepositoryFromXml(absolutePath);
             currentRepository.setValue(mainController.getRepositoryName());
+            repositoryPath.setValue(mainController.getRepositoryPath());
             noAvailableRepository.setValue(Boolean.FALSE);
         } catch (XmlRepositoryAlreadyExistsException e) {
             Stage stage = new Stage();
@@ -337,7 +351,6 @@ public class HeaderController {
             }
         }
         updateHeadBranch();
-
     }
 
     public void AddBranchToBranches(String branchName) {
@@ -455,9 +468,10 @@ public class HeaderController {
         return branchName;
     }
 
-    public void createNewRepository(String repositoryPath, String mainFolderName, String repositoryName) {
-        mainController.createNewRepository(repositoryPath + File.separator + mainFolderName, repositoryName);
+    public void createNewRepository(String repositoryPath, String repositoryName) {
+        mainController.createNewRepository(repositoryPath, repositoryName);
         currentRepository.setValue(repositoryName);
+        this.repositoryPath.setValue(mainController.getRepositoryPath());
         noAvailableRepository.setValue(Boolean.FALSE);
         clearBranchesMenu();
         UpdateBranches();
@@ -467,22 +481,28 @@ public class HeaderController {
         DirectoryChooser directoryChooser = new DirectoryChooser();
         directoryChooser.setTitle("Repository To Clone");
         File RRPath = directoryChooser.showDialog(new Stage());
-        newRepositoryButtonAction(actionEvent);
+        showNewRepositoryDialog();
         if (RRPath != null && createEmptyRepositoryWindowController.isActionNotCanelled()) {
             mainController.Clone(RRPath.getPath(),createEmptyRepositoryWindowController.getRepositoryPath(),
                     createEmptyRepositoryWindowController.getRepositoryName());
         }
+        currentRepository.setValue(mainController.getRepositoryName());
+        repositoryPath.setValue(mainController.getRepositoryPath());
+        noAvailableRepository.setValue(Boolean.FALSE);
+        clearBranchesMenu();
+        UpdateBranches();
     }
 
     public void fetchButtonAction(ActionEvent actionEvent) {
         mainController.Fetch();
+        UpdateBranches();
     }
 
     public void pullButtonAction(ActionEvent actionEvent) {
-
+        mainController.Pull();
     }
 
     public void pushButtonAction(ActionEvent actionEvent) {
-
+        mainController.Push();
     }
 }

@@ -17,6 +17,12 @@ public class Repository {
     private Path remoteRepositoryPath;
     private String remoteRepositoryname;
 
+    public Repository(String path) {
+        this.path = Paths.get(path);
+        this.recentlyUsedCommits = new HashMap<>();
+        this.branches = new HashMap<>();
+    }
+
     public void setRemoteRepositoryname(String remoteRepositoryname) {
         this.remoteRepositoryname = remoteRepositoryname;
     }
@@ -31,12 +37,6 @@ public class Repository {
 
     public Path getRemoteRepositoryPath() {
         return remoteRepositoryPath;
-    }
-
-    public Repository(String path) {
-        this.path = Paths.get(path);
-        this.recentlyUsedCommits = new HashMap<>();
-        this.branches = new HashMap<>();
     }
 
     public Branch getHeadBranch() {
@@ -58,7 +58,6 @@ public class Repository {
     public Path getPath() {
         return path;
     }
-
 
     public void addCommitToActiveBranch(Commit commitToAdd) {
         this.headBranch.setLastCommit(commitToAdd);

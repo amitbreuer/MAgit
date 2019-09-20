@@ -44,8 +44,6 @@ public class RightController {
         root.setExpanded(Boolean.TRUE);
         createFilesTreeFromFolder(root, commit.getMainFolder(), folderImage, textImage);
 
-        //TreeView<String> tree = new TreeView<>(root);
-        //topScrollPane.setContent(tree);
         filesTree.setRoot(root);
     }
 

@@ -7,7 +7,7 @@
 
 <SplitPane dividerPositions="0.5" minHeight="-Infinity" minWidth="-Infinity" orientation="VERTICAL" prefWidth="216.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="right.RightController">
    <items>
-      <TitledPane fx:id="topTitledPane" expanded="false" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="159.0" prefWidth="214.0" text="Files">
+      <TitledPane fx:id="topTitledPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="159.0" prefWidth="214.0" text="Files">
          <content>
             <TreeView fx:id="filesTree" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" onMouseClicked="#mouseClickedAction" prefHeight="200.0" prefWidth="200.0" />
          </content>
