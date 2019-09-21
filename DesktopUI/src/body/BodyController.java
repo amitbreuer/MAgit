@@ -24,6 +24,10 @@ public class BodyController {
 
     public SimpleBooleanProperty repositoryUpdated;
     private AppController mainController;
+    private Graph tree;
+    private Map<String, CommitNode> commitNodesMap;
+    private Map<String, Integer> sha1ToYCoordinate;
+    private Map<String, Integer> sha1ToXCoordinate;
 
     @FXML
     private void initialize() {
@@ -42,7 +46,7 @@ public class BodyController {
     }
 
     public void showCommitTree() {
-        Graph tree = new Graph();
+        tree = new Graph();
         createCommitNodes(tree);
         PannableCanvas canvas = tree.getCanvas();
         scrollPane.setContent(canvas);
@@ -55,9 +59,9 @@ public class BodyController {
         Model model = tree.getModel();
         tree.beginUpdate();
 
-        Map<String, CommitNode> commitNodesMap = new HashMap<>();
-        Map<String, Integer> sha1ToYCoordinate = new HashMap<>();
-        Map<String, Integer> sha1ToXCoordinate = new HashMap<>();
+        commitNodesMap = new HashMap<>();
+        sha1ToYCoordinate = new HashMap<>();
+        sha1ToXCoordinate = new HashMap<>();
 
         Map<String, Branch> branches = mainController.GetBranches();
         Map<String, Commit> commitsMap = mainController.GetAllCommitsMap();
@@ -88,7 +92,7 @@ public class BodyController {
         }
 
         tree.endUpdate();
-        tree.layout(new CommitTreeLayout(sha1ToXCoordinate, sha1ToYCoordinate));
+        tree.layout(new CommitTreeLayout(sha1ToXCoordinate, sha1ToYCoordinate,null));
     }
 
     private void calculateYCoordinate(Map<String, Commit> commitsMap, Map<String, CommitNode> commitNodesMap, Map<String, Integer> sha1ToYcoordinate) {
@@ -213,6 +217,11 @@ public class BodyController {
     }
 
     public void DeleteBranchFromCommit(String branchName) {
-        mainController.DeleteBranchFromCommit(branchName);
+        mainController.DeleteBranch(branchName);
+    }
+
+    public void MarkBranch(String commitSha1) {
+        Integer xCoordinateToMark = sha1ToXCoordinate.get(commitSha1);
+        tree.layout(new CommitTreeLayout(sha1ToXCoordinate,sha1ToYCoordinate,xCoordinateToMark));
     }
 }

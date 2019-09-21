@@ -48,21 +48,6 @@ public class CommitNode extends AbstractCell {
         return commitNodeController;
     }
 
-    //    public void setBranchChildSha1(String branchChildSha1) {
-//        this.branchChildSha1 = branchChildSha1;
-//    }
-//    public String getBranchChildSha1() {
-//        return branchChildSha1;
-//    }
-//
-//    public String getMergeChildSha1() {
-//        return mergeChildSha1;
-//    }
-//
-//    public void setMergeChildSha1(String mergeChildSha1) {
-//        this.mergeChildSha1 = mergeChildSha1;
-//    }
-
     public String getDateCreated() {
         return dateCreated;
     }

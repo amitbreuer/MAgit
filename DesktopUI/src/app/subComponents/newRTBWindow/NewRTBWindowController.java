@@ -12,8 +12,6 @@ public class NewRTBWindowController {
     Button yesButton;
     @FXML
     Button noButton;
-    @FXML
-    Label branchNameLabel;
 
     private boolean createRTBAndCheckout;
 
@@ -32,9 +30,6 @@ public class NewRTBWindowController {
         stage.close();
     }
 
-    public void setBranchNameLabel(String branchNameLabel) {
-        this.branchNameLabel.setText(branchNameLabel);
-    }
 
     public boolean CreateRTBAndCheckout() {
         return createRTBAndCheckout;

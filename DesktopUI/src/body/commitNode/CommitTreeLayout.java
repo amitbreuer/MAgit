@@ -28,15 +28,12 @@ public class CommitTreeLayout implements Layout {
 
         for (ICell cell : cells) {
             CommitNode c = (CommitNode) cell;
-
             XCoordinate = sha1ToX.get(c.getSha1());
             YCoordinate = sha1ToY.get(c.getSha1());
-
-            if(!xCoordinateToMark.equals(null) && XCoordinate == xCoordinateToMark){
-                c.getCommitNodeController().getCommitCircle().setFill(Color.CYAN);
-            }
-            else {
-                c.getCommitNodeController().getCommitCircle().setFill(Color.AQUAMARINE);
+            if (xCoordinateToMark != null && XCoordinate == xCoordinateToMark) {
+                c.getCommitNodeController().getCommitCircle().setFill(Color.YELLOW);
+            } else {
+                c.getCommitNodeController().getCommitCircle().setFill(Color.PURPLE);
             }
             graph.getGraphic(c).relocate(XCoordinate, YCoordinate);
         }

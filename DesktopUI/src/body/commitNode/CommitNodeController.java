@@ -9,7 +9,10 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
@@ -48,10 +51,24 @@ public class CommitNodeController {
         mergeParentSha1 = new SimpleStringProperty("");
         hasPointedBranches = new SimpleBooleanProperty();
         setCommitNodeContextMenu();
+        gridPane.onMouseClickedProperty().setValue(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                mainController.MarkBranch(sha1Label.getText());
+            }
+        });
     }
 
     private void setCommitNodeContextMenu() {
         ContextMenu commitContextMenu = new ContextMenu();
+
+        MenuItem copySha1 = new MenuItem("Copy Sha1");
+        copySha1.setOnAction(e->{
+            final Clipboard clipboard = Clipboard.getSystemClipboard();
+            final ClipboardContent content = new ClipboardContent();
+            content.putString(sha1Label.getText());
+            clipboard.setContent(content);
+        });
 
         MenuItem showCommitFiles = new MenuItem("Show Files Of Commit");
         showCommitFiles.setOnAction(e -> mainController.ShowFilesOfCommit(sha1Label.getText()));
@@ -76,7 +93,7 @@ public class CommitNodeController {
         Menu deleteBranch = new Menu("Delete Branch");
         deleteBranch.disableProperty().bind(hasPointedBranches.not());
 
-        commitContextMenu.getItems().addAll(showCommitFiles, branchParentDelta, mergeParentDelta,
+        commitContextMenu.getItems().addAll(copySha1,showCommitFiles, branchParentDelta, mergeParentDelta,
                 new SeparatorMenuItem(), newBranch, resetHeadBranch, mergeWithHead, deleteBranch);
         gridPane.setOnContextMenuRequested(new EventHandler<ContextMenuEvent>() {
             @Override
@@ -99,7 +116,6 @@ public class CommitNodeController {
                 mainController.ShowCommitInfo(sha1Label.getText());
             }
         });
-
     }
 
     public void setMainController(BodyController mainController) {
@@ -156,5 +172,9 @@ public class CommitNodeController {
             branchesLabels.getChildren().add(branchLabel);
         }
         hasPointedBranches.setValue(!pointedBranches.isEmpty());
+    }
+
+    public Circle getCommitCircle() {
+        return CommitCircle;
     }
 }

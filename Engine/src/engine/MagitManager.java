@@ -447,12 +447,19 @@ public class MagitManager {
     }
 
     public void CreateNewBranch(String branchName, boolean checkoutNewBranch, boolean pointToHeadCommit, String otherCommitSha1) throws Exception {
+        String commitToPointNewBranch = pointToHeadCommit ? this.repository.getHeadBranch().getLastCommit().getSha1() : otherCommitSha1;
+        Branch RB = getRBPointingToCommit(commitToPointNewBranch);
+        if (RB != null) {
+            throw new ThereIsRBPointingToThisCommitException(RB.getName(), RB.getLastCommit().getSha1());
+        }
+
+        CreateNewRegularBranch(branchName, checkoutNewBranch, pointToHeadCommit, otherCommitSha1);
+    }
+
+    public void CreateNewRegularBranch(String branchName, boolean checkoutNewBranch, boolean pointToHeadCommit, String otherCommitSha1) throws Exception {
         String branchesDirPath = this.repository.GetBranchesDirPath();
         if (Files.exists(Paths.get(branchesDirPath + File.separator + branchName + ".txt"))) {
-            throw new Exception("The branch \"branchName\" already exists");
-        }
-        if (repository.FindBranchByName(repository.getRemoteRepositoryname() + "\\" + branchName) != null) {
-            throw new ThereISRBWithTheSpecifiedNameException();
+            throw new Exception("The branch " + branchName + " already exists");
         }
 
         Commit commitToPointTo = pointToHeadCommit ? this.repository.getHeadBranch().getLastCommit() :
@@ -469,10 +476,28 @@ public class MagitManager {
         }
     }
 
+    private Branch getRBPointingToCommit(String otherCommitSha1) {
+        Branch RBToReturn = null;
+        Map<String, Branch> branches = repository.getBranches();
+        StringTokenizer tokenizer;
+        for (Map.Entry<String, Branch> entry : branches.entrySet()) {
+            tokenizer = new StringTokenizer(entry.getKey(), "\\");
+            tokenizer.nextToken();
+            if (entry.getValue().getLastCommit().getSha1().equals(otherCommitSha1) && entry.getValue().getIsRB()) {
+                if (!branches.containsKey(tokenizer.nextToken())) { // if there isn't already RTB for this RB
+                    RBToReturn = entry.getValue();
+                    break;
+                }
+            }
+        }
+
+        return RBToReturn;
+    }
+
     public void CreateRTBForRB(String RTBName, boolean checkout) throws Exception {
         String branchesDirPath = this.repository.GetBranchesDirPath();
         if (Files.exists(Paths.get(branchesDirPath + File.separator + RTBName + ".txt"))) {
-            throw new Exception("The branch \"RTBName\" already exists");
+            throw new Exception("The branch " + RTBName + " already exists");
         }
         Branch RB = repository.FindBranchByName(repository.getRemoteRepositoryname() + "\\" + RTBName);
         Commit RBCommit = RB.getLastCommit();
@@ -493,16 +518,16 @@ public class MagitManager {
         }
     }
 
-    public void CreateNewBranchForCommit(String branchName, String commitSha1) throws Exception {
-        String branchesDirPath = this.repository.GetBranchesDirPath();
-        if (repository.FindBranchByName(branchName) != null) {
-            throw new Exception("The branch \"branchName\" already exists");
-        }
-        Commit commit = CreateCommitFromSha1(commitSha1, this.repository.GetObjectsDirPath());
-        Branch newBranch = new Branch(branchName, commit);
-        createTextFile(branchesDirPath + File.separator + branchName + ".txt", commitSha1);
-        repository.getBranches().put(newBranch.getName(), newBranch);
-    }
+//    public void CreateNewBranchForCommit(String branchName, String commitSha1) throws Exception {
+//        String branchesDirPath = this.repository.GetBranchesDirPath();
+//        if (repository.FindBranchByName(branchName) != null) {
+//            throw new Exception("The branch \"branchName\" already exists");
+//        }
+//        Commit commit = CreateCommitFromSha1(commitSha1, this.repository.GetObjectsDirPath());
+//        Branch newBranch = new Branch(branchName, commit);
+//        createTextFile(branchesDirPath + File.separator + branchName + ".txt", commitSha1);
+//        repository.getBranches().put(newBranch.getName(), newBranch);
+//    }
 
     public Boolean thereAreUncommittedChanges() throws IOException {
         Delta delta = GetWCDelta();
@@ -519,7 +544,7 @@ public class MagitManager {
         }
         if (this.repository.branchExistsInList(branchName)) {
             Branch branchToDelete = this.repository.FindBranchByName(branchName);
-            this.repository.getBranches().remove(branchToDelete);
+            this.repository.getBranches().remove(branchToDelete.getName());
         }
         Files.delete(Paths.get(branchToDeleteFilePath));
     }
@@ -666,6 +691,7 @@ public class MagitManager {
             createNewObjectFileFromDelta(delta);//create new object files for all new/updated files
             createNewObjectFile(currentWC.toString(), this.repository.GetObjectsDirPath());//create object file that contains the new app folder
             createNewObjectFile(newCommit.toString(), this.repository.GetObjectsDirPath());//create object file that contains the new commit
+        }
 
             try {
                 writeToFile(headBranchFilePath, newCommit.Sha1Commit());

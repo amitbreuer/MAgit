@@ -5,6 +5,7 @@ import app.subComponents.newRTBWindow.NewRTBWindowController;
 import app.subComponents.openChangesWindow.OpenChangesWindowController;
 import app.subComponents.singleConflictWindow.SingleConflictController;
 import app.subComponents.errorPopupWindow.ErrorPopupWindowController;
+import app.subComponents.regularOrRTBWindow.RegularOrRTBWindowController;
 import body.BodyController;
 import engine.*;
 import exceptions.*;
@@ -65,6 +66,8 @@ public class AppController {
     private Scene errorPopupWindowScene;
     private Scene conflictsWindowScene;
     private Scene newRTBWindowScene;
+    private Scene regularOrRTBScene;
+    private RegularOrRTBWindowController regularOrRTBWindowController;
     private NewRTBWindowController newRTBWindowController;
     private OpenChangesWindowController openChangesWindowController;
     private ErrorPopupWindowController errorPopupWindowController;
@@ -86,7 +89,7 @@ public class AppController {
         setErrorPopupWindow();
         setConflictsWindow();
         setNewRTBWindow();
-
+        setRegularOrRTBWindow();
         headerComponentController.AddListenersToCssPathProperty(cssFilePathProperty);
         conflictsWindowController.AddListenersToCssPathProperty(cssFilePathProperty);
         AddListenersToCssPathProperty(cssFilePathProperty);
@@ -185,6 +188,20 @@ public class AppController {
         newRTBWindowController = fxmlLoader.getController();
     }
 
+    private void setRegularOrRTBWindow() {
+        FXMLLoader fxmlLoader;
+        URL regularOrRTBWindow = getClass().getResource(AppResourcesConstants.REGULAR_OR_RTB_WINDOW_FXML_PATH);
+        fxmlLoader = new FXMLLoader(regularOrRTBWindow);
+        try {
+            AnchorPane root = fxmlLoader.load();
+            regularOrRTBScene = new Scene(root);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        regularOrRTBWindowController = fxmlLoader.getController();
+        regularOrRTBWindowController.setMainController(this);
+    }
+
     public void setMagitManager(MagitManager magitManager) {
         this.magitManager = magitManager;
     }
@@ -262,14 +279,33 @@ public class AppController {
     public void createNewBranch(String branchName, boolean checkout, boolean pointToHeadCommit, String otherCommitSha1) {
         try {
             magitManager.CreateNewBranch(branchName, checkout, pointToHeadCommit, otherCommitSha1);
-            showCommitTree();
             showMessageAtBottom("The branch " + branchName + " was created");
-
-        } catch (ThereISRBWithTheSpecifiedNameException e) {
-            CreateRTB(branchName);
+        } catch (ThereIsRBPointingToThisCommitException e) {
+            openRegularOrRTBWindow(e.getRBName(),e.getRBCommitSha1());
         } catch (Exception e) {
             showErrorWindow(e.getMessage());
         }
+        headerComponentController.UpdateBranches();
+        showCommitTree();
+    }
+
+    public void CreateNewRegularBranch(String branchName, boolean checkout, boolean pointToHeadCommit, String otherCommitSha1){
+        try {
+            magitManager.CreateNewRegularBranch(branchName,checkout,pointToHeadCommit,otherCommitSha1);
+        } catch (Exception e) {
+            showErrorWindow(e.getMessage());
+        }  headerComponentController.UpdateBranches();
+        showCommitTree();
+    }
+
+    private void openRegularOrRTBWindow(String rbName, String commitSha1) {
+        Stage stage = new Stage();
+        stage.setTitle("New Branch");
+        regularOrRTBWindowController.setRBName(rbName);
+        regularOrRTBWindowController.setCommitSha1(commitSha1);
+        stage.setScene(regularOrRTBScene);
+        stage.initModality(Modality.APPLICATION_MODAL);
+        stage.showAndWait();
     }
 
     public void DeleteBranch(String branchName) {
@@ -280,6 +316,8 @@ public class AppController {
         } catch (Exception e) {
             showErrorWindow(e.getMessage());
         }
+        headerComponentController.DeleteBranchFromBranchesMenu(branchName);
+        showCommitTree();
     }
 
     public void Commit(String message) {
@@ -443,19 +481,16 @@ public class AppController {
         String branchName = headerComponentController.GetNewBranchName();
         if (branchName != null) {
             try {
-                magitManager.CreateNewBranchForCommit(branchName, commitSha1);
+                magitManager.CreateNewBranch(branchName, false,false,commitSha1);
                 headerComponentController.UpdateBranches();
-                showCommitTree();
-
+            } catch (ThereIsRBPointingToThisCommitException e) {
+                openRegularOrRTBWindow(e.getRBName(),e.getRBCommitSha1());
             } catch (Exception e) {
                 showErrorWindow(e.getMessage());
             }
+            headerComponentController.UpdateBranches();
+            showCommitTree();
         }
-    }
-
-    public void DeleteBranchFromCommit(String branchName) {
-        DeleteBranch(branchName);
-        headerComponentController.DeleteBranchFromBranchesMenu(branchName);
     }
 
     private void ResolveConflicts(Conflicts conflicts) {
@@ -506,6 +541,7 @@ public class AppController {
 
     public void Clone(String RRPath, String LRPath, String LRName) {
         magitManager.CloneRepository(RRPath, LRPath, LRName);
+        headerComponentController.UpdateBranches();
         ShowWCStatus();
         showCommitTree();
         showMessageAtBottom("Clone was executed successfully");
@@ -513,6 +549,7 @@ public class AppController {
 
     public void Fetch() {
         magitManager.Fetch();
+        headerComponentController.UpdateBranches();
         ShowWCStatus();
         showCommitTree();
         showMessageAtBottom("Fetch was executed successfully");
@@ -569,7 +606,6 @@ public class AppController {
         StringTokenizer tokenizer = new StringTokenizer(branchName, "\\");
         tokenizer.nextToken();
         String RTBName = tokenizer.nextToken();
-        newRTBWindowController.setBranchNameLabel(RTBName);
         stage.setScene(newRTBWindowScene);
         stage.initModality(Modality.APPLICATION_MODAL);
         stage.setResizable(false);
@@ -581,6 +617,21 @@ public class AppController {
                 showErrorWindow(e.getMessage());
             }
         }
+        headerComponentController.UpdateBranches();
+        showCommitTree();
+    }
+
+    public void CreateRTBWithoutCheckout(String RBName){
+        StringTokenizer tokenizer = new StringTokenizer(RBName, "\\");
+        tokenizer.nextToken();
+        String RTBName = tokenizer.nextToken();
+        try {
+            magitManager.CreateRTBForRB(RTBName,false);
+        } catch (Exception e) {
+            showErrorWindow(e.getMessage());
+        }
+        headerComponentController.UpdateBranches();
+        showCommitTree();
     }
 
     public Boolean IsRepositoryConatinsCommits() {

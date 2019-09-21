@@ -35,7 +35,6 @@ public class SingleConflictController {
     private SimpleBooleanProperty oursExists;
     private SimpleBooleanProperty theirsExists;
     private SimpleBooleanProperty fathersExists;
-    private boolean isNotCancelled; ////////////////////
 
     @FXML
     private void initialize() {
@@ -52,7 +51,6 @@ public class SingleConflictController {
 
         fathersTextArea.visibleProperty().bind(fathersExists);
         chooseFathersButton.visibleProperty().bind(fathersExists);
-
     }
 
     public void SetVersions(String oursFileContent, String theirsFileContent, String fathersFileContent) {
@@ -105,10 +103,7 @@ public class SingleConflictController {
     }
 
     public String getMergedContent() {
-        return mergedContent;//.get();
+        return mergedContent;
     }
 
-//    public SimpleStringProperty mergedContentProperty() {
-//        return mergedContent;
-//    }
 }
