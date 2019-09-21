@@ -33,7 +33,7 @@ public class XmlManager {
         this.existingBranches = createExistingBrancesMap();
     }
 
-    void createMagitRepositoryFromXml(String fileFullName) throws Exception {
+    public void createMagitRepositoryFromXml(String fileFullName) throws Exception {
         validateName(fileFullName);
         InputStream inputStream = new FileInputStream(fileFullName);
         this.magitRepository = deserializeFrom(inputStream);

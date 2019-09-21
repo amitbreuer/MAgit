@@ -7,20 +7,19 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
 
-<GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="289.0" prefWidth="261.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.211" fx:controller="app.subComponents.conflictsWindow.ConflictsWindowController">
+<GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="289.0" prefWidth="261.0" styleClass="BackgroundColor" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="app.subComponents.conflictsWindow.ConflictsWindowController">
   <columnConstraints>
     <ColumnConstraints hgrow="SOMETIMES" maxWidth="352.00001525878906" minWidth="10.0" prefWidth="241.0" />
   </columnConstraints>
   <rowConstraints>
-    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+    <RowConstraints maxHeight="1.7976931348623157E308" minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+    <RowConstraints maxHeight="1.7976931348623157E308" minHeight="-Infinity" prefHeight="35.0" vgrow="NEVER" />
   </rowConstraints>
    <children>
-      <ListView fx:id="conflictsList" prefHeight="225.0" prefWidth="235.0" GridPane.rowSpan="2" />
-      <AnchorPane prefHeight="200.0" prefWidth="200.0" GridPane.rowIndex="2">
+      <ListView fx:id="conflictsList" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="147.0" prefWidth="261.0" styleClass="BackgroundColor" />
+      <AnchorPane prefHeight="11.0" prefWidth="261.0" styleClass="BackgroundColor" GridPane.rowIndex="1">
          <children>
-            <Button fx:id="resolveButton" layoutX="95.0" layoutY="8.0" mnemonicParsing="false" onAction="#resolveButtonAction" prefHeight="25.0" prefWidth="70.0" text="Resolve" AnchorPane.bottomAnchor="8.0" AnchorPane.leftAnchor="95.0" AnchorPane.rightAnchor="96.0" AnchorPane.topAnchor="8.0" />
+            <Button fx:id="resolveButton" alignment="BOTTOM_CENTER" layoutX="95.0" layoutY="5.0000000000000036" mnemonicParsing="false" onAction="#resolveButtonAction" prefHeight="25.0" prefWidth="70.0" text="Resolve" AnchorPane.bottomAnchor="5.0" />
          </children>
       </AnchorPane>
    </children>

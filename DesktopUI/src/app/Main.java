@@ -25,7 +25,11 @@ public class Main extends Application {
         appController.setMagitManager(magitManager);
 
         primaryStage.setTitle("Magit");
-        primaryStage.setScene(new Scene(root));
+        Scene scene = new Scene(root);
+
+        appController.setPrimaryStage(primaryStage);
+
+        primaryStage.setScene(scene);
         primaryStage.show();
     }
 

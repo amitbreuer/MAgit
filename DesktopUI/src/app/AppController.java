@@ -3,6 +3,7 @@ package app;
 import app.subComponents.conflictsWindow.ConflictsWindowController;
 import app.subComponents.newRTBWindow.NewRTBWindowController;
 import app.subComponents.openChangesWindow.OpenChangesWindowController;
+import app.subComponents.singleConflictWindow.SingleConflictController;
 import app.subComponents.errorPopupWindow.ErrorPopupWindowController;
 import body.BodyController;
 import engine.*;
@@ -11,9 +12,12 @@ import exceptions.ThereISRBWithTheSpecifiedNameException;
 import exceptions.XmlPathContainsNonRepositoryObjectsException;
 import exceptions.XmlRepositoryAlreadyExistsException;
 import header.HeaderController;
+import javafx.application.Platform;
 import header.HeaderResourcesConstants;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -28,8 +32,10 @@ import right.RightController;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
+import java.util.function.Consumer;
 
 public class AppController {
     @FXML
@@ -42,7 +48,7 @@ public class AppController {
     private ScrollPane bodyComponent;
     @FXML
     private BodyController bodyComponentController;
-    //    @FXML
+//    @FXML
 //    AnchorPane bottomComponent;
 //    @FXML
 //    private BottomController bottomComponentController;
@@ -65,9 +71,13 @@ public class AppController {
     private OpenChangesWindowController openChangesWindowController;
     private ErrorPopupWindowController errorPopupWindowController;
     private ConflictsWindowController conflictsWindowController;
+    private SimpleStringProperty cssFilePathProperty;
+    private Stage primaryStage;
+
 
     @FXML
     public void initialize() {
+        cssFilePathProperty = new SimpleStringProperty();
         headerComponentController.setMainController(this);
         bodyComponentController.setMainController(this);
         //bottomComponentController.setMainController(this);
@@ -80,7 +90,49 @@ public class AppController {
         //    noAvailableRepository = new SimpleBooleanProperty();
 //        noAvailableRepository.bind(headerComponentController.noAvailableRepository);
 //        noAvailableRepository.bind(bodyComponentController.noAvailableRepository);
+        //    noAvailableRepository = new SimpleBooleanProperty();
+        //    noAvailableRepository.bind(headerComponentController.noAvailableRepository);
+        //    noAvailableRepository.bind(bodyComponentController.noAvailableRepository);
+        headerComponentController.AddListenersToCssPathProperty(cssFilePathProperty);
+        AddListenersToCssPathProperty(cssFilePathProperty);
+
     }
+
+    private void AddListenersToCssPathProperty(SimpleStringProperty cssFilePathProperty) {
+        cssFilePathProperty.addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                openChangesWindowScene.getStylesheets().clear();
+                errorPopupWindowScene.getStylesheets().clear();
+                conflictsWindowScene.getStylesheets().clear();
+
+                if (!newValue.equals("")) {
+                    String newCssFilePath = getClass().getResource(cssFilePathProperty.getValue()).toExternalForm();
+                    openChangesWindowScene.getStylesheets().add(newCssFilePath);
+                    errorPopupWindowScene.getStylesheets().add(newCssFilePath);
+                    conflictsWindowScene.getStylesheets().add(newCssFilePath);
+                }
+            }
+        });
+    }
+
+    public void changeToDefaultSkin() {
+        cssFilePathProperty.setValue("");
+        primaryStage.getScene().getStylesheets().clear();
+    }
+
+    public void changeToLightBlueSkin() {
+        cssFilePathProperty.setValue("/resources/css/lightBlueSkin.css");
+        primaryStage.getScene().getStylesheets().clear();
+        primaryStage.getScene().getStylesheets().add(getClass().getResource(cssFilePathProperty.getValue()).toExternalForm());
+    }
+
+    public void changeToLightOrangeSkin() {
+        cssFilePathProperty.setValue("/resources/css/lightOrangeSkin.css");
+        primaryStage.getScene().getStylesheets().clear();
+        primaryStage.getScene().getStylesheets().add(getClass().getResource(cssFilePathProperty.getValue()).toExternalForm());
+    }
+
 
     private void setConflictsWindow() {
         URL url = getClass().getResource(AppResourcesConstants.CONFLICTS_WINDOW_FXML_PATH);
@@ -159,19 +211,28 @@ public class AppController {
         }
     }
 
-    public void loadRepositoryFromXml(String absolutePath) throws XmlRepositoryAlreadyExistsException, XmlPathContainsNonRepositoryObjectsException {
-        try {
-            magitManager.ValidateAndLoadXMLRepository(absolutePath);
+    public void loadRepositoryFromXml(String absolutePath) {
+
+        Consumer<String> errorConsumer = (str) -> showErrorWindow(str);
+
+        Runnable runIfPathContainsRepository = () -> headerComponentController.ShowPathContainsRepositoryWindow();
+
+        Runnable runIfFinishedProperly = () -> {
+            headerComponentController.SetCurrentRepository(getRepositoryName());
+            headerComponentController.SetNoAvailableRepository(Boolean.FALSE);
+            headerComponentController.SetRepositoryPath(getRepositoryPath());
+            headerComponentController.ClearBranchesMenu();
+            headerComponentController.UpdateBranches();
+
             ShowWCStatus();
             showCommitTree();
-            //bottomComponentController.setMessage("Repository loaded from XML");
-        } catch (XmlRepositoryAlreadyExistsException ex1) {
-            throw new XmlRepositoryAlreadyExistsException();
-        } catch (XmlPathContainsNonRepositoryObjectsException ex2) {
-            throw new XmlPathContainsNonRepositoryObjectsException();
-        } catch (Exception e) {
-            showErrorWindow(e.getMessage());
-        }
+
+        };
+
+        magitManager.LoadRepositoryFromXML(absolutePath, errorConsumer, runIfPathContainsRepository, runIfFinishedProperly);
+
+        //bottomComponentController.setMessage("Repository loaded from XML");
+
     }
 
     public String getRepositoryName() {
@@ -386,6 +447,10 @@ public class AppController {
         stage.setTitle("Conflicts");
         stage.setScene(conflictsWindowScene);
         stage.initModality(Modality.APPLICATION_MODAL);
+        stage.setMinHeight(240);
+        stage.setMinWidth(261);
+        stage.setMaxHeight(320);
+        stage.setMaxWidth(261);
         stage.showAndWait();
 
         magitManager.ImplementConflictsSolutions(conflicts);
@@ -471,6 +536,9 @@ public class AppController {
         }
     }
 
+    public void setPrimaryStage(Stage primaryStage) {
+        this.primaryStage = primaryStage;
+    }
     public void CreateRTB(String branchName) {
         Stage stage = new Stage();
         stage.setTitle("Create New RTB");

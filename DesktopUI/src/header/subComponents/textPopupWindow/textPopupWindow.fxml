@@ -5,7 +5,7 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="150.0" prefWidth="328.0" xmlns="http://javafx.com/javafx/8.0.211" xmlns:fx="http://javafx.com/fxml/1" fx:controller="header.subComponents.textPopupWindow.TextPopupWindowController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="150.0" prefWidth="328.0" styleClass="BackgroundColor" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="header.subComponents.textPopupWindow.TextPopupWindowController">
    <children>
       <Label fx:id="label" layoutX="27.0" layoutY="17.0" text="Label" AnchorPane.topAnchor="17.0" />
       <TextField fx:id="textField" layoutX="27.0" layoutY="44.0" prefHeight="25.0" prefWidth="184.0" AnchorPane.topAnchor="44.0" />
