@@ -7,7 +7,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="209.0" prefWidth="388.0" styleClass="BackgroundColor" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="header.subComponents.pathContainsRepositoryWindow.PathContainsRepositoryWindowController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="209.0" prefWidth="388.0" styleClass="BackgroundColor" xmlns="http://javafx.com/javafx/8.0.211" xmlns:fx="http://javafx.com/fxml/1" fx:controller="header.subComponents.pathContainsRepositoryWindow.PathContainsRepositoryWindowController">
    <children>
       <Button fx:id="cancelButton" cancelButton="true" layoutX="247.0" layoutY="90.0" mnemonicParsing="false" onAction="#cancelButtonAction" prefHeight="25.0" prefWidth="67.0" text="Cancel" AnchorPane.bottomAnchor="12.666666666666668" AnchorPane.rightAnchor="73.66666666666667" />
       <Label layoutX="37.0" layoutY="2.0" prefHeight="62.0" prefWidth="321.0" text="The path in the xml file is already a repository.&#10;&#10;please choose one of the following options:">

@@ -5,7 +5,7 @@
 <?import javafx.scene.control.TitledPane?>
 <?import javafx.scene.control.TreeView?>
 
-<SplitPane dividerPositions="0.5" minHeight="-Infinity" minWidth="-Infinity" orientation="VERTICAL" prefWidth="216.0" styleClass="component" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="right.RightController">
+<SplitPane dividerPositions="0.5" minHeight="-Infinity" minWidth="-Infinity" orientation="VERTICAL" prefWidth="216.0" styleClass="component" xmlns="http://javafx.com/javafx/8.0.211" xmlns:fx="http://javafx.com/fxml/1" fx:controller="right.RightController">
    <items>
       <TitledPane fx:id="topTitledPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="159.0" prefWidth="214.0" styleClass="component" text="Files">
          <content>

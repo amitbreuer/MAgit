@@ -9,7 +9,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="266.0" prefWidth="441.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="header.subComponents.newBranchSelectionWindow.NewBranchSelectionWindowController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="266.0" prefWidth="441.0" xmlns="http://javafx.com/javafx/8.0.211" xmlns:fx="http://javafx.com/fxml/1" fx:controller="header.subComponents.newBranchSelectionWindow.NewBranchSelectionWindowController">
    <children>
       <Label layoutX="27.0" layoutY="17.0" prefHeight="17.0" prefWidth="197.0" text="Enter the name of the new branch:" AnchorPane.leftAnchor="27.0" AnchorPane.topAnchor="17.0" />
       <TextField fx:id="branchNameTextField" layoutX="27.0" layoutY="44.0" prefHeight="25.0" prefWidth="261.0" AnchorPane.leftAnchor="27.0" AnchorPane.topAnchor="44.0" />

@@ -9,7 +9,7 @@
 <?import javafx.scene.text.Font?>
 
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="188.0" prefWidth="407.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="app.subComponents.regularOrRTBWindow.RegularOrRTBWindowController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="188.0" prefWidth="407.0" xmlns="http://javafx.com/javafx/8.0.211" xmlns:fx="http://javafx.com/fxml/1" fx:controller="app.subComponents.regularOrRTBWindow.RegularOrRTBWindowController">
    <children>
       <Label layoutX="17.0" layoutY="23.0" prefHeight="51.0" prefWidth="355.0" text="There is a remote branch (RB) that points to this commit.&#10;Please choose one of these actions:">
          <font>
