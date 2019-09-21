@@ -1,10 +1,16 @@
 <component name="ArtifactManager">
-  <artifact type="jar" name="DesktopUI:jar">
+  <artifact name="DesktopUI:jar">
     <output-path>$PROJECT_DIR$/out/artifacts/DesktopUI_jar</output-path>
-    <root id="archive" name="DesktopUI.jar">
-      <element id="directory" name="META-INF">
-        <element id="file-copy" path="$PROJECT_DIR$/ConsoleUI/META-INF/MANIFEST.MF" />
+    <root id="root">
+      <element id="archive" name="DesktopUI.jar">
+        <element id="module-output" name="DesktopUI" />
+        <element id="module-output" name="Engine" />
       </element>
+      <element id="file-copy" path="$PROJECT_DIR$/../commons-io-2.6.jar" />
+      <element id="file-copy" path="$PROJECT_DIR$/../fxgraph-0.0.3.jar" />
+      <element id="file-copy" path="$PROJECT_DIR$/../commons-codec-1.12.jar" />
+      <element id="file-copy" path="$PROJECT_DIR$/../AncestorFinder.jar" />
+      <element id="file-copy" path="$PROJECT_DIR$/../commons-collections4-4.3.jar" />
     </root>
   </artifact>
 </component>

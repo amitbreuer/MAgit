@@ -19,6 +19,6 @@
          <toggleGroup>
             <ToggleGroup fx:id="switchXmlRepositoryGroup" />
          </toggleGroup></RadioButton>
-      <RadioButton fx:id="keepCurrentReopistoryRadioButton" layoutX="32.0" layoutY="124.0" mnemonicParsing="false" text="continue working with the existing repository" toggleGroup="$switchXmlRepositoryGroup" />
+      <RadioButton fx:id="keepCurrentRepositoryRadioButton" layoutX="32.0" layoutY="124.0" mnemonicParsing="false" text="continue working with the existing repository" toggleGroup="$switchXmlRepositoryGroup" />
    </children>
 </AnchorPane>

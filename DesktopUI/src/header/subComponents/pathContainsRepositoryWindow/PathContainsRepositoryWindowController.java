@@ -1,19 +1,17 @@
 package header.subComponents.pathContainsRepositoryWindow;
 
 import header.HeaderController;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.RadioButton;
-import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
 public class PathContainsRepositoryWindowController {
     @FXML
     private RadioButton replaceExistingRepositoryRadioButton;
     @FXML
-    private RadioButton keepCurrentReopistoryRadioButton;
+    private RadioButton keepCurrentRepositoryRadioButton;
     @FXML
     private Button okButton;
     @FXML

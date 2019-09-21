@@ -281,7 +281,7 @@ public class AppController {
             magitManager.CreateNewBranch(branchName, checkout, pointToHeadCommit, otherCommitSha1);
             showMessageAtBottom("The branch " + branchName + " was created");
         } catch (ThereIsRBPointingToThisCommitException e) {
-            openRegularOrRTBWindow(e.getRBName(),e.getRBCommitSha1());
+            openRegularOrRTBWindow(e.getRBName(), e.getRBCommitSha1());
         } catch (Exception e) {
             showErrorWindow(e.getMessage());
         }
@@ -289,12 +289,13 @@ public class AppController {
         showCommitTree();
     }
 
-    public void CreateNewRegularBranch(String branchName, boolean checkout, boolean pointToHeadCommit, String otherCommitSha1){
+    public void CreateNewRegularBranch(String branchName, boolean checkout, boolean pointToHeadCommit, String otherCommitSha1) {
         try {
-            magitManager.CreateNewRegularBranch(branchName,checkout,pointToHeadCommit,otherCommitSha1);
+            magitManager.CreateNewRegularBranch(branchName, checkout, pointToHeadCommit, otherCommitSha1);
         } catch (Exception e) {
             showErrorWindow(e.getMessage());
-        }  headerComponentController.UpdateBranches();
+        }
+        headerComponentController.UpdateBranches();
         showCommitTree();
     }
 
@@ -356,6 +357,7 @@ public class AppController {
                 }
             }
             magitManager.CheckOut(branchName);
+            ShowWCStatus();
             showCommitTree();
         } catch (IOException e) {
             e.printStackTrace();
@@ -443,20 +445,20 @@ public class AppController {
 
         if (firstPrecedingSh1.equals("")) {
             sb.append("No previous commits\r\n\r\n");
-        }else {
+        } else {
             sb.append("First preceding sha1:\r\n");
             sb.append(firstPrecedingSh1 + "\r\n\r\n");
             sb.append("Second preceding sha1:\r\n");
-            if(secondPecedingSh1.equals("")){
+            if (secondPecedingSh1.equals("")) {
                 sb.append("No second preceding commit\r\n\r\n");
-            }else {
-                sb.append(secondPecedingSh1+"\r\n\r\n");
+            } else {
+                sb.append(secondPecedingSh1 + "\r\n\r\n");
             }
         }
-        sb.append("Main folder's sha1:\r\n" + commit.getMainFolder().sha1Folder()+"\r\n\r\n");
-        sb.append("Creation date:\r\n" + commit.getSha1()+"\r\n\r\n");
-        sb.append("Creator name:\r\n" + commit.getSha1()+"\r\n\r\n");
-        sb.append("Message:\r\n"+commit.getMessage()+"\r\n");
+        sb.append("Main folder's sha1:\r\n" + commit.getMainFolder().sha1Folder() + "\r\n\r\n");
+        sb.append("Creation date:\r\n" + commit.getSha1() + "\r\n\r\n");
+        sb.append("Creator name:\r\n" + commit.getSha1() + "\r\n\r\n");
+        sb.append("Message:\r\n" + commit.getMessage() + "\r\n");
 
         rightComponentController.ShowCommitInfo(sb.toString());
     }
@@ -481,10 +483,10 @@ public class AppController {
         String branchName = headerComponentController.GetNewBranchName();
         if (branchName != null) {
             try {
-                magitManager.CreateNewBranch(branchName, false,false,commitSha1);
+                magitManager.CreateNewBranch(branchName, false, false, commitSha1);
                 headerComponentController.UpdateBranches();
             } catch (ThereIsRBPointingToThisCommitException e) {
-                openRegularOrRTBWindow(e.getRBName(),e.getRBCommitSha1());
+                openRegularOrRTBWindow(e.getRBName(), e.getRBCommitSha1());
             } catch (Exception e) {
                 showErrorWindow(e.getMessage());
             }
@@ -504,7 +506,6 @@ public class AppController {
         stage.setMaxHeight(320);
         stage.setMaxWidth(261);
         stage.showAndWait();
-
         magitManager.ImplementConflictsSolutions(conflicts);
     }
 
@@ -540,7 +541,11 @@ public class AppController {
     }
 
     public void Clone(String RRPath, String LRPath, String LRName) {
-        magitManager.CloneRepository(RRPath, LRPath, LRName);
+        try {
+            magitManager.CloneRepository(RRPath, LRPath, LRName);
+        }catch (Exception e){
+            showErrorWindow(e.getMessage());
+        }
         headerComponentController.UpdateBranches();
         ShowWCStatus();
         showCommitTree();
@@ -621,12 +626,12 @@ public class AppController {
         showCommitTree();
     }
 
-    public void CreateRTBWithoutCheckout(String RBName){
+    public void CreateRTBWithoutCheckout(String RBName) {
         StringTokenizer tokenizer = new StringTokenizer(RBName, "\\");
         tokenizer.nextToken();
         String RTBName = tokenizer.nextToken();
         try {
-            magitManager.CreateRTBForRB(RTBName,false);
+            magitManager.CreateRTBForRB(RTBName, false);
         } catch (Exception e) {
             showErrorWindow(e.getMessage());
         }

@@ -173,8 +173,4 @@ public class CommitNodeController {
         }
         hasPointedBranches.setValue(!pointedBranches.isEmpty());
     }
-
-    public Circle getCommitCircle() {
-        return CommitCircle;
-    }
 }

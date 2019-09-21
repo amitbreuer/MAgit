@@ -304,7 +304,7 @@ public class HeaderController {
 
         mainController.loadRepositoryFromXml(absolutePath);
         noCommitsInRepository.setValue(!mainController.IsRepositoryConatinsCommits());
-
+        isTrackingRemoteRepository.setValue(mainController.isTrackingRemoteRepository());
     }
 
     @FXML
@@ -312,7 +312,6 @@ public class HeaderController {
         mainController.createNewBranch(branchName, checkout, pointToHeadCommit, otherCommitSha1);
         UpdateBranches();
     }
-
 
     private void updateHeadBranch() {
         String newHeadName = mainController.getMagitManager().GetCurrentRepository().getHeadBranch().getName();
@@ -324,6 +323,7 @@ public class HeaderController {
         currentRepository.setValue(mainController.getRepositoryName());
         noAvailableRepository.setValue(Boolean.FALSE);
         noCommitsInRepository.setValue(!mainController.IsRepositoryConatinsCommits());
+        isTrackingRemoteRepository.setValue(mainController.isTrackingRemoteRepository());
 
         ClearBranchesMenu();
         UpdateBranches();
@@ -490,6 +490,7 @@ public class HeaderController {
         currentRepository.setValue(mainController.getRepositoryName());
         repositoryPath.setValue(mainController.getRepositoryPath());
         noAvailableRepository.setValue(Boolean.FALSE);
+        isTrackingRemoteRepository.setValue(Boolean.TRUE);
         ClearBranchesMenu();
         UpdateBranches();
     }

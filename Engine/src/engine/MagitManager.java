@@ -11,6 +11,7 @@ import puk.team.course.magit.ancestor.finder.CommitRepresentative;
 import tasks.LoadRepositoryFromXmlTask;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -20,6 +21,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
@@ -137,7 +139,7 @@ public class MagitManager {
         for (File file : wcFiles) {
             if (!file.getName().equals(".magit")) {
                 if (file.isFile()) {
-                    fileContent = convertTextFileToString(file.getPath());
+                    fileContent = readTextFile(file.getPath());
                     sha1 = DigestUtils.sha1Hex(fileContent);
                     Blob newBlob = new Blob(fileContent);
                     folderToCreate.getComponents().add(new Folder.ComponentData(file.getName(), sha1, newBlob, username, currentDate));
@@ -153,6 +155,80 @@ public class MagitManager {
         Collections.sort(folderToCreate.getComponents());
         return folderToCreate;
     }
+
+    public static String readTextFile(String filePath) {
+        File f = new File(filePath);
+        StringBuilder content = new StringBuilder();
+
+        try (Stream<String> stream = Files.lines(Paths.get(f.getPath()), StandardCharsets.UTF_8)) {
+            stream.forEach(s -> content.append(s).append("\n"));
+            if (content.length() > 0) {
+                content.deleteCharAt(content.length() - 1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return content.toString();
+    }
+
+//    private void calculateDeltaBetweenTwoFolders(Folder newFolder, Folder oldFolder, String currentPath, Delta delta) throws IOException {
+//        int nameDiff;
+//        int newFolderIndex = 0;
+//        int oldFolderIndex = 0;
+//        int newFolderSize = newFolder.getComponents().size();
+//        int oldFolderSize = oldFolder.getComponents().size();
+//        List<Folder.ComponentData> newComponents = newFolder.getComponents();
+//        List<Folder.ComponentData> oldComponents = oldFolder.getComponents();
+//        Folder.ComponentData newComponent;
+//        Folder.ComponentData oldComponent;
+//
+//        while (newFolderIndex < newFolderSize && oldFolderIndex < oldFolderSize) {
+//            newComponent = newComponents.get(newFolderIndex);
+//            oldComponent = oldComponents.get(oldFolderIndex);
+//            nameDiff = newComponent.getName().compareTo(oldComponent.getName());
+//            if (nameDiff == 0) {//if it's the same name
+//                if (newComponent.getFolderComponent() instanceof Blob) { //if the file is a txt file
+//                    if (newComponent.getSha1().equals(oldComponent.getSha1())) { //if the file didn't changed
+//                        newComponent.setLastModifiedDate(oldComponent.getLastModifiedDate());
+//                        newComponent.setLastModifier(oldComponent.getLastModifier());
+//                    } else {
+//                        delta.getUpdatedFiles().add(new DeltaComponent(newComponent.getFolderComponent(), currentPath, newComponent.getName()));
+//                    }
+//                } else {
+//                    String subFolderPath = currentPath + File.separator + newComponent.getName();
+//                    Folder subNewFolder = (Folder) newComponent.getFolderComponent();
+//                    Folder subOldFolder = (Folder) oldComponent.getFolderComponent();
+//                    calculateDeltaBetweenTwoFolders(subNewFolder, subOldFolder, subFolderPath, delta);
+//                    if (subNewFolder.sha1Folder().equals(subOldFolder.sha1Folder())) {
+//                        newComponent.setLastModifiedDate(oldComponent.getLastModifiedDate());
+//                        newComponent.setLastModifier(oldComponent.getLastModifier());
+//                    } else {
+//                        delta.getUpdatedFiles().add(new DeltaComponent(subNewFolder, currentPath, newComponent.getName()));
+//                    }
+//                }
+//                newFolderIndex++;
+//                oldFolderIndex++;
+//            } else if (nameDiff < 0) { //file added
+//                addComponentToAddedFilesList(newComponent,currentPath,delta);
+//                newFolderIndex++;
+//            } else { //file deleted
+//                addFolderComponentToDeletedFilesList(oldComponent, currentPath, delta);
+//            }
+//        }
+//
+//        while (newFolderIndex < newFolderSize) {
+//            newComponent = newComponents.get(newFolderIndex);
+//            addComponentToAddedFilesList(newComponent, currentPath, delta);
+//            newFolderIndex++;
+//        }
+//        while (oldFolderIndex < oldFolderSize) {
+//            oldComponent = oldComponents.get(oldFolderIndex);
+//            addFolderComponentToDeletedFilesList(oldComponent, currentPath, delta);
+//            oldFolderIndex++;
+//        }
+//    }
+
+
 
     private void calculateDeltaBetweenTwoFolders(Folder newFolder, Folder oldFolder, String currentPath, Delta delta) throws IOException {
         int nameDiff;
@@ -235,6 +311,7 @@ public class MagitManager {
             }
         }
     }
+
 
     private void addComponentToAddedFilesList(Folder.ComponentData folderComponentToAdd, String componentPath, Delta delta) throws IOException {
         FolderComponent componentToAdd = folderComponentToAdd.getFolderComponent();
@@ -518,17 +595,6 @@ public class MagitManager {
         }
     }
 
-//    public void CreateNewBranchForCommit(String branchName, String commitSha1) throws Exception {
-//        String branchesDirPath = this.repository.GetBranchesDirPath();
-//        if (repository.FindBranchByName(branchName) != null) {
-//            throw new Exception("The branch \"branchName\" already exists");
-//        }
-//        Commit commit = CreateCommitFromSha1(commitSha1, this.repository.GetObjectsDirPath());
-//        Branch newBranch = new Branch(branchName, commit);
-//        createTextFile(branchesDirPath + File.separator + branchName + ".txt", commitSha1);
-//        repository.getBranches().put(newBranch.getName(), newBranch);
-//    }
-
     public Boolean thereAreUncommittedChanges() throws IOException {
         Delta delta = GetWCDelta();
         return !delta.isEmpty();
@@ -574,7 +640,7 @@ public class MagitManager {
         }
 
         if (!this.repository.getHeadBranch().getLastCommit().equals(newHeadBranch.getLastCommit())) { // if the branch points to different commit
-            spanWCFromCommit(newHeadBranch.getLastCommit(), repository.getPath());
+            spanWCFromCommit(newHeadBranch.getLastCommit(), this.repository.getPath());
         }
         setHeadBranch(newHeadBranch);
     }
@@ -691,7 +757,6 @@ public class MagitManager {
             createNewObjectFileFromDelta(delta);//create new object files for all new/updated files
             createNewObjectFile(currentWC.toString(), this.repository.GetObjectsDirPath());//create object file that contains the new app folder
             createNewObjectFile(newCommit.toString(), this.repository.GetObjectsDirPath());//create object file that contains the new commit
-        }
 
             try {
                 writeToFile(headBranchFilePath, newCommit.Sha1Commit());
@@ -903,7 +968,6 @@ public class MagitManager {
     public void LoadRepositoryFromXML(String fileFullName, Consumer<String> errorNotifier, Runnable runIfPathContainsRepository, Runnable runIfFinishedProperly) {
         LoadRepositoryFromXmlTask loadRepositoryFromXmlTask = new LoadRepositoryFromXmlTask(this, fileFullName, errorNotifier, runIfPathContainsRepository, runIfFinishedProperly);
         new Thread(loadRepositoryFromXmlTask).start();
-
     }
 
     public void ValidateAndLoadXMLRepository(String fileFullName) throws Exception {
@@ -938,7 +1002,14 @@ public class MagitManager {
         File masterBranch = new File(this.repository.GetBranchesDirPath() + File.separator + "master.txt");
         masterBranch.delete();
         addMagitRepositoryObjectsToRepository();
-
+        if(xmlManager.getMagitRepository().getMagitRemoteReference() != null) {
+            if(xmlManager.getMagitRepository().getMagitRemoteReference().getName() != null && !xmlManager.getMagitRepository().getMagitRemoteReference().getName().equals("")
+                    &&  xmlManager.getMagitRepository().getMagitRemoteReference().getLocation() != null && !xmlManager.getMagitRepository().getMagitRemoteReference().getLocation().equals("")){
+                this.repository.setRemoteRepositoryPath(Paths.get(xmlManager.getMagitRepository().getLocation()));
+                this.repository.setRemoteRepositoryname(xmlManager.getMagitRepository().getName());
+                createTextFile(repository.getPath() + File.separator + ".magit" + File.separator + "remoteRepositoryPath.txt", repository.getRemoteRepositoryPath().toString());
+            }
+        }
         spanWCFromCommit(this.repository.getHeadBranch().getLastCommit(), this.repository.getPath());
     }
 
@@ -1321,8 +1392,11 @@ public class MagitManager {
         }
     }
 
-    public void CloneRepository(String RRPath, String LRPath, String LRName) {
+    public void CloneRepository(String RRPath, String LRPath, String LRName) throws Exception {
         String RRName;
+        if(!Files.exists(Paths.get(RRPath + File.separator + ".magit"))){
+            throw new Exception("LR path is not repository ");
+        }
         try {
             RRName = convertTextFileToString(RRPath + File.separator + ".magit" + File.separator + "repositoryName.txt");
 

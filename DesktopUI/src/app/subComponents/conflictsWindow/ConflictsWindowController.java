@@ -79,14 +79,15 @@ public class ConflictsWindowController {
         stage.setTitle("Resolve Conflicts");
         String conflictComponentName = (String) conflictsList.getSelectionModel().getSelectedItem();
         ConflictComponent conflictComponent = conflictsMap.get(conflictComponentName);
-        singleConflictController.SetVersions(conflictComponent.getOursFileContent(),conflictComponent.getTheirsFileContent(),conflictComponent.getAncestorsFileContent());
+        singleConflictController.SetVersions(conflictComponent.getOursFileContent(), conflictComponent.getTheirsFileContent(), conflictComponent.getAncestorsFileContent());
+        singleConflictController.setFileName(conflictComponentName);
         stage.setScene(singleConflictWindowScene);
         stage.initModality(Modality.APPLICATION_MODAL);
         stage.setResizable(false);
         stage.showAndWait();
         conflictComponent.setMergedFileContent(singleConflictController.getMergedContent());
         conflictsList.getItems().remove(conflictComponentName);
-        if(conflictsList.getItems().isEmpty()){
+        if (conflictsList.getItems().isEmpty()) {
             Stage mainStage = (Stage) resolveButton.getScene().getWindow();
             mainStage.close();
         }
@@ -95,7 +96,7 @@ public class ConflictsWindowController {
     public void SetConflictsList(List<ConflictComponent> conflicts) {
         for (ConflictComponent cc : conflicts) {
             conflictsList.getItems().add(cc.GetFullPath());
-            conflictsMap.put(cc.GetFullPath(),cc);
+            conflictsMap.put(cc.GetFullPath(), cc);
         }
     }
 }

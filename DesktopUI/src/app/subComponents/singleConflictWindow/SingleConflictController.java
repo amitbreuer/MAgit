@@ -7,6 +7,7 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.stage.Stage;
 
@@ -28,7 +29,7 @@ public class SingleConflictController {
     @FXML
     Button okButton;
     @FXML
-    Button cancelButton;
+    Label fileNameLabel;
 
     private ConflictsWindowController mainController;
     private String mergedContent;
@@ -38,7 +39,6 @@ public class SingleConflictController {
 
     @FXML
     private void initialize() {
-        //mergedContent = new SimpleStringProperty();
         oursExists = new SimpleBooleanProperty();
         theirsExists = new SimpleBooleanProperty();
         fathersExists = new SimpleBooleanProperty();
@@ -71,7 +71,6 @@ public class SingleConflictController {
 
     @FXML
     public void cancelButtonAction(ActionEvent actionEvent) {
-
         closeStage();
     }
 
@@ -106,4 +105,7 @@ public class SingleConflictController {
         return mergedContent;
     }
 
+    public void setFileName(String conflictComponentName) {
+        this.fileNameLabel.setText(conflictComponentName);
+    }
 }
