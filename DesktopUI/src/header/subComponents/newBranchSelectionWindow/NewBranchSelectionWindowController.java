@@ -30,7 +30,7 @@ public class NewBranchSelectionWindowController {
 
     @FXML
     private void initialize(){
-        otherCommitSha1TextField.disableProperty().bind(otherCommitButton.selectedProperty().not());
+        otherCommitSha1TextField.visibleProperty().bind(otherCommitButton.selectedProperty());
     }
 
     public void setMainController(HeaderController mainController) {
@@ -55,5 +55,4 @@ public class NewBranchSelectionWindowController {
     public void ClearTextField() {
         branchNameTextField.clear();
     }
-
 }

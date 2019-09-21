@@ -1,6 +1,7 @@
 package app;
 
 public class AppResourcesConstants {
+    static final String REGULAR_OR_RTB_WINDOW_FXML_PATH = "/app/subComponents/regularOrRTBWindow/regularOrRTBWindow.fxml";
     static final String MAIN_FXML_PATH = "/app/app.fxml";
     static final String NEW_RTB_WINDOW_FXML_PATH = "/app/subComponents/newRTBWindow/newRTBWindow.fxml";
     static final String CONFLICTS_WINDOW_FXML_PATH = "/app/subComponents/conflictsWindow/conflictsWindow.fxml";

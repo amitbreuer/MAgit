@@ -2,14 +2,11 @@ package header;
 
 import app.AppController;
 import engine.Branch;
-import exceptions.XmlPathContainsNonRepositoryObjectsException;
-import exceptions.XmlRepositoryAlreadyExistsException;
 import header.binds.BranchNameBind;
 import header.binds.IsHeadBranchBind;
 import header.subComponents.ClickableMenu;
 import header.subComponents.createEmptyRepositoryWindow.CreateEmptyRepositoryWindowController;
 import header.subComponents.newBranchSelectionWindow.NewBranchSelectionWindowController;
-import app.subComponents.newRTBWindow.NewRTBWindowController;
 import header.subComponents.textPopupWindow.TextPopupWindowController;
 import header.subComponents.pathContainsRepositoryWindow.PathContainsRepositoryWindowController;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -35,7 +32,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.StringTokenizer;
 
 public class HeaderController {
     @FXML
@@ -351,7 +347,6 @@ public class HeaderController {
         Image deleteImage = new Image("/resources/trash-icon.png");
         delete.setGraphic(new ImageView(deleteImage));
         delete.disableProperty().bind(isHeadBranch);
-        //delete.disableProperty().setValue(isRemote);
         delete.visibleProperty().bind(isHeadBranch.not());
         delete.setOnAction((x) -> deleteBranch(branchName));
 
@@ -365,18 +360,24 @@ public class HeaderController {
         reset.setText("Reset");
         Image resetImage = new Image("/resources/undo-arrow.png");
         reset.setGraphic(new ImageView(resetImage));
-        reset.disableProperty().bind(isHeadBranch.not());
-        //reset.disableProperty().setValue(isRemote);
-        reset.visibleProperty().bind(isHeadBranch);
+        if(isRemote){
+            reset.visibleProperty().setValue(false);
+        } else {
+            reset.disableProperty().bind(isHeadBranch.not());
+            reset.visibleProperty().bind(isHeadBranch);
+        }
         reset.setOnAction((x) -> resetHead());
 
         MenuItem merge = new MenuItem();
         merge.setText("Merge into Head");
         Image mergeImage = new Image("/resources/merge-icon.png");
         merge.setGraphic(new ImageView(mergeImage));
-        merge.disableProperty().bind(isHeadBranch);
-        //merge.disableProperty().setValue(isRemote);
-        merge.visibleProperty().bind(isHeadBranch.not());
+        if(isRemote) {
+            merge.visibleProperty().setValue(false);
+        } else {
+            merge.disableProperty().bind(isHeadBranch);
+            merge.visibleProperty().bind(isHeadBranch.not());
+        }
         merge.setOnAction((x) -> merge(branchName));
 
         newMenu.getItems().add(checkout);
@@ -407,7 +408,6 @@ public class HeaderController {
 
     private void deleteBranch(String branchName) {
         mainController.DeleteBranch(branchName);
-        DeleteBranchFromBranchesMenu(branchName);
     }
 
     public void DeleteBranchFromBranchesMenu(String branchName) {
