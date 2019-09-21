@@ -3,4 +3,4 @@
 <?import javafx.scene.control.ScrollPane?>
 
 
-<ScrollPane fx:id="scrollPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="BackgroundColor" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="body.BodyController" />
+<ScrollPane fx:id="scrollPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="50.0" styleClass="BackgroundColor" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="body.BodyController" />

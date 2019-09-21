@@ -1,4 +1,4 @@
-.scroll-pane > .viewport, .scroll-pane > .scroll-bar, .scroll-pane > .scroll-pane, .tree-view, .split-pane {
+.text-area,.list-view,.text-area .content, .scroll-pane > .viewport, .scroll-pane > .scroll-bar, .scroll-pane > .scroll-pane, .tree-view, .split-pane{
     -fx-background-color: lightblue;
     -fx-border-color: grey;
 }
@@ -8,7 +8,12 @@
 .tree-cell {
     -fx-background-color: lightblue;
 }
-
+.text-area,.list-view,.text-area .content{
+    -fx-background-color: lightblue;
+}
+.list-cell {
+    -fx-control-inner-background: lightblue;
+}
 
 
 .split-pane *.split-pane-divider {

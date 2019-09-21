@@ -14,7 +14,7 @@
       <Button fx:id="directorySelectionButton" layoutX="369.0" layoutY="95.0" mnemonicParsing="false" onAction="#directorySelectionButtonAction" text="select location" />
       <TextField fx:id="repositoryNameTextField" layoutX="146.0" layoutY="45.0" prefHeight="25.0" prefWidth="197.0" />
       <TextField fx:id="mainFolderNameTextFiled" layoutX="146.0" layoutY="145.0" prefHeight="25.0" prefWidth="197.0" />
-      <Button fx:id="okButton" defaultButton="true" disable="true" layoutX="325.0" layoutY="199.0" mnemonicParsing="false" onAction="#okButtonAction" prefHeight="25.0" prefWidth="51.0" text="OK" AnchorPane.bottomAnchor="30.666666666666657" AnchorPane.rightAnchor="118.66666666666669" />
-      <Button fx:id="cancelButton" cancelButton="true" layoutX="390.0" layoutY="199.0" mnemonicParsing="false" onAction="#cancelButtonAction" prefHeight="25.0" prefWidth="51.0" text="Cancel" AnchorPane.bottomAnchor="30.666666666666668" AnchorPane.rightAnchor="53.666666666666664" />
+      <Button fx:id="okButton" defaultButton="true" disable="true" layoutX="298.0" layoutY="198.66666666666666" mnemonicParsing="false" onAction="#okButtonAction" prefHeight="25.0" prefWidth="70.0" text="OK" AnchorPane.bottomAnchor="31.0" AnchorPane.rightAnchor="127.0" />
+      <Button fx:id="cancelButton" cancelButton="true" layoutX="390.0" layoutY="199.0" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#cancelButtonAction" prefHeight="25.0" prefWidth="70.0" text="Cancel" AnchorPane.bottomAnchor="31.0" AnchorPane.rightAnchor="45.0" />
    </children>
 </AnchorPane>

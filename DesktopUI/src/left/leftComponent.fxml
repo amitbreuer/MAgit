@@ -5,7 +5,7 @@
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.text.Font?>
 
-<SplitPane dividerPositions="0.09283819628647215" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="150.0" minWidth="-Infinity" orientation="VERTICAL" prefHeight="379.0" prefWidth="201.0" styleClass="component" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="left.LeftController">
+<SplitPane dividerPositions="0.09283819628647215" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="50.0" minWidth="-Infinity" orientation="VERTICAL" prefHeight="379.0" prefWidth="201.0" styleClass="component" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="left.LeftController">
   <items>
       <Label fx:id="topLabel" minHeight="12.0" prefHeight="20.0" prefWidth="199.0">
          <font>

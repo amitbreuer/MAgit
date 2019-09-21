@@ -5,6 +5,9 @@ import app.AppResourcesConstants;
 import app.subComponents.singleConflictWindow.SingleConflictController;
 import engine.ConflictComponent;
 import engine.Conflicts;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -39,6 +42,20 @@ public class ConflictsWindowController {
         conflictsMap = new HashMap<>();
     }
 
+    public void AddListenersToCssPathProperty(SimpleStringProperty cssFilePathProperty) {
+        cssFilePathProperty.addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                singleConflictWindowScene.getStylesheets().clear();
+
+                if (!newValue.equals("")) {
+                    String newCssFilePath = getClass().getResource(cssFilePathProperty.getValue()).toExternalForm();
+                    singleConflictWindowScene.getStylesheets().add(newCssFilePath);
+                }
+            }
+        });
+    }
+
     public void setMainController(AppController mainController) {
         this.mainController = mainController;
     }
@@ -65,6 +82,7 @@ public class ConflictsWindowController {
         singleConflictController.SetVersions(conflictComponent.getOursFileContent(),conflictComponent.getTheirsFileContent(),conflictComponent.getAncestorsFileContent());
         stage.setScene(singleConflictWindowScene);
         stage.initModality(Modality.APPLICATION_MODAL);
+        stage.setResizable(false);
         stage.showAndWait();
         conflictComponent.setMergedFileContent(singleConflictController.getMergedContent());
         conflictsList.getItems().remove(conflictComponentName);

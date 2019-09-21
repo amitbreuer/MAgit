@@ -7,11 +7,9 @@ import app.subComponents.singleConflictWindow.SingleConflictController;
 import app.subComponents.errorPopupWindow.ErrorPopupWindowController;
 import body.BodyController;
 import engine.*;
-import exceptions.ActiveBranchContainsMergedBranchException;
-import exceptions.ThereISRBWithTheSpecifiedNameException;
-import exceptions.XmlPathContainsNonRepositoryObjectsException;
-import exceptions.XmlRepositoryAlreadyExistsException;
+import exceptions.*;
 import header.HeaderController;
+import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import header.HeaderResourcesConstants;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -27,6 +25,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import left.LeftController;
 import right.RightController;
 
@@ -36,6 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 public class AppController {
     @FXML
@@ -48,10 +48,8 @@ public class AppController {
     private ScrollPane bodyComponent;
     @FXML
     private BodyController bodyComponentController;
-//    @FXML
-//    AnchorPane bottomComponent;
-//    @FXML
-//    private BottomController bottomComponentController;
+    @FXML
+    private Label bottomMessagelabel;
     @FXML
     private SplitPane leftComponent;
     @FXML
@@ -83,17 +81,14 @@ public class AppController {
         //bottomComponentController.setMainController(this);
         leftComponentController.setMainController(this);
         rightComponentController.setMainController(this);
+        bottomMessagelabel.setVisible(false);
         setOpenChangesWindow();
         setErrorPopupWindow();
         setConflictsWindow();
         setNewRTBWindow();
-        //    noAvailableRepository = new SimpleBooleanProperty();
-//        noAvailableRepository.bind(headerComponentController.noAvailableRepository);
-//        noAvailableRepository.bind(bodyComponentController.noAvailableRepository);
-        //    noAvailableRepository = new SimpleBooleanProperty();
-        //    noAvailableRepository.bind(headerComponentController.noAvailableRepository);
-        //    noAvailableRepository.bind(bodyComponentController.noAvailableRepository);
+
         headerComponentController.AddListenersToCssPathProperty(cssFilePathProperty);
+        conflictsWindowController.AddListenersToCssPathProperty(cssFilePathProperty);
         AddListenersToCssPathProperty(cssFilePathProperty);
 
     }
@@ -105,12 +100,13 @@ public class AppController {
                 openChangesWindowScene.getStylesheets().clear();
                 errorPopupWindowScene.getStylesheets().clear();
                 conflictsWindowScene.getStylesheets().clear();
-
+                newRTBWindowScene.getStylesheets().clear();
                 if (!newValue.equals("")) {
                     String newCssFilePath = getClass().getResource(cssFilePathProperty.getValue()).toExternalForm();
                     openChangesWindowScene.getStylesheets().add(newCssFilePath);
                     errorPopupWindowScene.getStylesheets().add(newCssFilePath);
                     conflictsWindowScene.getStylesheets().add(newCssFilePath);
+                    newRTBWindowScene.getStylesheets().add(newCssFilePath);
                 }
             }
         });
@@ -199,13 +195,14 @@ public class AppController {
 
     public void setUsername(SimpleStringProperty text) {
         magitManager.SetUsername(text.getValue());
+        showMessageAtBottom("UserName updated");
     }
 
     public void createNewRepository(String repositoryPath, String repositoryName) {
         try {
             magitManager.CreateEmptyRepository(repositoryPath, repositoryName);
             clearDisplay();
-            //bottomComponentController.setMessage("Created and Switched to " + repositoryPath);
+            showMessageAtBottom("New repositoryCreated");
         } catch (Exception e) {
             showErrorWindow(e.getMessage());
         }
@@ -223,16 +220,12 @@ public class AppController {
             headerComponentController.SetRepositoryPath(getRepositoryPath());
             headerComponentController.ClearBranchesMenu();
             headerComponentController.UpdateBranches();
-
+            showMessageAtBottom("Load ended successfully");
             ShowWCStatus();
             showCommitTree();
-
         };
 
         magitManager.LoadRepositoryFromXML(absolutePath, errorConsumer, runIfPathContainsRepository, runIfFinishedProperly);
-
-        //bottomComponentController.setMessage("Repository loaded from XML");
-
     }
 
     public String getRepositoryName() {
@@ -248,7 +241,7 @@ public class AppController {
             magitManager.createRepositoryFromMagitRepository();
             ShowWCStatus();
             showCommitTree();
-            //bottomComponentController.setMessage("Repository loaded from XML");
+            showMessageAtBottom("Repository loaded from XML");
         } catch (Exception e) {
             showErrorWindow(e.getMessage());
         }
@@ -260,7 +253,7 @@ public class AppController {
             rightComponentController.Clear();
             ShowWCStatus();
             showCommitTree();
-            //bottomComponentController.setMessage("Switched to " + repositoryPath);
+            showMessageAtBottom("Switched to " + repositoryPath);
         } catch (Exception e) {
             showErrorWindow(e.getMessage());
         }
@@ -270,7 +263,8 @@ public class AppController {
         try {
             magitManager.CreateNewBranch(branchName, checkout, pointToHeadCommit, otherCommitSha1);
             showCommitTree();
-            //bottomComponentController.setMessage("The branch " + branchName + " was created");
+            showMessageAtBottom("The branch " + branchName + " was created");
+
         } catch (ThereISRBWithTheSpecifiedNameException e) {
             CreateRTB(branchName);
         } catch (Exception e) {
@@ -282,7 +276,7 @@ public class AppController {
         try {
             magitManager.DeleteBranch(branchName);
             showCommitTree();
-            //bottomComponentController.setMessage("The branch " + branchName + " was deleted");
+            showMessageAtBottom("The branch " + branchName + " was deleted");
         } catch (Exception e) {
             showErrorWindow(e.getMessage());
         }
@@ -293,7 +287,10 @@ public class AppController {
             magitManager.ExecuteCommit(message, null);
             ShowWCStatus();
             showCommitTree();
-            //bottomComponentController.setMessage("Commit was executed successfully");
+            headerComponentController.setNoCommitsInRepositoryProperty(Boolean.FALSE);
+            showMessageAtBottom("Commit was executed successfully");
+        } catch (NoChangesSinceLastCommitException ex) {
+            showErrorWindow("No changes were made since last commit.\nNo commit was executed.");
         } catch (Exception e) {
             showErrorWindow(e.getMessage());
         }
@@ -402,7 +399,28 @@ public class AppController {
 
     public void ShowCommitInfo(String commitSha1) {
         Commit commit = magitManager.CreateCommitFromSha1(commitSha1, magitManager.GetObjectsDirPath());
-        rightComponentController.ShowCommitInfo(commit.toString());
+        StringBuilder sb = new StringBuilder();
+        String firstPrecedingSh1 = commit.getPrevCommitSha1();
+        String secondPecedingSh1 = commit.getSecondPrecedingSha1();
+
+        if (firstPrecedingSh1.equals("")) {
+            sb.append("No previous commits\r\n\r\n");
+        }else {
+            sb.append("First preceding sha1:\r\n");
+            sb.append(firstPrecedingSh1 + "\r\n\r\n");
+            sb.append("Second preceding sha1:\r\n");
+            if(secondPecedingSh1.equals("")){
+                sb.append("No second preceding commit\r\n\r\n");
+            }else {
+                sb.append(secondPecedingSh1+"\r\n\r\n");
+            }
+        }
+        sb.append("Main folder's sha1:\r\n" + commit.getMainFolder().sha1Folder()+"\r\n\r\n");
+        sb.append("Creation date:\r\n" + commit.getSha1()+"\r\n\r\n");
+        sb.append("Creator name:\r\n" + commit.getSha1()+"\r\n\r\n");
+        sb.append("Message:\r\n"+commit.getMessage()+"\r\n");
+
+        rightComponentController.ShowCommitInfo(sb.toString());
     }
 
     public void showErrorWindow(String errorMessage) {
@@ -426,7 +444,6 @@ public class AppController {
         if (branchName != null) {
             try {
                 magitManager.CreateNewBranchForCommit(branchName, commitSha1);
-                //headerComponentController.AddBranchToBranches(branchName);
                 headerComponentController.UpdateBranches();
                 showCommitTree();
 
@@ -469,7 +486,7 @@ public class AppController {
             magitManager.CommitMerge(mergedFolder, GetCommitsMessage(), branchName);
             ShowWCStatus();
             showCommitTree();
-            //bottomComponentController.setMessage("Merge was done successfully");
+            showMessageAtBottom("Merge was done successfully");
         } catch (ActiveBranchContainsMergedBranchException e) {
             Stage stage = new Stage();
             stage.setTitle("No Merge Was Done");
@@ -491,12 +508,14 @@ public class AppController {
         magitManager.CloneRepository(RRPath, LRPath, LRName);
         ShowWCStatus();
         showCommitTree();
+        showMessageAtBottom("Clone was executed successfully");
     }
 
     public void Fetch() {
         magitManager.Fetch();
         ShowWCStatus();
         showCommitTree();
+        showMessageAtBottom("Fetch was executed successfully");
     }
 
     public Boolean isTrackingRemoteRepository() {
@@ -519,6 +538,8 @@ public class AppController {
             magitManager.Pull();
             ShowWCStatus();
             showCommitTree();
+            showMessageAtBottom("Pull was executed successfully");
+
         } catch (IOException e) {
             e.printStackTrace();
         } catch (Exception e) {
@@ -531,6 +552,8 @@ public class AppController {
             magitManager.Push();
             ShowWCStatus();
             showCommitTree();
+            showMessageAtBottom("Push was executed successfully");
+
         } catch (Exception e) {
             showErrorWindow(e.getMessage());
         }
@@ -539,6 +562,7 @@ public class AppController {
     public void setPrimaryStage(Stage primaryStage) {
         this.primaryStage = primaryStage;
     }
+
     public void CreateRTB(String branchName) {
         Stage stage = new Stage();
         stage.setTitle("Create New RTB");
@@ -548,13 +572,30 @@ public class AppController {
         newRTBWindowController.setBranchNameLabel(RTBName);
         stage.setScene(newRTBWindowScene);
         stage.initModality(Modality.APPLICATION_MODAL);
+        stage.setResizable(false);
         stage.showAndWait();
         if (newRTBWindowController.CreateRTBAndCheckout()) {
             try {
-                magitManager.CreateRTBForRB(RTBName,true);
+                magitManager.CreateRTBForRB(RTBName, true);
             } catch (Exception e) {
                 showErrorWindow(e.getMessage());
             }
         }
+    }
+
+    public Boolean IsRepositoryConatinsCommits() {
+        return magitManager.commitsWereExecuted();
+    }
+
+    public void showMessageAtBottom(String message) {
+        bottomMessagelabel.setText(message);
+        bottomMessagelabel.setVisible(true);
+        PauseTransition visiblePause = new PauseTransition(
+                Duration.seconds(3)
+        );
+        visiblePause.setOnFinished(
+                event -> bottomMessagelabel.setVisible(false)
+        );
+        visiblePause.play();
     }
 }

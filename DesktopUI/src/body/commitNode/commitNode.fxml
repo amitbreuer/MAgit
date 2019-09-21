@@ -29,7 +29,7 @@
    <children>
       <Circle fx:id="CommitCircle" fill="#087fee" radius="7.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="2.0" GridPane.rowIndex="1">
          <GridPane.margin>
-            <Insets left="5.0" right="10.0" />
+            <Insets right="12.0" />
          </GridPane.margin>
       </Circle>
       <Label fx:id="sha1Label" text="sha1" wrapText="true" GridPane.columnIndex="2" GridPane.rowIndex="1" />

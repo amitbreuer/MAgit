@@ -121,6 +121,10 @@ public class CommitNodeController {
         messageLabel.setTooltip(new Tooltip(commitMessage));
     }
 
+    public Circle getCommitCircle() {
+        return CommitCircle;
+    }
+
     public void setSha1(String sha1) {
         sha1Label.setText(sha1);
         sha1Label.setTooltip(new Tooltip(sha1));
@@ -142,9 +146,9 @@ public class CommitNodeController {
         this.pointedBranches = pointedBranches;
         for (Branch branch : pointedBranches) {
             Label branchLabel = new Label(branch.getName());
-            branchLabel.setPadding(new Insets(0,20,0,20));
+            branchLabel.setPadding(new Insets(0, 20, 0, 20));
 
-            if(branch.getIsRB()) {
+            if (branch.getIsRB()) {
                 branchLabel.setStyle("-fx-background-color: green;");
             } else {
                 branchLabel.setStyle("-fx-background-color: yellow;");

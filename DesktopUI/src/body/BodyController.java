@@ -50,6 +50,7 @@ public class BodyController {
         tree.getUseNodeGestures().set(false);
     }
 
+
     private void createCommitNodes(Graph tree) {
         Model model = tree.getModel();
         tree.beginUpdate();

@@ -74,6 +74,7 @@ public class HeaderController {
     MenuItem pushButton;
 
     private SimpleBooleanProperty noAvailableRepository;
+    private SimpleBooleanProperty noCommitsInRepository;
     private SimpleStringProperty headBranchName;
     private SimpleStringProperty username;
     private SimpleStringProperty currentRepository;
@@ -96,6 +97,7 @@ public class HeaderController {
     @FXML
     private void initialize() {
         //init properties
+        noCommitsInRepository = new SimpleBooleanProperty(Boolean.TRUE);
         noAvailableRepository = new SimpleBooleanProperty(Boolean.TRUE);
         headBranchName = new SimpleStringProperty();
         username = new SimpleStringProperty();
@@ -105,6 +107,7 @@ public class HeaderController {
         isTrackingRemoteRepository = new SimpleBooleanProperty(Boolean.FALSE);
 
         //bindings
+        newBranchButton.disableProperty().bind(noCommitsInRepository);
         branchesMenu.disableProperty().bind(noAvailableRepository);
         usernameLabel.textProperty().bind(username);
         username.setValue("Administrator");
@@ -234,6 +237,7 @@ public class HeaderController {
             repositoryPath = createEmptyRepositoryWindowController.getRepositoryPath();
             createNewRepository(repositoryPath, repositoryName);
             isTrackingRemoteRepository.setValue(Boolean.FALSE);
+            noCommitsInRepository.setValue(Boolean.TRUE);
         }
     }
 
@@ -262,6 +266,7 @@ public class HeaderController {
             ClearBranchesMenu();
             UpdateBranches();
             isTrackingRemoteRepository.setValue(mainController.isTrackingRemoteRepository());
+            noCommitsInRepository.setValue(!mainController.IsRepositoryConatinsCommits());
         }
     }
 
@@ -280,6 +285,10 @@ public class HeaderController {
         newBranchSelectionWindowController.ClearTextField();
         stage.setScene(newBranchSelectionWindowScene);
         stage.initModality(Modality.APPLICATION_MODAL);
+        stage.setMinHeight(280);
+        stage.setMinWidth(480);
+        stage.setMaxHeight(350);
+        stage.setMaxWidth(550);
         stage.showAndWait();
     }
 
@@ -298,6 +307,8 @@ public class HeaderController {
         String absolutePath = selectedFile.getAbsolutePath();
 
         mainController.loadRepositoryFromXml(absolutePath);
+        noCommitsInRepository.setValue(!mainController.IsRepositoryConatinsCommits());
+
     }
 
     @FXML
@@ -306,7 +317,6 @@ public class HeaderController {
         UpdateBranches();
     }
 
-    //other Methods
 
     private void updateHeadBranch() {
         String newHeadName = mainController.getMagitManager().GetCurrentRepository().getHeadBranch().getName();
@@ -317,6 +327,8 @@ public class HeaderController {
         mainController.replaceExistingRepositoryWithXmlRepository();
         currentRepository.setValue(mainController.getRepositoryName());
         noAvailableRepository.setValue(Boolean.FALSE);
+        noCommitsInRepository.setValue(!mainController.IsRepositoryConatinsCommits());
+
         ClearBranchesMenu();
         UpdateBranches();
     }
@@ -550,5 +562,9 @@ public class HeaderController {
 
     public void SetRepositoryPath(String repositoryPath) {
         this.repositoryPath.setValue(repositoryPath);
+    }
+
+    public void setNoCommitsInRepositoryProperty(Boolean noCommitsInRepository) {
+        this.noCommitsInRepository.setValue(noCommitsInRepository);
     }
 }
