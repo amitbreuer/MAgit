@@ -1,12 +1,11 @@
 package engine;
 
 import app.AppController;
-import com.sun.scenario.effect.Merge;
 import exceptions.ActiveBranchContainsMergedBranchException;
+import exceptions.ThereISRBWithTheSpecifiedNameException;
 import exceptions.XmlPathContainsNonRepositoryObjectsException;
 import exceptions.XmlRepositoryAlreadyExistsException;
 import generated.*;
-import header.binds.BranchNameBind;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import puk.team.course.magit.ancestor.finder.AncestorFinder;
@@ -448,12 +447,18 @@ public class MagitManager {
         return newBranch;
     }
 
-    public void CreateNewBranch(String branchName, Boolean checkoutNewBranch) throws Exception {
+    public void CreateNewBranch(String branchName, boolean checkoutNewBranch, boolean pointToHeadCommit, String otherCommitSha1) throws Exception {
         String branchesDirPath = this.repository.GetBranchesDirPath();
         if (Files.exists(Paths.get(branchesDirPath + File.separator + branchName + ".txt"))) {
-            throw new Exception("The branch " + branchName + "already exists");
+            throw new Exception("The branch \"branchName\" already exists");
         }
-        Branch newBranch = new Branch(branchName, this.repository.getHeadBranch().getLastCommit());
+        if(repository.FindBranchByName(repository.getRemoteRepositoryname() + "\\" + branchName) != null){
+            throw new ThereISRBWithTheSpecifiedNameException();
+        }
+
+        Commit commitToPointTo = pointToHeadCommit ? this.repository.getHeadBranch().getLastCommit() :
+                CreateCommitFromSha1(otherCommitSha1,repository.GetObjectsDirPath());
+        Branch newBranch = new Branch(branchName, commitToPointTo);
         createTextFile(branchesDirPath + File.separator + branchName + ".txt", newBranch.getLastCommit().Sha1Commit());
         this.repository.getBranches().put(newBranch.getName(), newBranch);
         if (checkoutNewBranch) {
@@ -462,6 +467,30 @@ public class MagitManager {
             } else {
                 setHeadBranch(newBranch);
             }
+        }
+    }
+
+    public void CreateRTBForRB(String RTBName,boolean checkout) throws Exception {
+        String branchesDirPath = this.repository.GetBranchesDirPath();
+        if (Files.exists(Paths.get(branchesDirPath + File.separator + RTBName + ".txt"))) {
+            throw new Exception("The branch \"RTBName\" already exists");
+        }
+        Branch RB = repository.FindBranchByName(repository.getRemoteRepositoryname() + "\\" + RTBName);
+        Commit RBCommit = RB.getLastCommit();
+        Branch newRTB = new Branch(RTBName,RBCommit);
+        try {
+            createTextFile(branchesDirPath + File.separator + RTBName + ".txt",
+                    newRTB.getLastCommit().Sha1Commit());
+            this.repository.getBranches().put(RTBName, newRTB);
+            if(checkout){
+                if (thereAreUncommittedChanges()) {
+                    throw new Exception("Checkout failed. There are uncommitted changes");
+                } else {
+                    setHeadBranch(newRTB);
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -1334,32 +1363,6 @@ public class MagitManager {
             copyCommitsObjectFilesBetweenRepositories(lastCommitSha1,this.repository.getRemoteRepositoryPath(),this.repository.getPath());
         }
     }
-
-
-    /*the method copys all the object files of a given remote repository's commit, and it's previous commits, to the current repository's object directory*/
-    /*private void addRRCommitsObjectFilesToLRObjectsDirectory(String commitSha1) {
-        Commit commit;
-        String RRObjectsDirPath = this.repository.getRemoteRepositoryPath() + File.separator + ".magit" + File.separator + "objects";
-
-        if (Files.exists(Paths.get(this.repository.GetObjectsDirPath() + File.separator +
-                commitSha1 + ".zip"))) {
-            return;
-        }
-        try {
-            commit = createCommitFromObjectFile(commitSha1, RRObjectsDirPath);
-            createNewObjectFile(commit.toString(),this.repository.GetObjectsDirPath());
-            createObjectsFilesFromFolder(commit.getMainFolder());
-
-            if (!commit.getPrevCommitSha1().equals("")) {
-                addRRCommitsObjectFilesToLRObjectsDirectory(commit.getPrevCommitSha1());
-            }
-            if (!commit.getSecondPrecedingSha1().equals("")) {
-                addRRCommitsObjectFilesToLRObjectsDirectory(commit.getSecondPrecedingSha1());
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }*/
 
     private void copyCommitsObjectFilesBetweenRepositories(String commitSha1,Path srcPath,Path destPath) {
         if (Files.exists(Paths.get(destPath + File.separator + ".magit" + File.separator +

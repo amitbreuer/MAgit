@@ -1,15 +1,17 @@
 package app;
 
 import app.subComponents.conflictsWindow.ConflictsWindowController;
+import app.subComponents.newRTBWindow.NewRTBWindowController;
 import app.subComponents.openChangesWindow.OpenChangesWindowController;
-import app.subComponents.singleConflictWindow.SingleConflictController;
 import app.subComponents.errorPopupWindow.ErrorPopupWindowController;
 import body.BodyController;
 import engine.*;
 import exceptions.ActiveBranchContainsMergedBranchException;
+import exceptions.ThereISRBWithTheSpecifiedNameException;
 import exceptions.XmlPathContainsNonRepositoryObjectsException;
 import exceptions.XmlRepositoryAlreadyExistsException;
 import header.HeaderController;
+import header.HeaderResourcesConstants;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
@@ -26,8 +28,8 @@ import right.RightController;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.List;
 import java.util.Map;
+import java.util.StringTokenizer;
 
 public class AppController {
     @FXML
@@ -58,6 +60,8 @@ public class AppController {
     private Scene openChangesWindowScene;
     private Scene errorPopupWindowScene;
     private Scene conflictsWindowScene;
+    private Scene newRTBWindowScene;
+    private NewRTBWindowController newRTBWindowController;
     private OpenChangesWindowController openChangesWindowController;
     private ErrorPopupWindowController errorPopupWindowController;
     private ConflictsWindowController conflictsWindowController;
@@ -72,6 +76,7 @@ public class AppController {
         setOpenChangesWindow();
         setErrorPopupWindow();
         setConflictsWindow();
+        setNewRTBWindow();
         //    noAvailableRepository = new SimpleBooleanProperty();
 //        noAvailableRepository.bind(headerComponentController.noAvailableRepository);
 //        noAvailableRepository.bind(bodyComponentController.noAvailableRepository);
@@ -117,6 +122,19 @@ public class AppController {
         }
         errorPopupWindowController = fxmlLoader.getController();
 
+    }
+
+    private void setNewRTBWindow() {
+        FXMLLoader fxmlLoader;
+        URL newRTBWindow = getClass().getResource(AppResourcesConstants.NEW_RTB_WINDOW_FXML_PATH);
+        fxmlLoader = new FXMLLoader(newRTBWindow);
+        try {
+            AnchorPane newRTBRoot = fxmlLoader.load();
+            newRTBWindowScene = new Scene(newRTBRoot);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        newRTBWindowController = fxmlLoader.getController();
     }
 
     public void setMagitManager(MagitManager magitManager) {
@@ -187,11 +205,13 @@ public class AppController {
         }
     }
 
-    public void createNewBranch(String branchName, boolean checkout) {
+    public void createNewBranch(String branchName, boolean checkout, boolean pointToHeadCommit, String otherCommitSha1) {
         try {
-            magitManager.CreateNewBranch(branchName, checkout);
+            magitManager.CreateNewBranch(branchName, checkout, pointToHeadCommit, otherCommitSha1);
             showCommitTree();
             //bottomComponentController.setMessage("The branch " + branchName + " was created");
+        } catch (ThereISRBWithTheSpecifiedNameException e) {
+            CreateRTB(branchName);
         } catch (Exception e) {
             showErrorWindow(e.getMessage());
         }
@@ -378,7 +398,7 @@ public class AppController {
             }
             Conflicts conflicts = new Conflicts();
             Folder mergedFolder = magitManager.CreateMergedFolderAndFindConflicts(branchName, conflicts);
-            if(!conflicts.getConflictFiles().isEmpty()){
+            if (!conflicts.getConflictFiles().isEmpty()) {
                 ResolveConflicts(conflicts);
             }
             magitManager.CommitMerge(mergedFolder, GetCommitsMessage(), branchName);
@@ -448,6 +468,25 @@ public class AppController {
             showCommitTree();
         } catch (Exception e) {
             showErrorWindow(e.getMessage());
+        }
+    }
+
+    public void CreateRTB(String branchName) {
+        Stage stage = new Stage();
+        stage.setTitle("Create New RTB");
+        StringTokenizer tokenizer = new StringTokenizer(branchName, "\\");
+        tokenizer.nextToken();
+        String RTBName = tokenizer.nextToken();
+        newRTBWindowController.setBranchNameLabel(RTBName);
+        stage.setScene(newRTBWindowScene);
+        stage.initModality(Modality.APPLICATION_MODAL);
+        stage.showAndWait();
+        if (newRTBWindowController.CreateRTBAndCheckout()) {
+            try {
+                magitManager.CreateRTBForRB(RTBName,true);
+            } catch (Exception e) {
+                showErrorWindow(e.getMessage());
+            }
         }
     }
 }

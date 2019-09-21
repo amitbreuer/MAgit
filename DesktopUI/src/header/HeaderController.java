@@ -9,6 +9,7 @@ import header.binds.IsHeadBranchBind;
 import header.subComponents.ClickableMenu;
 import header.subComponents.createEmptyRepositoryWindow.CreateEmptyRepositoryWindowController;
 import header.subComponents.newBranchSelectionWindow.NewBranchSelectionWindowController;
+import app.subComponents.newRTBWindow.NewRTBWindowController;
 import header.subComponents.textPopupWindow.TextPopupWindowController;
 import header.subComponents.pathContainsRepositoryWindow.PathContainsRepositoryWindowController;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -31,8 +32,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.StringTokenizer;
 
 public class HeaderController {
     @FXML
@@ -83,11 +84,11 @@ public class HeaderController {
     private NewBranchSelectionWindowController newBranchSelectionWindowController;
     private CreateEmptyRepositoryWindowController createEmptyRepositoryWindowController;
 
+
     private Scene popupWindowScene;
     private Scene pathContainsRepositoryWindowScene;
     private Scene newBranchSelectionWindowScene;
     private Scene createEmptyRepositryWindowScene;
-
 
     private Map<String, Menu> currentBranchesMenus;
 
@@ -199,7 +200,6 @@ public class HeaderController {
     //on actions
     @FXML
     public void updateUsernameButtonAction(ActionEvent actionEvent) {
-        //mainController.Clone();
         Stage stage = new Stage();
         SetPopupWindowAndStage(stage, "Update Username", "Enter Username:");
         stage.showAndWait();
@@ -228,10 +228,10 @@ public class HeaderController {
         String repositoryName;
         showNewRepositoryDialog();
 
-        if(createEmptyRepositoryWindowController.isActionNotCanelled()){
+        if (createEmptyRepositoryWindowController.isActionNotCanelled()) {
             repositoryName = createEmptyRepositoryWindowController.getRepositoryName();
             repositoryPath = createEmptyRepositoryWindowController.getRepositoryPath();
-            createNewRepository(repositoryPath,repositoryName);
+            createNewRepository(repositoryPath, repositoryName);
             isTrackingRemoteRepository.setValue(Boolean.FALSE);
         }
     }
@@ -318,9 +318,8 @@ public class HeaderController {
     }
 
     @FXML
-    public void CreateNewBranch(String branchName, boolean checkout) {
-        mainController.createNewBranch(branchName, checkout);
-        //AddBranchToBranches(branchName);
+    public void CreateNewBranch(String branchName, boolean checkout, boolean pointToHeadCommit, String otherCommitSha1) {
+        mainController.createNewBranch(branchName, checkout, pointToHeadCommit, otherCommitSha1);
         UpdateBranches();
     }
 
@@ -344,22 +343,22 @@ public class HeaderController {
     }
 
     public void UpdateBranches() {
-        Map<String,Branch> branches = mainController.GetBranches();
-        for (Map.Entry<String,Branch> entry : branches.entrySet()) {
+        Map<String, Branch> branches = mainController.GetBranches();
+        for (Map.Entry<String, Branch> entry : branches.entrySet()) {
             if (!currentBranchesMenus.containsKey(entry.getValue().getName())) {
-                AddBranchToBranches(entry.getValue().getName());
+                AddBranchToBranches(entry.getValue().getName(), entry.getValue().getIsRB());
             }
         }
         updateHeadBranch();
     }
 
-    public void AddBranchToBranches(String branchName) {
-        Menu addedBranch = createSingleBranchMenu(branchName);
+    public void AddBranchToBranches(String branchName, boolean isRemote) {
+        Menu addedBranch = createSingleBranchMenu(branchName, isRemote);
         branchesMenu.getItems().add(addedBranch);
         currentBranchesMenus.put(branchName, addedBranch);
     }
 
-    private Menu createSingleBranchMenu(String branchName) {
+    private Menu createSingleBranchMenu(String branchName, boolean isRemote) {
         IsHeadBranchBind isHeadBranch = new IsHeadBranchBind(branchName, headBranchName);
         Menu newMenu = new Menu();
         newMenu.textProperty().bind(new BranchNameBind(branchName, isHeadBranch));
@@ -369,6 +368,7 @@ public class HeaderController {
         Image deleteImage = new Image("/resources/trash-icon.png");
         delete.setGraphic(new ImageView(deleteImage));
         delete.disableProperty().bind(isHeadBranch);
+        //delete.disableProperty().setValue(isRemote);
         delete.visibleProperty().bind(isHeadBranch.not());
         delete.setOnAction((x) -> deleteBranch(branchName));
 
@@ -376,13 +376,14 @@ public class HeaderController {
         checkout.setText("Checkout");
         checkout.disableProperty().bind(isHeadBranch);
         checkout.visibleProperty().bind(isHeadBranch.not());
-        checkout.setOnAction((x) -> checkout(branchName));
+        checkout.setOnAction(isRemote ? (x) -> createRTBForRB(branchName) : (x) -> checkout(branchName));
 
         MenuItem reset = new MenuItem();
         reset.setText("Reset");
         Image resetImage = new Image("/resources/undo-arrow.png");
         reset.setGraphic(new ImageView(resetImage));
         reset.disableProperty().bind(isHeadBranch.not());
+        //reset.disableProperty().setValue(isRemote);
         reset.visibleProperty().bind(isHeadBranch);
         reset.setOnAction((x) -> resetHead());
 
@@ -391,6 +392,7 @@ public class HeaderController {
         Image mergeImage = new Image("/resources/merge-icon.png");
         merge.setGraphic(new ImageView(mergeImage));
         merge.disableProperty().bind(isHeadBranch);
+        //merge.disableProperty().setValue(isRemote);
         merge.visibleProperty().bind(isHeadBranch.not());
         merge.setOnAction((x) -> merge(branchName));
 
@@ -399,6 +401,10 @@ public class HeaderController {
         newMenu.getItems().add(reset);
         newMenu.getItems().add(merge);
         return newMenu;
+    }
+
+    private void createRTBForRB(String RBName) {
+        mainController.CreateRTB(RBName);
     }
 
     private void resetHead() {
@@ -483,7 +489,7 @@ public class HeaderController {
         File RRPath = directoryChooser.showDialog(new Stage());
         showNewRepositoryDialog();
         if (RRPath != null && createEmptyRepositoryWindowController.isActionNotCanelled()) {
-            mainController.Clone(RRPath.getPath(),createEmptyRepositoryWindowController.getRepositoryPath(),
+            mainController.Clone(RRPath.getPath(), createEmptyRepositoryWindowController.getRepositoryPath(),
                     createEmptyRepositoryWindowController.getRepositoryName());
         }
         currentRepository.setValue(mainController.getRepositoryName());
