@@ -32,17 +32,16 @@ public class LoadRepositoryFromXmlTask extends Task<Boolean> {
     protected Boolean call() {
         try {
             this.magitManager.ValidateAndLoadXMLRepository(fileFullPath);
-            Platform.runLater(
-                    runIfFinishedProperly
-            );
+            runIfFinishedProperly.run();
+
         } catch (XmlRepositoryAlreadyExistsException e1) {
-            Platform.runLater(
-                    runIfPathContainsRepository
-            );
+
+            runIfPathContainsRepository.run();
+
         } catch (Exception e2) {
-            Platform.runLater(
-                    () -> errorNotifier.accept(e2.getMessage())
-            );
+
+            errorNotifier.accept(e2.getMessage());
+
         }
 
         return Boolean.TRUE;

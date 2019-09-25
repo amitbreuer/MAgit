@@ -85,4 +85,24 @@ public class Repository {
     public String GetObjectsDirPath() {
         return this.getPath().toString() + File.separator + ".magit" + File.separator + "objects";
     }
+
+    public void setBranches(Map<String, Branch> branches) {
+        this.branches = branches;
+    }
+
+    public String GetRemoteRepositoryObjectsDirPath(){
+        if(!this.remoteRepositoryname.equals("") && remoteRepositoryname != null){
+            return this.remoteRepositoryPath + File.separator + ".magit" + File.separator + "objects";
+        } else {
+            return null;
+        }
+    }
+
+    public String GetRemoteRepositoryBranchesDirPath(){
+        if(!this.remoteRepositoryname.equals("") && remoteRepositoryname != null){
+            return this.remoteRepositoryPath + File.separator + ".magit" + File.separator + "branches";
+        } else {
+            return null;
+        }
+    }
 }

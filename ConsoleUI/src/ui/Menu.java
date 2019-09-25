@@ -226,7 +226,7 @@ public class Menu {
                 choice = getUserChoiceBetweenOneAndTwo();
 
                 try {
-                    magitManager.CreateNewBranch(branchName, choice.equals("1"), pointToHeadCommit, otherCommitSha1);
+                    magitManager.CreateNewBranch(branchName, choice.equals("1"), false, null);
                 } catch (Exception e) {
                     System.out.println(e.getMessage());
                 }

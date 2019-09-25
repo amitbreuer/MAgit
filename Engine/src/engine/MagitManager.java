@@ -171,65 +171,6 @@ public class MagitManager {
         return content.toString();
     }
 
-//    private void calculateDeltaBetweenTwoFolders(Folder newFolder, Folder oldFolder, String currentPath, Delta delta) throws IOException {
-//        int nameDiff;
-//        int newFolderIndex = 0;
-//        int oldFolderIndex = 0;
-//        int newFolderSize = newFolder.getComponents().size();
-//        int oldFolderSize = oldFolder.getComponents().size();
-//        List<Folder.ComponentData> newComponents = newFolder.getComponents();
-//        List<Folder.ComponentData> oldComponents = oldFolder.getComponents();
-//        Folder.ComponentData newComponent;
-//        Folder.ComponentData oldComponent;
-//
-//        while (newFolderIndex < newFolderSize && oldFolderIndex < oldFolderSize) {
-//            newComponent = newComponents.get(newFolderIndex);
-//            oldComponent = oldComponents.get(oldFolderIndex);
-//            nameDiff = newComponent.getName().compareTo(oldComponent.getName());
-//            if (nameDiff == 0) {//if it's the same name
-//                if (newComponent.getFolderComponent() instanceof Blob) { //if the file is a txt file
-//                    if (newComponent.getSha1().equals(oldComponent.getSha1())) { //if the file didn't changed
-//                        newComponent.setLastModifiedDate(oldComponent.getLastModifiedDate());
-//                        newComponent.setLastModifier(oldComponent.getLastModifier());
-//                    } else {
-//                        delta.getUpdatedFiles().add(new DeltaComponent(newComponent.getFolderComponent(), currentPath, newComponent.getName()));
-//                    }
-//                } else {
-//                    String subFolderPath = currentPath + File.separator + newComponent.getName();
-//                    Folder subNewFolder = (Folder) newComponent.getFolderComponent();
-//                    Folder subOldFolder = (Folder) oldComponent.getFolderComponent();
-//                    calculateDeltaBetweenTwoFolders(subNewFolder, subOldFolder, subFolderPath, delta);
-//                    if (subNewFolder.sha1Folder().equals(subOldFolder.sha1Folder())) {
-//                        newComponent.setLastModifiedDate(oldComponent.getLastModifiedDate());
-//                        newComponent.setLastModifier(oldComponent.getLastModifier());
-//                    } else {
-//                        delta.getUpdatedFiles().add(new DeltaComponent(subNewFolder, currentPath, newComponent.getName()));
-//                    }
-//                }
-//                newFolderIndex++;
-//                oldFolderIndex++;
-//            } else if (nameDiff < 0) { //file added
-//                addComponentToAddedFilesList(newComponent,currentPath,delta);
-//                newFolderIndex++;
-//            } else { //file deleted
-//                addFolderComponentToDeletedFilesList(oldComponent, currentPath, delta);
-//            }
-//        }
-//
-//        while (newFolderIndex < newFolderSize) {
-//            newComponent = newComponents.get(newFolderIndex);
-//            addComponentToAddedFilesList(newComponent, currentPath, delta);
-//            newFolderIndex++;
-//        }
-//        while (oldFolderIndex < oldFolderSize) {
-//            oldComponent = oldComponents.get(oldFolderIndex);
-//            addFolderComponentToDeletedFilesList(oldComponent, currentPath, delta);
-//            oldFolderIndex++;
-//        }
-//    }
-
-
-
     private void calculateDeltaBetweenTwoFolders(Folder newFolder, Folder oldFolder, String currentPath, Delta delta) throws IOException {
         int nameDiff;
         Folder.ComponentData currentNewComponent = null;
@@ -483,7 +424,8 @@ public class MagitManager {
             } else if (!f.getName().equals("HEAD.txt")) {
                 tokenizer = new StringTokenizer(f.getName(), ".");
                 if (!this.repository.branchExistsInList(tokenizer.nextToken())) {
-                    Branch branch = createBranchFromObjectFileSha1(f.getName(), convertTextFileToString(branchesPath + File.separator + f.getName()));
+                    Branch branch = createBranchFromObjectFileSha1(f.getName(),
+                            convertTextFileToString(branchesPath + File.separator + f.getName()));
                     this.repository.getBranches().put(branch.getName(), branch);
                 }
             }
@@ -517,7 +459,7 @@ public class MagitManager {
     }
 
     private Branch createBranchFromObjectFileSha1(String branchName, String sha1) throws IOException {
-        Commit newCommit = createCommitFromObjectFile(sha1, repository.GetObjectsDirPath());
+        Commit newCommit = createCommitFromObjectFile(sha1, this.repository.GetObjectsDirPath());
         StringTokenizer tokenizer = new StringTokenizer(branchName, "."); // to cut the extension ".txt"
         Branch newBranch = new Branch(tokenizer.nextToken(), newCommit);
         return newBranch;
@@ -548,6 +490,9 @@ public class MagitManager {
             if (thereAreUncommittedChanges()) {
                 throw new Exception("Checkout failed. There are uncommitted changes");
             } else {
+                if (!this.repository.getHeadBranch().getLastCommit().equals(newBranch.getLastCommit())) { // if the branch points to different commit
+                    spanWCFromCommit(newBranch.getLastCommit(), this.repository.getPath());
+                }
                 setHeadBranch(newBranch);
             }
         }
@@ -587,6 +532,9 @@ public class MagitManager {
                 if (thereAreUncommittedChanges()) {
                     throw new Exception("Checkout failed. There are uncommitted changes");
                 } else {
+                    if (!this.repository.getHeadBranch().getLastCommit().equals(newRTB.getLastCommit())) { // if the branch points to different commit
+                        spanWCFromCommit(newRTB.getLastCommit(), this.repository.getPath());
+                    }
                     setHeadBranch(newRTB);
                 }
             }
@@ -776,6 +724,7 @@ public class MagitManager {
             unzip(fileToUnzipPath, objectsFolderPath);
             textFile = new File(objectsFolderPath + File.separator + fileName + ".txt");
         } catch (IOException e) {
+            e.printStackTrace();
         }
 
         return textFile;
@@ -1005,8 +954,8 @@ public class MagitManager {
         if(xmlManager.getMagitRepository().getMagitRemoteReference() != null) {
             if(xmlManager.getMagitRepository().getMagitRemoteReference().getName() != null && !xmlManager.getMagitRepository().getMagitRemoteReference().getName().equals("")
                     &&  xmlManager.getMagitRepository().getMagitRemoteReference().getLocation() != null && !xmlManager.getMagitRepository().getMagitRemoteReference().getLocation().equals("")){
-                this.repository.setRemoteRepositoryPath(Paths.get(xmlManager.getMagitRepository().getLocation()));
-                this.repository.setRemoteRepositoryname(xmlManager.getMagitRepository().getName());
+                this.repository.setRemoteRepositoryPath(Paths.get(xmlManager.getMagitRepository().getMagitRemoteReference().getLocation()));
+                this.repository.setRemoteRepositoryname(xmlManager.getMagitRepository().getMagitRemoteReference().getName());
                 createTextFile(repository.getPath() + File.separator + ".magit" + File.separator + "remoteRepositoryPath.txt", repository.getRemoteRepositoryPath().toString());
             }
         }
@@ -1422,22 +1371,25 @@ public class MagitManager {
             new File(this.repository.GetBranchesDirPath() + File.separator + RRName).mkdirs();
             Map<String, Branch> branches = this.repository.getBranches();
             String branchesDirPath = this.repository.GetBranchesDirPath();
+            Map<String,Branch> updatedBranches = new HashMap<>();
             Branch RBHeadBranch = null;
             for (Map.Entry<String, Branch> entry : branches.entrySet()) {
-                if (entry.getValue().getName().equals(this.repository.getHeadBranch().getName())) {
-                    entry.getValue().setIsRTB(true);
-                    writeToFile(branchesDirPath + File.separator + RRName + File.separator + entry.getValue().getName() + ".txt", entry.getValue().getLastCommit().Sha1Commit());
-                    RBHeadBranch = new Branch(RRName + "\\" + entry.getValue().getName(), entry.getValue().getLastCommit());
+                Branch branch = entry.getValue();
+                if (branch.getName().equals(this.repository.getHeadBranch().getName())) {
+                    branch.setIsRTB(true);
+                    writeToFile(branchesDirPath + File.separator + RRName + File.separator + branch.getName() + ".txt", branch.getLastCommit().Sha1Commit());
+                    RBHeadBranch = new Branch(RRName + "\\" + branch.getName(), branch.getLastCommit());
                     RBHeadBranch.setIsRB(true);
-
+                    updatedBranches.put(RBHeadBranch.getName(),RBHeadBranch);
                 } else {
-                    entry.getValue().setIsRB(true);
-                    File fileToMove = new File(branchesDirPath + File.separator + entry.getValue().getName() + ".txt");
-                    fileToMove.renameTo(new File(branchesDirPath + File.separator + RRName + File.separator + entry.getValue().getName() + ".txt"));
-                    entry.getValue().setName(RRName + "\\" + entry.getValue().getName());
+                    branch.setIsRB(true);
+                    File fileToMove = new File(branchesDirPath + File.separator + branch.getName() + ".txt");
+                    fileToMove.renameTo(new File(branchesDirPath + File.separator + RRName + File.separator + branch.getName() + ".txt"));
+                    branch.setName(RRName + "\\" + branch.getName());
                 }
+                updatedBranches.put(branch.getName(),branch);
             }
-            this.repository.getBranches().put(RBHeadBranch.getName(), RBHeadBranch);
+            this.repository.setBranches(updatedBranches);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -1472,24 +1424,25 @@ public class MagitManager {
         }
     }
 
-    private void copyCommitsObjectFilesBetweenRepositories(String commitSha1, Path srcPath, Path destPath) {
-        if (Files.exists(Paths.get(destPath + File.separator + ".magit" + File.separator +
+    private void copyCommitsObjectFilesBetweenRepositories(String commitSha1, Path srcRepoPath, Path destRepoPath) {
+        if (Files.exists(Paths.get(destRepoPath + File.separator + ".magit" + File.separator +
                 "objects" + File.separator + commitSha1 + ".zip"))) {
             return;
         }
 
-        String srcObjectsPath = srcPath + File.separator + ".magit" + File.separator + "objects";
+        String srcObjectsPath = srcRepoPath + File.separator + ".magit" + File.separator + "objects";
+        String destObjectsPath = destRepoPath + File.separator + ".magit" + File.separator + "objects";
 
         try {
             Commit commitToCopy = createCommitFromObjectFile(commitSha1, srcObjectsPath);
-            createNewObjectFile(commitToCopy.toString(), destPath.toString());
-            createObjectsFilesFromFolder(commitToCopy.getMainFolder(), destPath.toString());
+            createNewObjectFile(commitToCopy.toString(), destObjectsPath);
+            createObjectsFilesFromFolder(commitToCopy.getMainFolder(), destObjectsPath);
 
             if (!commitToCopy.getPrevCommitSha1().equals("")) {
-                copyCommitsObjectFilesBetweenRepositories(commitToCopy.getPrevCommitSha1(), srcPath, destPath);
+                copyCommitsObjectFilesBetweenRepositories(commitToCopy.getPrevCommitSha1(), srcRepoPath, destRepoPath);
             }
             if (!commitToCopy.getSecondPrecedingSha1().equals("")) {
-                copyCommitsObjectFilesBetweenRepositories(commitToCopy.getSecondPrecedingSha1(), srcPath, destPath);
+                copyCommitsObjectFilesBetweenRepositories(commitToCopy.getSecondPrecedingSha1(), srcRepoPath, destRepoPath);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -1516,7 +1469,7 @@ public class MagitManager {
             LRBranches.put(LRBranchName, RBRanch);
             try {
                 createTextFile(this.repository.GetBranchesDirPath() + File.separator + RRName +
-                        File.separator + RRBranch.getName() + File.separator + ".txt", RBRanch.getLastCommit().Sha1Commit());
+                        File.separator + RRBranch.getName() + ".txt", RBRanch.getLastCommit().Sha1Commit());
             } catch (Exception e) {
                 e.printStackTrace();
             }

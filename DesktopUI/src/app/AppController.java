@@ -227,20 +227,22 @@ public class AppController {
 
     public void loadRepositoryFromXml(String absolutePath) {
 
-        Consumer<String> errorConsumer = (str) -> showErrorWindow(str);
+        Consumer<String> errorConsumer = (str) ->Platform.runLater(()->showErrorWindow(str));
 
-        Runnable runIfPathContainsRepository = () -> headerComponentController.ShowPathContainsRepositoryWindow();
+        Runnable runIfPathContainsRepository = ()->Platform.runLater(()->headerComponentController.ShowPathContainsRepositoryWindow());
 
-        Runnable runIfFinishedProperly = () -> {
+        Runnable runIfFinishedProperly = ()->Platform.runLater( () -> {
             headerComponentController.SetCurrentRepository(getRepositoryName());
             headerComponentController.SetNoAvailableRepository(Boolean.FALSE);
             headerComponentController.SetRepositoryPath(getRepositoryPath());
             headerComponentController.ClearBranchesMenu();
             headerComponentController.UpdateBranches();
+            headerComponentController.SetnoCommitsInRepository(!IsRepositoryConatinsCommits());
+            headerComponentController.SetisTrackingRemoteRepository(isTrackingRemoteRepository());
             showMessageAtBottom("Load ended successfully");
             ShowWCStatus();
             showCommitTree();
-        };
+        });
 
         magitManager.LoadRepositoryFromXML(absolutePath, errorConsumer, runIfPathContainsRepository, runIfFinishedProperly);
     }
@@ -543,12 +545,14 @@ public class AppController {
     public void Clone(String RRPath, String LRPath, String LRName) {
         try {
             magitManager.CloneRepository(RRPath, LRPath, LRName);
+
         }catch (Exception e){
             showErrorWindow(e.getMessage());
         }
         headerComponentController.UpdateBranches();
         ShowWCStatus();
         showCommitTree();
+        headerComponentController.SetnoCommitsInRepository(!IsRepositoryConatinsCommits());
         showMessageAtBottom("Clone was executed successfully");
     }
 
