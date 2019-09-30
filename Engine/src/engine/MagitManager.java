@@ -524,6 +524,7 @@ public class MagitManager {
         Branch RB = repository.FindBranchByName(repository.getRemoteRepositoryname() + "\\" + RTBName);
         Commit RBCommit = RB.getLastCommit();
         Branch newRTB = new Branch(RTBName, RBCommit);
+        newRTB.setIsRTB(true);
         try {
             createTextFile(branchesDirPath + File.separator + RTBName + ".txt",
                     newRTB.getLastCommit().Sha1Commit());
@@ -711,8 +712,6 @@ public class MagitManager {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        } else {
-            throw new NoChangesSinceLastCommitException();
         }
     }
 

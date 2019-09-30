@@ -325,6 +325,10 @@ public class AppController {
 
     public void Commit(String message) {
         try {
+            if(!magitManager.thereAreUncommittedChanges()){
+                showErrorWindow("No Changes since last commit");
+                return;
+            }
             magitManager.ExecuteCommit(message, null);
             ShowWCStatus();
             showCommitTree();
@@ -534,7 +538,7 @@ public class AppController {
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.setResizable(false);
             stage.showAndWait();
-        } catch (IOException e) {
+        }catch (IOException e) {
             e.printStackTrace();
         } catch (Exception e) {
             showErrorWindow(e.getMessage());
