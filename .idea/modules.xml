@@ -5,6 +5,7 @@
       <module fileurl="file://$PROJECT_DIR$/ConsoleUI/ConsoleUI.iml" filepath="$PROJECT_DIR$/ConsoleUI/ConsoleUI.iml" />
       <module fileurl="file://$PROJECT_DIR$/DesktopUI/DesktopUI.iml" filepath="$PROJECT_DIR$/DesktopUI/DesktopUI.iml" />
       <module fileurl="file://$PROJECT_DIR$/Engine/Engine.iml" filepath="$PROJECT_DIR$/Engine/Engine.iml" />
+      <module fileurl="file://$PROJECT_DIR$/MAGitWebApp/MAGitWebApp.iml" filepath="$PROJECT_DIR$/MAGitWebApp/MAGitWebApp.iml" />
     </modules>
   </component>
 </project>

@@ -303,7 +303,8 @@ public class HeaderController {
         String absolutePath = selectedFile.getAbsolutePath();
 
         mainController.loadRepositoryFromXml(absolutePath);
-
+        noCommitsInRepository.setValue(!mainController.IsRepositoryConatinsCommits());
+        isTrackingRemoteRepository.setValue(mainController.isTrackingRemoteRepository());
     }
 
     @FXML
@@ -568,11 +569,7 @@ public class HeaderController {
         this.noCommitsInRepository.setValue(noCommitsInRepository);
     }
 
-    public void SetnoCommitsInRepository(boolean noCommitInRepository) {
-        noCommitsInRepository.setValue(noCommitInRepository);
-    }
-
     public void SetisTrackingRemoteRepository(Boolean trackingRemoteRepository) {
-        isTrackingRemoteRepository.setValue(trackingRemoteRepository);
+        this.isTrackingRemoteRepository.setValue(trackingRemoteRepository);
     }
 }

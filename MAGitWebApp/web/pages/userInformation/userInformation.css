@@ -1,0 +1,44 @@
+.left {
+    height: 90%;
+    width: 25%;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    bottom: 0%;
+}
+
+.right {
+    height: 90%;
+    width: 25%;
+    position: fixed;
+    z-index: 1;
+    right: 0;
+    bottom: 0%;
+}
+
+.center {
+    height: 90%;
+    width: 50%;
+    position: fixed;
+    z-index: 1;
+    left: 25%;
+    right: 25%;
+    bottom: 0%;
+}
+
+.Logout {
+    height: 30px;
+    width: auto;
+    position: fixed;
+    right:0%;
+
+
+}
+
+
+.userRepositories, .messages, .otherUsers {
+    overflow: auto;
+    height: 100vh;
+}
+
+

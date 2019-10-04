@@ -237,7 +237,7 @@ public class AppController {
             headerComponentController.SetRepositoryPath(getRepositoryPath());
             headerComponentController.ClearBranchesMenu();
             headerComponentController.UpdateBranches();
-            headerComponentController.SetnoCommitsInRepository(!IsRepositoryConatinsCommits());
+            headerComponentController.setNoCommitsInRepositoryProperty(!IsRepositoryConatinsCommits());
             headerComponentController.SetisTrackingRemoteRepository(isTrackingRemoteRepository());
             showMessageAtBottom("Load ended successfully");
             ShowWCStatus();
@@ -556,7 +556,7 @@ public class AppController {
         headerComponentController.UpdateBranches();
         ShowWCStatus();
         showCommitTree();
-        headerComponentController.SetnoCommitsInRepository(!IsRepositoryConatinsCommits());
+        headerComponentController.setNoCommitsInRepositoryProperty(!IsRepositoryConatinsCommits());
         showMessageAtBottom("Clone was executed successfully");
     }
 
