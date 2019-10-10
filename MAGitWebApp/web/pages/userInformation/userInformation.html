@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
     <meta charset="utf-8">
@@ -55,13 +55,14 @@
             </div>
             <div class="col-md-3" style="max-height: inherit;">
                 <h5>Notifications</h5>
-                <div role="tablist" data-aos="fade" id="messages" class="messagesAccordion" style="max-height: inherit;overflow-y: scroll;">
+                <div role="tablist" data-aos="fade" class="messagesAccordion" style="max-height: inherit;overflow-y: scroll;">
+                <div role="tablist" data-aos="fade" class="messagesAccordion" style="max-height: inherit;overflow-y: scroll;">
                     <div class="card forkMessage">
                         <div class="card-header" role="tab">
                             <h5 class="mb-0"><a data-toggle="collapse" aria-expanded="true" aria-controls="messages .item-1" href="#messages .item-1">Fork Message</a></h5>
                         </div>
                         <div class="collapse show item-1" role="tabpanel" data-parent="#messages">
-                            <div class="card-body"><strong class="d-lg-flex justify-content-lg-start" id="repositoryNameLabel">Repository's name</strong><strong class="d-lg-flex justify-content-lg-start" id="usernameLabel">User that forked</strong><code id="timeStamp">Time Stamp</code></div>
+                            <div class="card-body"><strong class="d-lg-flex justify-content-lg-start" >Repository's name</strong><strong class="d-lg-flex justify-content-lg-start">User that forked</strong><code>Time Stamp</code></div>
                         </div>
                     </div>
                     <div class="card newPRMessage">
@@ -70,9 +71,9 @@
                         </div>
                         <div class="collapse item-2" role="tabpanel" data-parent="#messages">
                             <div class="card-body">
-                                <h6 id="repositoryNameLabel">Repository:&nbsp;</h6>
-                                <h6 id="usersNameLabel">From User:&nbsp;</h6>
-                                <p id="message">Message</p><small id="targetBranchLabel">Target Branch:&nbsp;</small><small class="d-lg-flex justify-content-lg-start" id="BaseBranchLabel">Base Branch:&nbsp;</small><code id="timeStamp">Time Stamp</code></div>
+                                <h6>Repository:&nbsp;</h6>
+                                <h6>From User:&nbsp;</h6>
+                                <p>Message</p><small>Target Branch:&nbsp;</small><small class="d-lg-flex justify-content-lg-start">Base Branch:&nbsp;</small><code>Time Stamp</code></div>
                         </div>
                     </div>
                     <div class="card prResponse">
@@ -81,8 +82,8 @@
                         </div>
                         <div class="collapse item-3" role="tabpanel" data-parent="#messages">
                             <div class="card-body">
-                                <h6 id="prStatusLabel">PR's status</h6>
-                                <p id="prMessage">Message if rejected</p><code id="timeStamp">Time Stamp</code></div>
+                                <h6>PR's status</h6>
+                                <p>Message if rejected</p><code>Time Stamp</code></div>
                         </div>
                     </div>
                 </div>
