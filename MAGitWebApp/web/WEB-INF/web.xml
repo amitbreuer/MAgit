@@ -6,10 +6,17 @@
         <servlet-name>LoginServlet</servlet-name>
         <servlet-class>servlets.LoginServlet</servlet-class>
     </servlet>
-
+    <servlet>
+        <servlet-name>RepositoryNameServlet</servlet-name>
+        <servlet-class>servlets.RepositoryNameServlet</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>LoginServlet</servlet-name>
         <url-pattern>/pages/signup/login</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>RepositoryNameServlet</servlet-name>
+        <url-pattern>repositoryName</url-pattern>
     </servlet-mapping>
 
 </web-app>
