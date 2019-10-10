@@ -1,15 +1,12 @@
 package engine;
 
-import app.AppController;
 import exceptions.*;
 import generated.*;
-import header.binds.BranchNameBind;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import puk.team.course.magit.ancestor.finder.AncestorFinder;
 import puk.team.course.magit.ancestor.finder.CommitRepresentative;
 import tasks.LoadRepositoryFromXmlTask;
-
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileAlreadyExistsException;
@@ -27,7 +24,6 @@ import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 public class MagitManager {
-    private AppController controller;
     private String username;
     private Repository repository;
     private XmlManager xmlManager;
@@ -39,10 +35,6 @@ public class MagitManager {
 
     public MagitManager() {
         username = "Administrator";
-    }
-
-    public void setController(AppController controller) {
-        this.controller = controller;
     }
 
     public void SetUsername(String username) {
@@ -1553,12 +1545,36 @@ public class MagitManager {
         }
     }
 
+    public void PushNoneRTBToRR(){
+        Branch LRHeadBranch = this.repository.getHeadBranch();
+
+        Path LRPath = this.repository.getPath();
+        Path RRPath = this.repository.getRemoteRepositoryPath();
+
+        copyCommitsObjectFilesBetweenRepositories(LRHeadBranch.getLastCommit().getSha1(),LRPath,RRPath);
+
+        LRHeadBranch.setIsRTB(true);
+        String newRBName = this.repository.getRemoteRepositoryname() + "\\" + LRHeadBranch.getName();
+        Branch newRB = new Branch(newRBName,LRHeadBranch.getLastCommit());
+        newRB.setIsRB(true);
+        this.repository.getBranches().put(newRBName,newRB);
+
+        String newRRBranchFilePath = this.repository.GetRemoteRepositoryBranchesDirPath() +
+                File.separator + LRHeadBranch.getName() + ".txt";
+        try {
+            createTextFile(newRRBranchFilePath,LRHeadBranch.getLastCommit().getSha1());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public void Push() throws Exception {
         // check if head branch is RTB
         Branch LRheadBranch = repository.getHeadBranch();
         String LRheadBranchName = LRheadBranch.getName();
         if (!LRheadBranch.getIsRTB()) {
-            throw new Exception(LRheadBranchName + " is not tracking after a remote branch");
+            PushNoneRTBToRR();
+            //throw new Exception(LRheadBranchName + " is not tracking after a remote branch");
         }
 
         // check if there are open changes in RR

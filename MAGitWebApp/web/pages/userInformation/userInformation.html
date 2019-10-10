@@ -1,48 +1,98 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <title>User Information</title>
+<html>
 
-    <script src="../../common/jquery-3.4.1.min.js"></script>
-    <script src="../../common/context-path-helper.js"></script>
-    <script src ="userInformation.js"></script>
-    <link rel="stylesheet" href="userInformation.css">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Users page</title>
+    <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="assets/fonts/fontawesome-all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.1.1/aos.css">
+    <link rel="stylesheet" href="assets/css/styles.css">
 </head>
 
 <body>
-<div class="Header">
-    <div id="Hello" class="Hello">Hello </div>
-    <form class="LogoutButton" action="../../logout">
-        <input type="submit" value="Logout"/>
-    </form>
-
-</div>
-
-<div class="left">
-    <div class="centered">
-        <h2>Other Users:</h2>
-        <div class="otherUsers"></div>
-        <p></p>
+    <nav class="navbar navbar-light navbar-expand-md" style="background-color: #72a3dd;">
+        <div class="container-fluid">
+            <a class="navbar-brand d-flex justify-content-center align-items-center sidebar-brand m-0" href="#">
+                <div class="sidebar-brand-icon rotate-n-15"><i class="fas fa-magic"></i></div>
+                <div class="sidebar-brand-text mx-3"><span>M.A.git</span></div>
+            </a>
+            <h1>User's Page</h1>
+            <ul class="nav navbar-nav">
+                <li class="nav-item" role="presentation"></li>
+                <li class="nav-item" role="presentation"></li>
+                <li class="nav-item" role="presentation"><a class="nav-link" id="logoutButton">Logout</a></li>
+            </ul><button class="navbar-toggler" data-toggle="collapse"><span class="sr-only">Toggle navigation</span><span class="navbar-toggler-icon"></span></button></div>
+    </nav>
+    <div class="container-fluid" style="max-height: 500px;padding-top: 10px;">
+        <div class="row" data-aos="fade" style="max-height: inherit;">
+            <div class="col-md-3 col-lg-2" style="max-height: inherit;">
+                <h5>Users</h5><a id="currentUser" class="currentUserLink" href="#">Current User</a>
+                <hr>
+                <ul data-aos="fade" id="otherUsersList" class="otherUsersList" style="max-height: 90%;overflow-y: scroll;"></ul>
+            </div>
+            <div class="col" style="max-height: inherit;">
+                <h3>Repositories<button class="btn btn-success btn-sm float-right" id="newRepositoryButton" type="button">New Repository</button></h3>
+                <div role="tablist" data-aos="fade" data-aos-duration="100" id="accordion-2" style="max-height: inherit;overflow-y: scroll;">
+                    <div class="card repositoryItem">
+                        <div class="card-header" role="tab">
+                            <h5 class="mb-0"><a data-toggle="collapse" aria-expanded="true" aria-controls="accordion-2 .item-1" href="#accordion-2 .item-1">Repo1</a><button class="btn btn-primary btn-sm float-right" type="button">Watch</button></h5>
+                        </div>
+                        <div class="collapse show item-1 repositoryData" role="tabpanel" data-parent="#accordion-2">
+                            <div class="card-body"><small>Active branch:&nbsp;</small><small class="d-lg-flex justify-content-lg-start">Number of branches:&nbsp;</small><code class="text-warning">Last commit's time stamp</code><em class="d-lg-flex justify-content-lg-start">Last commit's message</em></div>
+                        </div>
+                    </div>
+                    <div class="card otherUsersRepositoryItem">
+                        <div class="card-header" role="tab">
+                            <h5 class="mb-0"><a data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-2" href="#accordion-2 .item-2">Other User's Repo</a><button class="btn btn-info btn-sm float-right" type="button">Fork</button></h5>
+                        </div>
+                        <div class="collapse item-2" role="tabpanel" data-parent="#accordion-2">
+                            <div class="card-body"><small>Active branch:&nbsp;</small><small class="d-lg-flex justify-content-lg-start">Number of branches:&nbsp;</small><code class="text-warning">Last commit's time stamp</code><em class="d-lg-flex justify-content-lg-start">Last commit's message</em></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3" style="max-height: inherit;">
+                <h5>Notifications</h5>
+                <div role="tablist" data-aos="fade" id="messages" class="messagesAccordion" style="max-height: inherit;overflow-y: scroll;">
+                    <div class="card forkMessage">
+                        <div class="card-header" role="tab">
+                            <h5 class="mb-0"><a data-toggle="collapse" aria-expanded="true" aria-controls="messages .item-1" href="#messages .item-1">Fork Message</a></h5>
+                        </div>
+                        <div class="collapse show item-1" role="tabpanel" data-parent="#messages">
+                            <div class="card-body"><strong class="d-lg-flex justify-content-lg-start" id="repositoryNameLabel">Repository's name</strong><strong class="d-lg-flex justify-content-lg-start" id="usernameLabel">User that forked</strong><code id="timeStamp">Time Stamp</code></div>
+                        </div>
+                    </div>
+                    <div class="card newPRMessage">
+                        <div class="card-header" role="tab">
+                            <h5 class="mb-0"><a data-toggle="collapse" aria-expanded="false" aria-controls="messages .item-2" href="#messages .item-2">New PR message</a></h5>
+                        </div>
+                        <div class="collapse item-2" role="tabpanel" data-parent="#messages">
+                            <div class="card-body">
+                                <h6 id="repositoryNameLabel">Repository:&nbsp;</h6>
+                                <h6 id="usersNameLabel">From User:&nbsp;</h6>
+                                <p id="message">Message</p><small id="targetBranchLabel">Target Branch:&nbsp;</small><small class="d-lg-flex justify-content-lg-start" id="BaseBranchLabel">Base Branch:&nbsp;</small><code id="timeStamp">Time Stamp</code></div>
+                        </div>
+                    </div>
+                    <div class="card prResponse">
+                        <div class="card-header" role="tab">
+                            <h5 class="mb-0"><a data-toggle="collapse" aria-expanded="false" aria-controls="messages .item-3" href="#messages .item-3">PR response</a></h5>
+                        </div>
+                        <div class="collapse item-3" role="tabpanel" data-parent="#messages">
+                            <div class="card-body">
+                                <h6 id="prStatusLabel">PR's status</h6>
+                                <p id="prMessage">Message if rejected</p><code id="timeStamp">Time Stamp</code></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-</div>
-
-<div class="center">
-    <div class="centered">
-        <h2>Your Repositories:</h2>
-        <ul id ="currentUserRepositoriesArea" ></ul>
-        <p></p>
-    </div>
-</div>
-
-<div class="right">
-    <div class="centered">
-        <h2>Messages:</h2>
-        <div class="messages"></div>
-
-        <p></p>
-    </div>
-</div>
-
+    <script src="assets/js/jquery.min.js"></script>
+    <script src="assets/bootstrap/js/bootstrap.min.js"></script>
+    <script src="assets/js/bs-animation.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.1.1/aos.js"></script>
 </body>
+
 </html>
