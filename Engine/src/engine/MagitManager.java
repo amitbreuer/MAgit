@@ -99,6 +99,7 @@ public class MagitManager {
                 headBranchContent = convertTextFileToString(this.repository.GetBranchesDirPath() + File.separator + headBranchName + ".txt");
                 if (!headBranchContent.equals("")) { // if there is a commit sha1 in head branch file
                     prevCommit = createCommitFromObjectFile(headBranchContent, repository.GetObjectsDirPath());
+                    this.repository.getRecentlyUsedCommits().put(prevCommit.Sha1Commit(), prevCommit);
                 }
                 headBranch = new Branch(headBranchName, prevCommit);
                 this.repository.setHeadBranch(headBranch);
@@ -323,7 +324,7 @@ public class MagitManager {
         newDirectory.mkdir();
     }
 
-    private Folder.ComponentData getComponentDataFromString(String str) {
+    private static  Folder.ComponentData getComponentDataFromString(String str) {
         StringTokenizer tokenizer;
         tokenizer = new StringTokenizer(str, ",");
         Folder.ComponentData newComponentData;
@@ -460,6 +461,7 @@ public class MagitManager {
 
     private Branch createBranchFromObjectFileSha1(String branchName, String sha1) throws IOException {
         Commit newCommit = createCommitFromObjectFile(sha1, this.repository.GetObjectsDirPath());
+        this.repository.getRecentlyUsedCommits().put(newCommit.Sha1Commit(), newCommit);
         StringTokenizer tokenizer = new StringTokenizer(branchName, "."); // to cut the extension ".txt"
         Branch newBranch = new Branch(tokenizer.nextToken(), newCommit);
         return newBranch;
@@ -715,7 +717,7 @@ public class MagitManager {
         }
     }
 
-    private File getTextFileFromObjectsDirectory(String fileName, String objectsFolderPath) {
+    private static File getTextFileFromObjectsDirectory(String fileName, String objectsFolderPath) {
         File textFile = null;
         String fileToUnzipPath = objectsFolderPath + File.separator + fileName + ".zip";
 
@@ -729,7 +731,7 @@ public class MagitManager {
         return textFile;
     }
 
-    private void unzip(String zipFilePath, String destDirectory) throws IOException {
+    private static void unzip(String zipFilePath, String destDirectory) throws IOException {
         File destDir = new File(destDirectory);
         if (!destDir.exists()) {
             destDir.mkdir();
@@ -750,7 +752,7 @@ public class MagitManager {
         zipIn.close();
     }
 
-    private void extractFile(ZipInputStream zipIn, String filePath) throws IOException {
+    private static void extractFile(ZipInputStream zipIn, String filePath) throws IOException {
         BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(filePath));
         byte[] bytesIn = new byte[1024];
         int read = 0;
@@ -795,7 +797,7 @@ public class MagitManager {
         new File(fileName).delete();
     }
 
-    static String convertTextFileToString(String filePath) throws IOException {
+    public static String convertTextFileToString(String filePath) throws IOException {
         String returnValue = null;
         File fileToRead = new File(filePath);
 
@@ -818,7 +820,7 @@ public class MagitManager {
         }
     }
 
-    public Commit createCommitFromObjectFile(String commitSha1, String objectsFolderPath) throws IOException {
+    static public Commit createCommitFromObjectFile(String commitSha1, String objectsFolderPath) throws IOException {
         List<String> commitTextFileContent;
         FolderComponent mainFolder;
         List<String> mainFolderTextFileContent = null;
@@ -837,9 +839,7 @@ public class MagitManager {
         commitTextFileContent = Files.readAllLines(commitTextFile.toPath());
         prevCommitSha1 = commitTextFileContent.get(0);
 
-
         anotherPrevSha1 = commitTextFileContent.get(1);
-
 
         mainFolderSha1 = commitTextFileContent.get(2);
         dateCreated = commitTextFileContent.get(3);
@@ -855,13 +855,14 @@ public class MagitManager {
         newCommit.setSecondPrevCommitSha1(anotherPrevSha1);
         newCommit.setDateCreated(dateCreated);
         newCommit.setMainFolder((Folder) mainFolder);
-        this.repository.getRecentlyUsedCommits().put(newCommit.Sha1Commit(), newCommit);
+
+        //this.repository.getRecentlyUsedCommits().put(newCommit.Sha1Commit(), newCommit);
         commitTextFile.delete();
         mainFolderTextFile.delete();
         return newCommit;
     }
 
-    private FolderComponent createFolderComponentFromTextFileLines(Boolean isFolder, List<String> contentLines, String objectsFolderPath) throws IOException {
+    private static FolderComponent createFolderComponentFromTextFileLines(Boolean isFolder, List<String> contentLines, String objectsFolderPath) throws IOException {
         FolderComponent newFolderComponent = null;
         FolderComponent subFolderComonent = null;
         List<String> subComponentContentLines = null;
@@ -1317,6 +1318,7 @@ public class MagitManager {
         } else {
             try {
                 commitToReturn = createCommitFromObjectFile(commitSha1, objectsDirPath);
+                this.repository.getRecentlyUsedCommits().put(commitToReturn.Sha1Commit(), commitToReturn);
                 repository.getRecentlyUsedCommits().put(commitSha1, commitToReturn);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -1434,6 +1436,8 @@ public class MagitManager {
 
         try {
             Commit commitToCopy = createCommitFromObjectFile(commitSha1, srcObjectsPath);
+            this.repository.getRecentlyUsedCommits().put(commitToCopy.Sha1Commit(), commitToCopy);
+
             createNewObjectFile(commitToCopy.toString(), destObjectsPath);
             createObjectsFilesFromFolder(commitToCopy.getMainFolder(), destObjectsPath);
 
