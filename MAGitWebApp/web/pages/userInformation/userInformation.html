@@ -1,29 +1,31 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+
     <title>Users page</title>
     <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="assets/fonts/fontawesome-all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.1.1/aos.css">
     <link rel="stylesheet" href="assets/css/styles.css">
+    <script src="userInformation.js"></script>
 </head>
 
 <body>
-    <nav class="navbar navbar-light navbar-expand-md" style="background-color: #72a3dd;">
+    <nav class="navbar navbar-light navbar-expand-md" style="background-color: #72a3dd;" action="&quot;../login/login.html">
         <div class="container-fluid">
             <a class="navbar-brand d-flex justify-content-center align-items-center sidebar-brand m-0" href="#">
                 <div class="sidebar-brand-icon rotate-n-15"><i class="fas fa-magic"></i></div>
                 <div class="sidebar-brand-text mx-3"><span>M.A.git</span></div>
             </a>
             <h1>User's Page</h1>
-            <ul class="nav navbar-nav">
-                <li class="nav-item" role="presentation"></li>
-                <li class="nav-item" role="presentation"></li>
-                <li class="nav-item" role="presentation"><a class="nav-link" id="logoutButton">Logout</a></li>
-            </ul><button class="navbar-toggler" data-toggle="collapse"><span class="sr-only">Toggle navigation</span><span class="navbar-toggler-icon"></span></button></div>
+            <ul class="nav navbar-nav"></ul><button id="logoutButton" onclick="location.href = '../../logout'" class="btn btn-primary btn-sm text-secondary border rounded-0 border-secondary" data-bs-hover-animate="pulse" type="button" style="background-color: #72a3dd;color: rgba(65,65,65,0.95);filter: contrast(100%);">Logout</button>
+            <button
+                class="navbar-toggler" data-toggle="collapse"><span class="sr-only">Toggle navigation</span><span class="navbar-toggler-icon"></span></button>
+        </div>
     </nav>
     <div class="container-fluid" style="max-height: 500px;padding-top: 10px;">
         <div class="row" data-aos="fade" style="max-height: inherit;">
@@ -58,10 +60,10 @@
                 <div role="tablist" data-aos="fade" id="messages" class="messagesAccordion" style="max-height: inherit;overflow-y: scroll;">
                     <div class="card forkMessage">
                         <div class="card-header" role="tab">
-                            <h5 class="mb-0"><a data-toggle="collapse" aria-expanded="true" aria-controls="messages .item-1" href="#messages .item-1">Fork Message</a></h5>
+                            <h5 class="mb-0"><a data-toggle="collapse" aria-expanded="false" aria-controls="messages .item-1" href="#messages .item-1">Fork Message</a></h5>
                         </div>
-                        <div class="collapse show item-1" role="tabpanel" data-parent="#messages">
-                            <div class="card-body"><strong class="d-lg-flex justify-content-lg-start" id="repositoryNameLabel">Repository's name</strong><strong class="d-lg-flex justify-content-lg-start" id="usernameLabel">User that forked</strong><code id="timeStamp">Time Stamp</code></div>
+                        <div class="collapse item-1" role="tabpanel" data-parent="#messages">
+                            <div class="card-body"><strong class="d-lg-flex justify-content-lg-start">Repository's name</strong><strong class="d-lg-flex justify-content-lg-start">User that forked</strong><code>Time Stamp</code></div>
                         </div>
                     </div>
                     <div class="card newPRMessage">
@@ -70,19 +72,19 @@
                         </div>
                         <div class="collapse item-2" role="tabpanel" data-parent="#messages">
                             <div class="card-body">
-                                <h6 id="repositoryNameLabel">Repository:&nbsp;</h6>
-                                <h6 id="usersNameLabel">From User:&nbsp;</h6>
-                                <p id="message">Message</p><small id="targetBranchLabel">Target Branch:&nbsp;</small><small class="d-lg-flex justify-content-lg-start" id="BaseBranchLabel">Base Branch:&nbsp;</small><code id="timeStamp">Time Stamp</code></div>
+                                <h6>Repository:&nbsp;</h6>
+                                <h6>From User:&nbsp;</h6>
+                                <p>Message</p><small>Target Branch:&nbsp;</small><small class="d-lg-flex justify-content-lg-start">Base Branch:&nbsp;</small><code id="timeStamp">Time Stamp</code></div>
                         </div>
                     </div>
                     <div class="card prResponse">
                         <div class="card-header" role="tab">
-                            <h5 class="mb-0"><a data-toggle="collapse" aria-expanded="false" aria-controls="messages .item-3" href="#messages .item-3">PR response</a></h5>
+                            <h5 class="mb-0"><a data-toggle="collapse" aria-expanded="true" aria-controls="messages .item-3" href="#messages .item-3">PR response</a></h5>
                         </div>
-                        <div class="collapse item-3" role="tabpanel" data-parent="#messages">
+                        <div class="collapse show item-3" role="tabpanel" data-parent="#messages">
                             <div class="card-body">
-                                <h6 id="prStatusLabel">PR's status</h6>
-                                <p id="prMessage">Message if rejected</p><code id="timeStamp">Time Stamp</code></div>
+                                <h6>PR's status</h6>
+                                <p>Message if rejected</p><code>Time Stamp</code></div>
                         </div>
                     </div>
                 </div>

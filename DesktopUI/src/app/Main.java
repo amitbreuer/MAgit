@@ -21,7 +21,6 @@ public class Main extends Application {
         //load controllers
         MagitManager magitManager = new MagitManager();
         AppController appController = loader.getController();
-        magitManager.setController(appController);
         appController.setMagitManager(magitManager);
 
         primaryStage.setTitle("Magit");

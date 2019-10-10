@@ -1,6 +1,12 @@
 package engine.users;
 
+import engine.Branch;
+import engine.Commit;
+import engine.MagitManager;
+import engine.users.constants.Constants;
+
 import java.io.File;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -33,5 +39,42 @@ public class UserManager {
 
     public boolean isUserExists(String username) {
         return usersSet.contains(username);
+    }
+
+    public UserData GetUserData(String userName){
+        UserData userData = new UserData(userName);
+        File userDirectory = new File(Constants.usersDirectoryPath +File.separator+userName);
+        for (File file: userDirectory.listFiles()){
+            addRepositoryDirectoryToUserData(userData,file,userName);
+        }
+        return userData;
+    }
+
+    private void addRepositoryDirectoryToUserData(UserData userData, File directoryFile, String userName) {
+        RepositoryData repositoryData;
+        String name;
+        Integer numberOfBranches;
+        String activeBranchName =null;
+        String lastCommitDate=null;
+        String lastCommitMessage=null;
+        String lastCommitSha1;
+        String repositoryPath = Constants.usersDirectoryPath+File.separator+userName+File.separator+directoryFile.getName();
+        String repositoryBranchesPath = repositoryPath+File.separator+".magit"+File.separator+"branches";
+
+        name = directoryFile.getName();
+        numberOfBranches = new File(repositoryBranchesPath).listFiles().length;
+
+        try {
+            activeBranchName = MagitManager.convertTextFileToString(repositoryBranchesPath+File.separator+"HEAD.txt");
+            lastCommitSha1 = MagitManager.convertTextFileToString(repositoryBranchesPath+File.separator+activeBranchName+".txt");
+            Commit lastCommit =MagitManager.createCommitFromObjectFile(lastCommitSha1,repositoryPath+File.separator+".magit"+File.separator+"objects");
+            lastCommitDate = lastCommit.getDateCreated();
+            lastCommitMessage = lastCommit.getMessage();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        repositoryData = new RepositoryData(name,activeBranchName,numberOfBranches,lastCommitDate,lastCommitMessage);
+        userData.AddRepositoryDataToRepositorysDataList(repositoryData);
     }
 }

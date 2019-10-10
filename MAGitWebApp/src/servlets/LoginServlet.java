@@ -16,8 +16,7 @@ import static constants.Constants.USERNAME;
 public class LoginServlet extends HttpServlet {
 
     private final String USER_INFORMATION_URL = "../userInformation/userInformation.html";
-    private final String CHAT_ROOM_URL = "../chatroom/chatroom.html";
-    private final String SIGN_UP_URL = "../signup/signup.html";
+    private final String SIGN_UP_URL = "../login/login.html";
     private final String LOGIN_ERROR_URL = "/pages/loginerror/login_attempt_after_error.jsp";
      /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>

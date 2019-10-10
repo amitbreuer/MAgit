@@ -32,7 +32,7 @@ public class LogoutServlet extends HttpServlet {
             the best way (IMO) is to fetch the context path dynamically and build the redirection from it and on
              */
 
-            response.sendRedirect(request.getContextPath() + "/index.html");
+            response.sendRedirect(request.getContextPath() + "/pages/login/login.html");
         }
     }
 

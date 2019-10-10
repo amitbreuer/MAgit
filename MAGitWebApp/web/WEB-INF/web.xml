@@ -21,7 +21,7 @@
 
     <servlet-mapping>
         <servlet-name>LoginServlet</servlet-name>
-        <url-pattern>/pages/signup/login</url-pattern>
+        <url-pattern>/pages/login/login</url-pattern>
     </servlet-mapping>
 
 <servlet-mapping>
