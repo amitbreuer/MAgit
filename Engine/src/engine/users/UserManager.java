@@ -1,6 +1,5 @@
 package engine.users;
 
-import engine.Branch;
 import engine.Commit;
 import engine.MagitManager;
 import engine.users.constants.Constants;
@@ -41,8 +40,8 @@ public class UserManager {
         return usersSet.contains(username);
     }
 
-    public UserData GetUserData(String userName){
-        UserData userData = new UserData(userName);
+    private SingleUserData getUserData(String userName){
+        SingleUserData userData = new SingleUserData(userName);
         File userDirectory = new File(Constants.usersDirectoryPath +File.separator+userName);
         for (File file: userDirectory.listFiles()){
             addRepositoryDirectoryToUserData(userData,file,userName);
@@ -50,7 +49,7 @@ public class UserManager {
         return userData;
     }
 
-    private void addRepositoryDirectoryToUserData(UserData userData, File directoryFile, String userName) {
+    private void addRepositoryDirectoryToUserData(SingleUserData userData, File directoryFile, String userName) {
         RepositoryData repositoryData;
         String name;
         Integer numberOfBranches;
@@ -76,5 +75,22 @@ public class UserManager {
 
         repositoryData = new RepositoryData(name,activeBranchName,numberOfBranches,lastCommitDate,lastCommitMessage);
         userData.AddRepositoryDataToRepositorysDataList(repositoryData);
+    }
+
+    public AllUsersData GetAllUsersData(String currentUserName) {
+        AllUsersData allUsersData = new AllUsersData();
+        SingleUserData userDataToAdd;
+        File usersDirectory =  new File(Constants.usersDirectoryPath);
+
+        for(File file: usersDirectory.listFiles()){
+            userDataToAdd = getUserData(file.getName());
+            if(userDataToAdd.getUserName().equals(currentUserName)){
+                allUsersData.setCurrentUserData(userDataToAdd);
+            }
+            else {
+                allUsersData.AddOtherUserData(userDataToAdd);
+            }
+        }
+        return allUsersData;
     }
 }

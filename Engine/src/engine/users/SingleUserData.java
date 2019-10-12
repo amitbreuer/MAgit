@@ -3,7 +3,7 @@ package engine.users;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UserData {
+public class SingleUserData {
 
     final private String userName;
     final private List<RepositoryData> repositoriesDataList = new ArrayList<>();
@@ -12,8 +12,11 @@ public class UserData {
         this.repositoriesDataList.add(repositoryData);
     }
 
-    public UserData(String userName){
+    public SingleUserData(String userName){
         this.userName = userName;
     }
 
+    public String getUserName() {
+        return userName;
+    }
 }

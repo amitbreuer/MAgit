@@ -10,7 +10,11 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.1.1/aos.css">
     <link rel="stylesheet" href="assets/css/styles.css">
+
+    <script src="../../common/jquery-3.4.1.min.js"></script>
+    <script src="../../common/context-path-helper.js"></script>
     <script src="userInformation.js"></script>
+
 </head>
 
 <body>
@@ -36,14 +40,6 @@
             <div class="col" style="max-height: inherit;">
                 <h3>Repositories<button class="btn btn-success btn-sm float-right" id="newRepositoryButton" type="button">New Repository</button></h3>
                 <div role="tablist" data-aos="fade" data-aos-duration="100" id="accordion-2" style="max-height: inherit;overflow-y: scroll;">
-                    <div class="card repositoryItem">
-                        <div class="card-header" role="tab">
-                            <h5 class="mb-0"><a data-toggle="collapse" aria-expanded="true" aria-controls="accordion-2 .item-1" href="#accordion-2 .item-1">Repo1</a><button class="btn btn-primary btn-sm float-right" type="button">Watch</button></h5>
-                        </div>
-                        <div class="collapse show item-1 repositoryData" role="tabpanel" data-parent="#accordion-2">
-                            <div class="card-body"><small>Active branch:&nbsp;</small><small class="d-lg-flex justify-content-lg-start">Number of branches:&nbsp;</small><code class="text-warning">Last commit's time stamp</code><em class="d-lg-flex justify-content-lg-start">Last commit's message</em></div>
-                        </div>
-                    </div>
                     <div class="card otherUsersRepositoryItem">
                         <div class="card-header" role="tab">
                             <h5 class="mb-0"><a data-toggle="collapse" aria-expanded="false" aria-controls="accordion-2 .item-2" href="#accordion-2 .item-2">Other User's Repo</a><button class="btn btn-info btn-sm float-right" type="button">Fork</button></h5>
@@ -60,7 +56,7 @@
                 <div role="tablist" data-aos="fade" class="messagesAccordion" style="max-height: inherit;overflow-y: scroll;">
                     <div class="card forkMessage">
                         <div class="card-header" role="tab">
-                            <h5 class="mb-0"><a data-toggle="collapse" aria-expanded="false" aria-controls="messages .item-1" href="#messages .item-1">Fork Message</a></h5>
+                            <h5 class="mb-0"><a data-toggle="collapse" aria-expanded="true" aria-controls="messages .item-1" href="#messages .item-1">Fork Message</a></h5>
                         </div>
                         <div class="collapse item-1" role="tabpanel" data-parent="#messages">
                             <div class="card-body"><strong class="d-lg-flex justify-content-lg-start">Repository's name</strong><strong class="d-lg-flex justify-content-lg-start">User that forked</strong><code>Time Stamp</code></div>
@@ -68,7 +64,7 @@
                     </div>
                     <div class="card newPRMessage">
                         <div class="card-header" role="tab">
-                            <h5 class="mb-0"><a data-toggle="collapse" aria-expanded="false" aria-controls="messages .item-2" href="#messages .item-2">New PR message</a></h5>
+                            <h5 class="mb-0"><a data-toggle="collapse" aria-expanded="true" aria-controls="messages .item-2" href="#messages .item-2">New PR message</a></h5>
                         </div>
                         <div class="collapse item-2" role="tabpanel" data-parent="#messages">
                             <div class="card-body">

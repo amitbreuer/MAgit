@@ -15,8 +15,8 @@
     </servlet>
 
     <servlet>
-        <servlet-name>UserInformationServlet</servlet-name>
-        <servlet-class>servlets.UserInformationServlet</servlet-class>
+        <servlet-name>UsersInformationServlet</servlet-name>
+        <servlet-class>servlets.UsersInformationServlet</servlet-class>
     </servlet>
 
     <servlet-mapping>
@@ -30,8 +30,8 @@
     </servlet-mapping>
 
     <servlet-mapping>
-        <servlet-name>UserInformationServlet</servlet-name>
-        <url-pattern>/userInformation</url-pattern>
+        <servlet-name>UsersInformationServlet</servlet-name>
+        <url-pattern>/usersInformation</url-pattern>
     </servlet-mapping>
 
 </web-app>
