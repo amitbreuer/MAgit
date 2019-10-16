@@ -4,6 +4,7 @@ import constants.Constants;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.io.File;
 
 public class SessionUtils {
 
@@ -16,4 +17,5 @@ public class SessionUtils {
     public static void clearSession (HttpServletRequest request) {
         request.getSession().invalidate();
     }
+
 }

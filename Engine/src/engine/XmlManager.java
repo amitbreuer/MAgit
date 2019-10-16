@@ -1,5 +1,6 @@
 package engine;
 
+import engine.users.constants.Constants;
 import generated.*;
 
 import javax.xml.bind.JAXBContext;
@@ -8,6 +9,7 @@ import javax.xml.bind.Unmarshaller;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.io.StringReader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -47,6 +49,16 @@ public class XmlManager {
             }
         }
 
+        setExisitngMaps();
+        validateMagitRepository();
+    }
+
+    public void createMagitRepositoryFromUploadedFile(String username, String fileInput) throws Exception {
+        this.magitRepository = deserializeFrom(fileInput);
+//
+        if(Files.exists(Paths.get(Constants.usersDirectoryPath + File.separator + username + File.separator + magitRepository.getName()))){
+            throw new Exception("You already uploaded the repository " + magitRepository.getName());
+        }
         setExisitngMaps();
         validateMagitRepository();
     }
@@ -184,6 +196,13 @@ public class XmlManager {
         JAXBContext jc = JAXBContext.newInstance("generated");
         Unmarshaller u = jc.createUnmarshaller();
         return (MagitRepository) u.unmarshal(inputStream);
+    }
+
+    private MagitRepository deserializeFrom(String fileInput) throws JAXBException {
+        JAXBContext jc = JAXBContext.newInstance("generated");
+        Unmarshaller u = jc.createUnmarshaller();
+        StringReader sr = new StringReader(fileInput);
+        return (MagitRepository) u.unmarshal(sr);
     }
 }
 

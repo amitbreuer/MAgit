@@ -10,13 +10,24 @@
     </servlet>
 
     <servlet>
+        <servlet-name>OtherUsersInformationServlet</servlet-name>
+        <servlet-class>servlets.OtherUsersInformationServlet</servlet-class>
+    </servlet>
+
+
+    <servlet>
         <servlet-name>LogoutServlet</servlet-name>
         <servlet-class>servlets.LogoutServlet</servlet-class>
     </servlet>
 
     <servlet>
-        <servlet-name>UserInformationServlet</servlet-name>
-        <servlet-class>servlets.UserInformationServlet</servlet-class>
+        <servlet-name>CurrentUserInformationServlet</servlet-name>
+        <servlet-class>servlets.CurrentUserInformationServlet</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>NewRepositoryServlet</servlet-name>
+        <servlet-class>servlets.NewRepositoryServlet</servlet-class>
     </servlet>
 
     <servlet-mapping>
@@ -30,8 +41,18 @@
     </servlet-mapping>
 
     <servlet-mapping>
-        <servlet-name>UserInformationServlet</servlet-name>
-        <url-pattern>/userInformation</url-pattern>
+        <servlet-name>CurrentUserInformationServlet</servlet-name>
+        <url-pattern>/currentUserInformation</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>NewRepositoryServlet</servlet-name>
+        <url-pattern>/newRepository</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>OtherUsersInformationServlet</servlet-name>
+        <url-pattern>/otherUsersInformation</url-pattern>
     </servlet-mapping>
 
 </web-app>
