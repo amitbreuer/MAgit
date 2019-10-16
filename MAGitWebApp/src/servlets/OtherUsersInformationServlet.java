@@ -1,8 +1,9 @@
 package servlets;
 
 import com.google.gson.Gson;
-import engine.users.UserManager;
 import engine.users.AllUsersData;
+import engine.users.SingleUserData;
+import engine.users.UserManager;
 import utils.ServletUtils;
 import utils.SessionUtils;
 
@@ -12,8 +13,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.List;
 
-public class UsersInformationServlet extends HttpServlet {
+public class OtherUsersInformationServlet extends HttpServlet {
+
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
@@ -21,11 +24,11 @@ public class UsersInformationServlet extends HttpServlet {
         UserManager userManager = ServletUtils.getUserManager(getServletContext());
         String currentUserName = SessionUtils.getUsername(request);
 
-        AllUsersData allUsersData = userManager.GetAllUsersData(currentUserName);
+        List<SingleUserData> otherUserData= userManager.GetOtherUsersData(currentUserName);
 
         try (PrintWriter out = response.getWriter()) {
             Gson gson = new Gson();
-            String json = gson.toJson(allUsersData);
+            String json = gson.toJson(otherUserData);
             out.println(json);
             out.flush();
         }

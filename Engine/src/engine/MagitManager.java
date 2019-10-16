@@ -1,5 +1,6 @@
 package engine;
 
+import engine.users.constants.Constants;
 import exceptions.*;
 import generated.*;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -925,6 +926,31 @@ public class MagitManager {
         }
 
         createRepositoryFromMagitRepository();
+    }
+
+    public void ValidateAndLoadXMLRepositoryFromUploadedFile(String username,String fileInput) throws Exception {
+        this.xmlManager = new XmlManager();
+        this.xmlManager.createMagitRepositoryFromUploadedFile(username,fileInput);
+
+        createRepositoryFromMagitRepositoryInUsersDirectory(username);
+    }
+
+    private void createRepositoryFromMagitRepositoryInUsersDirectory(String username) throws Exception{
+        //deleteDirectory(Paths.get(this.xmlManager.getMagitRepository().getLocation()));
+        CreateEmptyRepository(Constants.usersDirectoryPath+File.separator+username+File.separator+ this.xmlManager.getMagitRepository().getName(), this.xmlManager.getMagitRepository().getName());
+        this.repository.getBranches().clear();
+        File masterBranch = new File(this.repository.GetBranchesDirPath() + File.separator + "master.txt");
+        masterBranch.delete();
+        addMagitRepositoryObjectsToRepository();
+        if(xmlManager.getMagitRepository().getMagitRemoteReference() != null) {
+            if(xmlManager.getMagitRepository().getMagitRemoteReference().getName() != null && !xmlManager.getMagitRepository().getMagitRemoteReference().getName().equals("")
+                    &&  xmlManager.getMagitRepository().getMagitRemoteReference().getLocation() != null && !xmlManager.getMagitRepository().getMagitRemoteReference().getLocation().equals("")){
+                this.repository.setRemoteRepositoryPath(Paths.get(xmlManager.getMagitRepository().getMagitRemoteReference().getLocation()));
+                this.repository.setRemoteRepositoryname(xmlManager.getMagitRepository().getMagitRemoteReference().getName());
+                createTextFile(repository.getPath() + File.separator + ".magit" + File.separator + "remoteRepositoryPath.txt", repository.getRemoteRepositoryPath().toString());
+            }
+        }
+        spanWCFromCommit(this.repository.getHeadBranch().getLastCommit(), this.repository.getPath());
     }
 
     private void deleteDirectory(Path path) {

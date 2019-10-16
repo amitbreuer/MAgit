@@ -1,14 +1,22 @@
-var USERS_DATA_URL = buildUrlWithContextPath("usersInformation");
-var ALL_USERS_DATA;
+//var USERS_DATA_URL = buildUrlWithContextPath("usersInformation");
+var CURRENT_USER_DATA_URL = buildUrlWithContextPath("currentUserInformation");
+var OTHER_USERS_DATA_URL = buildUrlWithContextPath("otherUsersInformation");
+var NEW_REPOSITORY_URL = buildUrlWithContextPath("newRepository");
+var CURRENT_USER_DATA;
+var OTHER_USERS_DATA;
 
-function updateCurrentUsername(userName) {
-    $("#Hello").html("Hello," + userName);
+function updateCurrentUserButton() {
+    var currentUserButton = document.getElementById("currentUser");
+    currentUserButton.innerHTML = CURRENT_USER_DATA.userName;
+    currentUserButton.onclick = function () {
+        showCurrentUserRepositories();
+    };
 }
 
-function createCurrentUserSingleRepositoryData(currentUserSingleRepositoryData) {
+function createCurrentUserSingleRepositoryData(currentUserSingleRepositoryData,watchButtonID) {
     return "<div class=\"card repositoryItem\">\n" +
         "<div class=\"card-header\" role=\"tab\">\n" +
-        "<h5 class=\"mb-0\"><a data-toggle=\"collapse\" aria-expanded=\"true\" aria-controls=\"accordion-2 .item-1\" href=\"#accordion-2 .item-1\">" + currentUserSingleRepositoryData.name + "</a><button class=\"btn btn-primary btn-sm float-right\" type=\"button\">Watch</button></h5>\n" +
+        "<h5 class=\"mb-0\"><a data-toggle=\"collapse\" aria-expanded=\"true\" aria-controls=\"accordion-2 .item-1\" href=\"#accordion-2 .item-1\">" + currentUserSingleRepositoryData.name + "</a><button id='"+watchButtonID+"' class=\"btn btn-primary btn-sm float-right\" type=\"button\">Watch</button></h5>\n" +
         "</div>\n" +
         "<div class=\"collapse show item-1 repositoryData\" role=\"tabpanel\" data-parent=\"#accordion-2\">\n" +
         "<div class=\"card-body\"><small class =\"d-md-flex justify-content-md-start\">Active branch: &nbsp" + currentUserSingleRepositoryData.activeBranchName + "</small>" +
@@ -19,40 +27,84 @@ function createCurrentUserSingleRepositoryData(currentUserSingleRepositoryData) 
         "</div>";
 }
 
+function watch(repositoryName) {
+    console.log("watch execution");
+}
+
 function addSingleRepositoryDataToCurrentUser(index, currentUserSingleRepositoryData) {
-    var singleRepositoryDataButton = createCurrentUserSingleRepositoryData(currentUserSingleRepositoryData);
+    var watchButtonID ="watch"+ currentUserSingleRepositoryData.name;
+    var singleRepositoryDataButton = createCurrentUserSingleRepositoryData(currentUserSingleRepositoryData,watchButtonID);
+
     $("#accordion-2").append(singleRepositoryDataButton);
+    document.getElementById(watchButtonID).onclick = function () {
+        watch(currentUserSingleRepositoryData.name);
+    }
 }
 
 function showCurrentUserRepositories() {
     $("#accordion-2").empty();
-    $.each(ALL_USERS_DATA.currentUserData.repositoriesDataList || [], addSingleRepositoryDataToCurrentUser);
+
+    $.each(CURRENT_USER_DATA.repositoriesDataList || [], addSingleRepositoryDataToCurrentUser);
+}
+
+
+
+function addNewRepositoryToCurrentUser(event) {
+    var file = event.target.files[0];
+    ajaxNewRepository(file, ShowMessage);
+
+}
+
+function ajaxNewRepository(file, callback) {
+    var reader = new FileReader();
+
+    reader.onload = function () {
+        var content = reader.result;
+        $.ajax(
+            {
+                url: NEW_REPOSITORY_URL,
+                data: {
+                    file: content
+                },
+                type: 'POST',
+                success: repositoryAjaxSucceededCallback
+
+            }
+        );
+    };
+    reader.readAsText(file);
+
+    function repositoryAjaxSucceededCallback(message) {
+        ShowMessage(message);
+        $(fileInput).val(null);
+    }
+
+}
+
+function ShowMessage(message) {
+    var modal = $("#newRepositoryMessageModal")[0];
+    var span = document.getElementsByClassName("closeRepositoryMessage")[0];
+    var content = document.getElementById("newRepositoryMessageContent");
+    content.textContent = message;
+    modal.style.display = "block";
+    span.onclick = function () {
+        modal.style.display = "none";
+    };
+
+    //alert(message);
+
 }
 
 function findOtherUserDataInList(otherUsername) {
-
-for(var i=0;i<ALL_USERS_DATA.otherUsersDataList.length;i++ ){
-
-    if(ALL_USERS_DATA.otherUsersDataList[i].userName === otherUsername){
-        console.log("success");
-        return ALL_USERS_DATA.otherUsersDataList[i];
-
+    for (var i = 0; i < OTHER_USERS_DATA.length; i++) {
+        if (OTHER_USERS_DATA[i].userName === otherUsername) {
+            return OTHER_USERS_DATA[i];
+        }
     }
 }
- /*   $.each(ALL_USERS_DATA.otherUsersDataList || [], function (index, singleOtherUserData) {
-        console.log(singleOtherUserData.userName);
-        console.log(otherUsername);
-        if (singleOtherUserData.userName === otherUsername) {
-            console.log(singleOtherUserData.userName === otherUsername);
-            console.log("success");
-            return singleOtherUserData;
 
-        }
-    })
-    ;*/
-}
+function createOtherUserSingleRepositoryData(otherUserSingleRepositoryData, forkButtonID) {
 
-function createOtherUserSingleRepositoryData(otherUserSingleRepositoryData) {
     return "<div class=\"card otherUsersRepositoryItem\">\n" +
         "<div class=\"card-header\" role=\"tab\">\n" +
         "<h5 class=\"mb-0\"><a data-toggle=\"collapse\" aria-expanded=\"true\" aria-controls=\"accordion-2 .item-1\" href=\"#accordion-2 .item-1\">" + otherUserSingleRepositoryData.name + "</a><button class=\"btn btn-primary btn-sm float-right\" type=\"button\">Fork</button></h5>\n" +
@@ -68,7 +120,12 @@ function createOtherUserSingleRepositoryData(otherUserSingleRepositoryData) {
 
 }
 
+function fork() {
+
+}
+
 function addSingleRepositoryDataToOtherUser(index, otherUserSingleRepositoryData) {
+
     var singleRepositoryDataButton = createOtherUserSingleRepositoryData(otherUserSingleRepositoryData);
     $("#accordion-2").append(singleRepositoryDataButton);
 }
@@ -76,51 +133,90 @@ function addSingleRepositoryDataToOtherUser(index, otherUserSingleRepositoryData
 function showOtherUserRepositories(otherUsername) {
     $("#accordion-2").empty();
     var otherUserData = findOtherUserDataInList(otherUsername);
-    console.log(otherUserData);
     $.each(otherUserData.repositoriesDataList || [], addSingleRepositoryDataToOtherUser)
-
-
 }
-
 
 function addSingleOtherUserButton(index, otherUserData) {
 
     var otherUserButton = document.createElement('button');
+
     otherUserButton.textContent = otherUserData.userName;
-    otherUserButton.setAttribute("class","btn btn-link btn-sm border-white");
+    otherUserButton.setAttribute("class", "btn btn-link btn-sm border-white");
     otherUserButton.id = otherUserData.userName + 'sRepositoriesButton';
-    otherUserButton.onclick =function() {
+    otherUserButton.onclick = function () {
         showOtherUserRepositories(otherUserData.userName);
-    }
+    };
     var otherUserli = document.createElement('li');
     otherUserli.prepend(otherUserButton);
 
     $("#otherUsersList").append(otherUserli);
-
-    // var otherUserName = "<li> <button id='" + otherUserData.userName + "sRepositoriesButton' class=\ type=\"button\">" + otherUserData.userName + "</button></li>";
 }
-
 
 function refreshOtherUsersList() {
     $("#otherUsersList").empty();
-    $.each(ALL_USERS_DATA.otherUsersDataList || [], addSingleOtherUserButton);
+    $.each(OTHER_USERS_DATA || [], addSingleOtherUserButton);
 }
 
-function ajaxAllUsersData(callback) {
+function ajaxCurrentUserData(callback) {
     $.ajax({
-        url: USERS_DATA_URL,
+        url: CURRENT_USER_DATA_URL,
         dataType: "json",
-        success: function (allUsersData) {
-            callback(allUsersData);
+        success: function (currentUserData) {
+            callback(currentUserData);
         }
     });
 }
 
-$(function () {
-    ajaxAllUsersData(function (allUsersData) {
-        ALL_USERS_DATA = allUsersData;
-
-        showCurrentUserRepositories();
-        refreshOtherUsersList();
+function ajaxOtherUsersData(callback) {
+    $.ajax({
+        url: OTHER_USERS_DATA_URL,
+        dataType: "json",
+        success: function (otherUsersData) {
+            callback(otherUsersData);
+        }
     });
+}
+
+
+function ajaxOtherUsersDataCallback(otherUsersData) {
+    OTHER_USERS_DATA = otherUsersData;
+    refreshOtherUsersList();
+
+}
+
+
+function initializeWindow() {
+    ajaxCurrentUserData(function (currentUserData) {
+        ajaxCurrentUserDataCallback(currentUserData);
+        updateCurrentUserButton();
+        showCurrentUserRepositories();
+    });
+    refreshOtherUsersDisplay();
+}
+
+$(function () {
+    initializeWindow();
+});
+
+
+function ajaxCurrentUserDataCallback(currentUserData) {
+    CURRENT_USER_DATA = currentUserData;
+}
+
+function refreshCurrentUserData() {
+    ajaxCurrentUserData(function (currentUserData) {
+        ajaxCurrentUserDataCallback(currentUserData)
+    });
+}
+
+function refreshOtherUsersDisplay() {
+    ajaxOtherUsersData(function (otherUsersData) {
+        ajaxOtherUsersDataCallback(otherUsersData)
+    });
+}
+
+
+$(function () {
+    setInterval(refreshOtherUsersDisplay, 2000);
+    setInterval(refreshCurrentUserData, 2000);
 });

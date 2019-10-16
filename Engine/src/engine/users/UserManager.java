@@ -6,9 +6,9 @@ import engine.users.constants.Constants;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.*;
 
 /*
 Adding and retrieving users is synchronized and in that manner - these actions are thread safe
@@ -18,9 +18,11 @@ of the user of this class to handle the synchronization of isUserExists with oth
 public class UserManager {
 
     private final Set<String> usersSet;
+    private MagitManager magitManager;
 
     public UserManager() {
         usersSet = new HashSet<>();
+        magitManager = new MagitManager();
     }
 
     public synchronized void addUser(String username) {
@@ -40,11 +42,11 @@ public class UserManager {
         return usersSet.contains(username);
     }
 
-    private SingleUserData getUserData(String userName){
+    private SingleUserData getUserData(String userName) {
         SingleUserData userData = new SingleUserData(userName);
-        File userDirectory = new File(Constants.usersDirectoryPath +File.separator+userName);
-        for (File file: userDirectory.listFiles()){
-            addRepositoryDirectoryToUserData(userData,file,userName);
+        File userDirectory = new File(Constants.usersDirectoryPath + File.separator + userName);
+        for (File file : userDirectory.listFiles()) {
+            addRepositoryDirectoryToUserData(userData, file, userName);
         }
         return userData;
     }
@@ -53,44 +55,74 @@ public class UserManager {
         RepositoryData repositoryData;
         String name;
         Integer numberOfBranches;
-        String activeBranchName =null;
-        String lastCommitDate=null;
-        String lastCommitMessage=null;
+        String activeBranchName = null;
+        String lastCommitDate = null;
+        String lastCommitMessage = null;
         String lastCommitSha1;
-        String repositoryPath = Constants.usersDirectoryPath+File.separator+userName+File.separator+directoryFile.getName();
-        String repositoryBranchesPath = repositoryPath+File.separator+".magit"+File.separator+"branches";
+        String repositoryPath = Constants.usersDirectoryPath + File.separator + userName + File.separator + directoryFile.getName();
+        String repositoryBranchesPath = repositoryPath + File.separator + ".magit" + File.separator + "branches";
 
         name = directoryFile.getName();
         numberOfBranches = new File(repositoryBranchesPath).listFiles().length;
 
         try {
-            activeBranchName = MagitManager.convertTextFileToString(repositoryBranchesPath+File.separator+"HEAD.txt");
-            lastCommitSha1 = MagitManager.convertTextFileToString(repositoryBranchesPath+File.separator+activeBranchName+".txt");
-            Commit lastCommit =MagitManager.createCommitFromObjectFile(lastCommitSha1,repositoryPath+File.separator+".magit"+File.separator+"objects");
+            activeBranchName = MagitManager.convertTextFileToString(repositoryBranchesPath + File.separator + "HEAD.txt");
+            lastCommitSha1 = MagitManager.convertTextFileToString(repositoryBranchesPath + File.separator + activeBranchName + ".txt");
+            Commit lastCommit = MagitManager.createCommitFromObjectFile(lastCommitSha1, repositoryPath + File.separator + ".magit" + File.separator + "objects");
             lastCommitDate = lastCommit.getDateCreated();
             lastCommitMessage = lastCommit.getMessage();
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        repositoryData = new RepositoryData(name,activeBranchName,numberOfBranches,lastCommitDate,lastCommitMessage);
+        repositoryData = new RepositoryData(name, activeBranchName, numberOfBranches, lastCommitDate, lastCommitMessage);
         userData.AddRepositoryDataToRepositorysDataList(repositoryData);
     }
 
     public AllUsersData GetAllUsersData(String currentUserName) {
         AllUsersData allUsersData = new AllUsersData();
         SingleUserData userDataToAdd;
-        File usersDirectory =  new File(Constants.usersDirectoryPath);
+        File usersDirectory = new File(Constants.usersDirectoryPath);
 
-        for(File file: usersDirectory.listFiles()){
+        for (File file : usersDirectory.listFiles()) {
             userDataToAdd = getUserData(file.getName());
-            if(userDataToAdd.getUserName().equals(currentUserName)){
+            if (userDataToAdd.getUserName().equals(currentUserName)) {
                 allUsersData.setCurrentUserData(userDataToAdd);
-            }
-            else {
+            } else {
                 allUsersData.AddOtherUserData(userDataToAdd);
             }
         }
         return allUsersData;
+    }
+
+    public MagitManager getMagitManager() {
+        return magitManager;
+    }
+
+    public SingleUserData GetCurrentUserData(String currentUserName) {
+        SingleUserData currentUserData;
+        String currentUserDirectoryPath = Constants.usersDirectoryPath + File.separator + currentUserName;
+        if (!Files.exists(Paths.get(currentUserDirectoryPath))) {
+            return null;
+        }
+        else {
+            currentUserData = getUserData(currentUserName);
+            return currentUserData;
+        }
+    }
+
+    public List<SingleUserData> GetOtherUsersData(String currentUserName) {
+        List<SingleUserData> otherUsersData = new ArrayList<>();
+
+        SingleUserData userDataToAdd;
+        File usersDirectory = new File(Constants.usersDirectoryPath);
+
+        for (File file : usersDirectory.listFiles()) {
+            userDataToAdd = getUserData(file.getName());
+            if (!file.getName().equals(currentUserName)) {
+                otherUsersData.add(userDataToAdd);
+            }
+        }
+        return otherUsersData;
     }
 }
