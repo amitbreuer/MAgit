@@ -1,18 +1,240 @@
 <!DOCTYPE html>
-<html lang="en">
+<html style="scroll-behavior: smooth;">
+
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <script src="../../common/jquery-3.4.1.min.js"></script>
-    <script src="../../common/context-path-helper.js"></script>
-    <script src="repositoryInformation.js" ></script>
-    <link rel="stylesheet" href="repositoryInformation.css">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-    <title>Repository Information</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Dashboard - Brand</title>
+    <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i">
+    <link rel="stylesheet" href="assets/fonts/fontawesome-all.min.css">
+    <link rel="stylesheet" href="assets/fonts/font-awesome.min.css">
+    <link rel="stylesheet" href="assets/fonts/ionicons.min.css">
+    <link rel="stylesheet" href="assets/fonts/typicons.min.css">
+    <link rel="stylesheet" href="assets/fonts/fontawesome5-overrides.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css">
 </head>
-<body>
 
-
-
-
+<body id="page-top">
+    <div id="wrapper">
+        <nav class="navbar navbar-dark align-items-start sidebar sidebar-dark accordion bg-gradient-primary p-0">
+            <div class="container-fluid d-flex flex-column p-0">
+                <a class="navbar-brand d-flex justify-content-center align-items-center sidebar-brand m-0" href="#">
+                    <div class="sidebar-brand-icon rotate-n-15"><i class="fa fa-magic"></i></div>
+                    <div class="sidebar-brand-text mx-3"><span>M.A.Git</span></div>
+                </a>
+                <hr class="visible"><a class="text-white" href="#wcSection">Working Copy</a>
+                <hr class="visible">
+                <h5 class="text-light d-md-flex align-items-md-center"><i class="fas fa-code-branch d-md-flex align-items-md-center"></i>&nbsp;Branches</h5><button class="btn btn-primary btn-sm" type="button">&nbsp;New Branch<i class="typcn typcn-plus float-left"></i></button>
+                <hr style="margin: 5px;">
+                <div class="btn-group"><button class="btn btn-primary btn-sm" type="button">Checkout</button><button class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-expanded="false" type="button"></button>
+                    <div class="dropdown-menu"
+                        role="menu"></div>
+                </div>
+                <hr style="margin: 5px;">
+                <div class="btn-group"><button class="btn btn-primary btn-sm" type="button">Delete</button><button class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-expanded="false" type="button"></button>
+                    <div class="dropdown-menu" role="menu"></div>
+                </div>
+                <hr class="visible"><a class="text-white" href="#prSection"><i class="icon ion-pull-request"></i>&nbsp; Pull Requests</a></div>
+        </nav>
+        <div class="d-flex flex-column" id="content-wrapper">
+            <div id="content">
+                <nav class="navbar navbar-light navbar-expand bg-white shadow mb-4 topbar static-top">
+                    <div class="container-fluid">
+                        <h2 class="d-lg-flex justify-content-lg-center align-items-lg-end" id="repositoryName-label">Repository name</h2>
+                        <ul class="nav navbar-nav flex-wrap ml-auto">
+                            <li class="nav-item dropdown d-sm-none no-arrow"><a class="dropdown-toggle nav-link" data-toggle="dropdown" aria-expanded="false" href="#"><i class="fas fa-search"></i></a>
+                                <div class="dropdown-menu dropdown-menu-right p-3 animated--grow-in" role="menu" aria-labelledby="searchDropdown">
+                                    <form class="form-inline mr-auto navbar-search w-100">
+                                        <div class="input-group"><input class="bg-light form-control border-0 small" type="text" placeholder="Search for ...">
+                                            <div class="input-group-append"><button class="btn btn-primary py-0" type="button"><i class="fas fa-search"></i></button></div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </li>
+                            <li class="nav-item align-self-center dropdown no-arrow" role="presentation">
+                                <div class="nav-item dropdown no-arrow"><a class="dropdown-toggle nav-link" data-toggle="dropdown" aria-expanded="false" href="#"><i class="fas fa-envelope fa-fw"></i><span class="badge badge-danger badge-counter">7</span></a>
+                                    <div class="dropdown-menu dropdown-menu-right dropdown-list dropdown-menu-right animated--grow-in"
+                                        role="menu">
+                                        <h6 class="dropdown-header">alerts center</h6>
+                                        <a class="d-flex align-items-center dropdown-item" href="#">
+                                            <div class="dropdown-list-image mr-3"><img class="rounded-circle" src="assets/img/avatars/avatar4.jpeg">
+                                                <div class="bg-success status-indicator"></div>
+                                            </div>
+                                            <div class="font-weight-bold">
+                                                <div class="text-truncate"><span>Hi there! I am wondering if you can help me with a problem I've been having.</span></div>
+                                                <p class="small text-gray-500 mb-0">Emily Fowler - 58m</p>
+                                            </div>
+                                        </a>
+                                        <a class="d-flex align-items-center dropdown-item" href="#">
+                                            <div class="dropdown-list-image mr-3"><img class="rounded-circle" src="assets/img/avatars/avatar2.jpeg">
+                                                <div class="status-indicator"></div>
+                                            </div>
+                                            <div class="font-weight-bold">
+                                                <div class="text-truncate"><span>I have the photos that you ordered last month!</span></div>
+                                                <p class="small text-gray-500 mb-0">Jae Chun - 1d</p>
+                                            </div>
+                                        </a>
+                                        <a class="d-flex align-items-center dropdown-item" href="#">
+                                            <div class="dropdown-list-image mr-3"><img class="rounded-circle" src="assets/img/avatars/avatar3.jpeg">
+                                                <div class="bg-warning status-indicator"></div>
+                                            </div>
+                                            <div class="font-weight-bold">
+                                                <div class="text-truncate"><span>Last month's report looks great, I am very happy with the progress so far, keep up the good work!</span></div>
+                                                <p class="small text-gray-500 mb-0">Morgan Alvarez - 2d</p>
+                                            </div>
+                                        </a>
+                                        <a class="d-flex align-items-center dropdown-item" href="#">
+                                            <div class="dropdown-list-image mr-3"><img class="rounded-circle" src="assets/img/avatars/avatar5.jpeg">
+                                                <div class="bg-success status-indicator"></div>
+                                            </div>
+                                            <div class="font-weight-bold">
+                                                <div class="text-truncate"><span>Am I a good boy? The reason I ask is because someone told me that people say this to all dogs, even if they aren't good...</span></div>
+                                                <p class="small text-gray-500 mb-0">Chicken the Dog · 2w</p>
+                                            </div>
+                                        </a>
+                                    </div>
+                                </div>
+                            </li>
+                            <div class="d-none d-sm-block topbar-divider"></div>
+                            <li class="nav-item align-self-center dropdown no-arrow" role="presentation"><button class="btn btn-outline-secondary btn-sm text-center float-none" id="backToUsersPage-button" type="button">Back To User's Page</button></li>
+                        </ul>
+                    </div>
+                </nav>
+                <div class="container">
+                    <h6 class="text-primary"><strong style="margin-right: 4px;">RR:</strong><strong id="rrName-label" style="margin-right: 150px;"></strong><strong style="margin-right: 4px;">User:</strong><strong id="rrUser-label"></strong></h6>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="col">
+                        <div class="container">
+                            <h5>Head Branch: &nbsp;<strong id="headBranch-label"></strong>&nbsp;
+                                <div class="btn-group float-right" role="group" style="margin-right: 100px;"><button class="btn btn-info btn-sm" type="button" style="margin-right: 3px;">Push</button><button class="btn btn-info btn-sm" type="button" style="margin-right: 3px;">Pull</button><button class="btn btn-info btn-sm" type="button">New Pull Request</button></div>
+                            </h5>
+                        </div>
+                        <div class="container">
+                            <h6>Commits:</h6>
+                        </div>
+                        <div class="table-responsive" id="commitsTable">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>sha1</th>
+                                        <th>Message</th>
+                                        <th>Creator</th>
+                                        <th>Date Created</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><button class="btn btn-link btn-sm" type="button">sha1</button></td>
+                                        <td>Cell 2</td>
+                                        <td>Cell 3</td>
+                                        <td>Cell 4</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <hr>
+                <div class="row" id="wcSection">
+                    <div class="col">
+                        <div class="container">
+                            <h5 style="margin-bottom: 15px;">Working Copy &nbsp;&nbsp;<button class="btn btn-success btn-sm" id="commit-button" type="button" style="margin-left: 10px;">Commit</button><button class="btn btn-secondary btn-sm float-right" type="button" style="margin-right: 2px;"><em>Create File</em></button>
+                                <label
+                                    class="float-right btn btn-secondary" data-bs-hover-animate="pulse" for="addfile-input" style="height: 31px;font-size: 14px;margin-right: 2px;"><i class="icon ion-plus-round"></i>&nbsp;Add File</label><input class="d-none" type="file" id="addfile-input"></h5>
+                            <ul class="list-group">
+                                <li class="list-group-item"><i class="fas fa-folder" style="color: rgb(241,232,15);"></i><button class="btn btn-link btn-sm border-white" type="button">Folder</button></li>
+                                <li class="list-group-item"><i class="fas fa-folder" style="color: rgb(241,232,15);"></i><button class="btn btn-link btn-sm border-white" type="button">Folder</button></li>
+                                <li class="list-group-item"><i class="fa fa-file-text-o"></i><button class="btn btn-link btn-sm border-white" type="button">File</button></li>
+                                <li class="list-group-item"><i class="fa fa-file-text-o"></i><button class="btn btn-link btn-sm border-white" type="button">File</button></li>
+                            </ul>
+                        </div>
+                        <hr>
+                        <div class="container">
+                            <h6>Open Changes</h6>
+                            <div>
+                                <ul class="nav nav-tabs">
+                                    <li class="nav-item"><a class="nav-link active" role="tab" data-toggle="tab" href="#tab-1">Added</a></li>
+                                    <li class="nav-item"><a class="nav-link" role="tab" data-toggle="tab" href="#tab-2">Updated</a></li>
+                                    <li class="nav-item"><a class="nav-link" role="tab" data-toggle="tab" href="#tab-3">Deleted</a></li>
+                                </ul>
+                                <div class="tab-content">
+                                    <div class="tab-pane active" role="tabpanel" id="tab-1">
+                                        <ul class="list-group" id="addedFiles-list">
+                                            <li class="list-group-item"><i class="fa fa-file-text-o"></i><button class="btn btn-link btn-sm border-white" type="button">File full path</button></li>
+                                            <li class="list-group-item"><i class="fas fa-folder" style="color: rgb(241,232,15);"></i><button class="btn btn-link btn-sm border-white" type="button">Folder full path</button></li>
+                                        </ul>
+                                    </div>
+                                    <div class="tab-pane" role="tabpanel" id="tab-2">
+                                        <ul class="list-group" id="updatedFiles-list">
+                                            <li class="list-group-item"><i class="fa fa-file-text-o"></i><button class="btn btn-link btn-sm border-white" type="button">File full path</button></li>
+                                            <li class="list-group-item"><i class="fas fa-folder" style="color: rgb(241,232,15);"></i><button class="btn btn-link btn-sm border-white" type="button">Folder full path</button></li>
+                                        </ul>
+                                    </div>
+                                    <div class="tab-pane" role="tabpanel" id="tab-3">
+                                        <ul class="list-group" id="deletedFiles-list">
+                                            <li class="list-group-item"><i class="fa fa-file-text-o"></i><button class="btn btn-link btn-sm border-white" type="button">File full path</button></li>
+                                            <li class="list-group-item"><i class="fas fa-folder" style="color: rgb(241,232,15);"></i><button class="btn btn-link btn-sm border-white" type="button">Folder full path</button></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <hr>
+                <div class="row" id="prSection">
+                    <div class="col">
+                        <div class="container">
+                            <h5 style="margin-bottom: 15px;">Pull Requests</h5>
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>User</th>
+                                            <th>Target Branch</th>
+                                            <th>Base Branch</th>
+                                            <th>Date</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>user 1</td>
+                                            <td>Cell 2</td>
+                                            <td>Cell 3</td>
+                                            <td>Cell 3</td>
+                                            <td>open</td>
+                                        </tr>
+                                        <tr>
+                                            <td>user 2</td>
+                                            <td>Cell 4</td>
+                                            <td>Cell 3</td>
+                                            <td>Cell 3</td>
+                                            <td>closed</td>
+                                        </tr>
+                                        <tr>
+                                            <td>user 3</td>
+                                            <td>Cell 2</td>
+                                            <td>Cell 3</td>
+                                            <td>Cell 4</td>
+                                            <td>denied</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div><a class="border rounded d-inline scroll-to-top" href="#page-top"><i class="fas fa-angle-up"></i></a></div>
+    <script src="assets/js/jquery.min.js"></script>
+    <script src="assets/bootstrap/js/bootstrap.min.js"></script>
+    <script src="assets/js/bs-animation.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.js"></script>
+    <script src="assets/js/theme.js"></script>
 </body>
+
 </html>
