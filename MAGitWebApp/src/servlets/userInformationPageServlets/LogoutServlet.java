@@ -1,4 +1,4 @@
-package servlets;
+package servlets.userInformationPageServlets;
 
 import utils.ServletUtils;
 import utils.SessionUtils;
@@ -18,12 +18,9 @@ public class LogoutServlet extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String usernameFromSession = SessionUtils.getUsername(request);
-        UserManager userManager = ServletUtils.getUserManager(getServletContext());
 
         if (usernameFromSession != null) {
-            System.out.println("Clearing session for " + usernameFromSession);
-            userManager.removeUser(usernameFromSession);
-            SessionUtils.clearSession(request);
+            //SessionUtils.clearSession(request);
 
             /*
             when sending redirect, tomcat has a shitty logic how to calculate the URL given, weather its relative or not

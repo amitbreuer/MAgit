@@ -19,4 +19,8 @@ public class SingleUserData {
     public String getUserName() {
         return userName;
     }
+
+    public List<RepositoryData> getRepositoriesDataList() {
+        return repositoriesDataList;
+    }
 }

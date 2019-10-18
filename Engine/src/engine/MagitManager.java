@@ -8,6 +8,7 @@ import org.apache.commons.io.FileUtils;
 import puk.team.course.magit.ancestor.finder.AncestorFinder;
 import puk.team.course.magit.ancestor.finder.CommitRepresentative;
 import tasks.LoadRepositoryFromXmlTask;
+
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileAlreadyExistsException;
@@ -317,7 +318,7 @@ public class MagitManager {
         newDirectory.mkdir();
     }
 
-    private static  Folder.ComponentData getComponentDataFromString(String str) {
+    private static Folder.ComponentData getComponentDataFromString(String str) {
         StringTokenizer tokenizer;
         tokenizer = new StringTokenizer(str, ",");
         Folder.ComponentData newComponentData;
@@ -928,23 +929,23 @@ public class MagitManager {
         createRepositoryFromMagitRepository();
     }
 
-    public void ValidateAndLoadXMLRepositoryFromUploadedFile(String username,String fileInput) throws Exception {
+    public void ValidateAndLoadXMLRepositoryFromUploadedFile(String username, String fileInput) throws Exception {
         this.xmlManager = new XmlManager();
-        this.xmlManager.createMagitRepositoryFromUploadedFile(username,fileInput);
+        this.xmlManager.createMagitRepositoryFromUploadedFile(username, fileInput);
 
         createRepositoryFromMagitRepositoryInUsersDirectory(username);
     }
 
-    private void createRepositoryFromMagitRepositoryInUsersDirectory(String username) throws Exception{
+    private void createRepositoryFromMagitRepositoryInUsersDirectory(String username) throws Exception {
         //deleteDirectory(Paths.get(this.xmlManager.getMagitRepository().getLocation()));
-        CreateEmptyRepository(Constants.usersDirectoryPath+File.separator+username+File.separator+ this.xmlManager.getMagitRepository().getName(), this.xmlManager.getMagitRepository().getName());
+        CreateEmptyRepository(Constants.usersDirectoryPath + File.separator + username + File.separator + this.xmlManager.getMagitRepository().getName(), this.xmlManager.getMagitRepository().getName());
         this.repository.getBranches().clear();
         File masterBranch = new File(this.repository.GetBranchesDirPath() + File.separator + "master.txt");
         masterBranch.delete();
         addMagitRepositoryObjectsToRepository();
-        if(xmlManager.getMagitRepository().getMagitRemoteReference() != null) {
-            if(xmlManager.getMagitRepository().getMagitRemoteReference().getName() != null && !xmlManager.getMagitRepository().getMagitRemoteReference().getName().equals("")
-                    &&  xmlManager.getMagitRepository().getMagitRemoteReference().getLocation() != null && !xmlManager.getMagitRepository().getMagitRemoteReference().getLocation().equals("")){
+        if (xmlManager.getMagitRepository().getMagitRemoteReference() != null) {
+            if (xmlManager.getMagitRepository().getMagitRemoteReference().getName() != null && !xmlManager.getMagitRepository().getMagitRemoteReference().getName().equals("")
+                    && xmlManager.getMagitRepository().getMagitRemoteReference().getLocation() != null && !xmlManager.getMagitRepository().getMagitRemoteReference().getLocation().equals("")) {
                 this.repository.setRemoteRepositoryPath(Paths.get(xmlManager.getMagitRepository().getMagitRemoteReference().getLocation()));
                 this.repository.setRemoteRepositoryname(xmlManager.getMagitRepository().getMagitRemoteReference().getName());
                 createTextFile(repository.getPath() + File.separator + ".magit" + File.separator + "remoteRepositoryPath.txt", repository.getRemoteRepositoryPath().toString());
@@ -969,9 +970,9 @@ public class MagitManager {
         File masterBranch = new File(this.repository.GetBranchesDirPath() + File.separator + "master.txt");
         masterBranch.delete();
         addMagitRepositoryObjectsToRepository();
-        if(xmlManager.getMagitRepository().getMagitRemoteReference() != null) {
-            if(xmlManager.getMagitRepository().getMagitRemoteReference().getName() != null && !xmlManager.getMagitRepository().getMagitRemoteReference().getName().equals("")
-                    &&  xmlManager.getMagitRepository().getMagitRemoteReference().getLocation() != null && !xmlManager.getMagitRepository().getMagitRemoteReference().getLocation().equals("")){
+        if (xmlManager.getMagitRepository().getMagitRemoteReference() != null) {
+            if (xmlManager.getMagitRepository().getMagitRemoteReference().getName() != null && !xmlManager.getMagitRepository().getMagitRemoteReference().getName().equals("")
+                    && xmlManager.getMagitRepository().getMagitRemoteReference().getLocation() != null && !xmlManager.getMagitRepository().getMagitRemoteReference().getLocation().equals("")) {
                 this.repository.setRemoteRepositoryPath(Paths.get(xmlManager.getMagitRepository().getMagitRemoteReference().getLocation()));
                 this.repository.setRemoteRepositoryname(xmlManager.getMagitRepository().getMagitRemoteReference().getName());
                 createTextFile(repository.getPath() + File.separator + ".magit" + File.separator + "remoteRepositoryPath.txt", repository.getRemoteRepositoryPath().toString());
@@ -1362,8 +1363,8 @@ public class MagitManager {
 
     public void CloneRepository(String RRPath, String LRPath, String LRName) throws Exception {
         String RRName;
-        if(!Files.exists(Paths.get(RRPath + File.separator + ".magit"))){
-            throw new Exception("LR path is not repository ");
+        if (!Files.exists(Paths.get(RRPath + File.separator + ".magit"))) {
+            throw new Exception("RR path is not repository ");
         }
         try {
             RRName = convertTextFileToString(RRPath + File.separator + ".magit" + File.separator + "repositoryName.txt");
@@ -1390,7 +1391,7 @@ public class MagitManager {
             new File(this.repository.GetBranchesDirPath() + File.separator + RRName).mkdirs();
             Map<String, Branch> branches = this.repository.getBranches();
             String branchesDirPath = this.repository.GetBranchesDirPath();
-            Map<String,Branch> updatedBranches = new HashMap<>();
+            Map<String, Branch> updatedBranches = new HashMap<>();
             Branch RBHeadBranch = null;
             for (Map.Entry<String, Branch> entry : branches.entrySet()) {
                 Branch branch = entry.getValue();
@@ -1399,14 +1400,14 @@ public class MagitManager {
                     writeToFile(branchesDirPath + File.separator + RRName + File.separator + branch.getName() + ".txt", branch.getLastCommit().Sha1Commit());
                     RBHeadBranch = new Branch(RRName + "\\" + branch.getName(), branch.getLastCommit());
                     RBHeadBranch.setIsRB(true);
-                    updatedBranches.put(RBHeadBranch.getName(),RBHeadBranch);
+                    updatedBranches.put(RBHeadBranch.getName(), RBHeadBranch);
                 } else {
                     branch.setIsRB(true);
                     File fileToMove = new File(branchesDirPath + File.separator + branch.getName() + ".txt");
                     fileToMove.renameTo(new File(branchesDirPath + File.separator + RRName + File.separator + branch.getName() + ".txt"));
                     branch.setName(RRName + "\\" + branch.getName());
                 }
-                updatedBranches.put(branch.getName(),branch);
+                updatedBranches.put(branch.getName(), branch);
             }
             this.repository.setBranches(updatedBranches);
         } catch (IOException e) {
@@ -1571,24 +1572,24 @@ public class MagitManager {
         }
     }
 
-    public void PushNoneRTBToRR(){
+    public void PushNoneRTBToRR() {
         Branch LRHeadBranch = this.repository.getHeadBranch();
 
         Path LRPath = this.repository.getPath();
         Path RRPath = this.repository.getRemoteRepositoryPath();
 
-        copyCommitsObjectFilesBetweenRepositories(LRHeadBranch.getLastCommit().getSha1(),LRPath,RRPath);
+        copyCommitsObjectFilesBetweenRepositories(LRHeadBranch.getLastCommit().getSha1(), LRPath, RRPath);
 
         LRHeadBranch.setIsRTB(true);
         String newRBName = this.repository.getRemoteRepositoryname() + "\\" + LRHeadBranch.getName();
-        Branch newRB = new Branch(newRBName,LRHeadBranch.getLastCommit());
+        Branch newRB = new Branch(newRBName, LRHeadBranch.getLastCommit());
         newRB.setIsRB(true);
-        this.repository.getBranches().put(newRBName,newRB);
+        this.repository.getBranches().put(newRBName, newRB);
 
         String newRRBranchFilePath = this.repository.GetRemoteRepositoryBranchesDirPath() +
                 File.separator + LRHeadBranch.getName() + ".txt";
         try {
-            createTextFile(newRRBranchFilePath,LRHeadBranch.getLastCommit().getSha1());
+            createTextFile(newRRBranchFilePath, LRHeadBranch.getLastCommit().getSha1());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -1646,5 +1647,24 @@ public class MagitManager {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+
+    public void Fork(String currentUserName, String otherUserName, String otherUserRepositoryName) throws Exception {
+        String RRPath = Constants.usersDirectoryPath + File.separator + otherUserName + File.separator + otherUserRepositoryName;
+        String LRPath = Constants.usersDirectoryPath + File.separator + currentUserName + File.separator + otherUserRepositoryName;
+
+        CloneRepository(RRPath, LRPath, otherUserName);
+    }
+
+    public String getRRPath() {
+        String pathToConvert = this.repository.getPath().toString() + File.separator + ".magit" + File.separator + "remoteRepositoryPath.txt";
+        String RRFullPath =null;
+        try {
+             RRFullPath =convertTextFileToString(pathToConvert);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return RRFullPath;
     }
 }

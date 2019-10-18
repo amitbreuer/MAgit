@@ -1,4 +1,4 @@
-package servlets;
+package servlets.loginPageServlet;
 
 import constants.Constants;
 import utils.ServletUtils;
