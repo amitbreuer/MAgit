@@ -2,6 +2,7 @@ var REPOSITORY_NAME_AND_RR_DATA_URL = buildUrlWithContextPath("repositoryNameAnd
 var HEAD_BRANCH_INFORMATION_URL = buildUrlWithContextPath("headBranchInformation");
 var MAIN_FOLDER_OF_COMMIT_URL = buildUrlWithContextPath("mainFolderOfCommit");
 var REPOSITORY_NAME;
+var WC_STATUS_URL = buildUrlWithContextPath("wcStatus");
 
 function setRepositoryName(name) {
     //$("#repositoryName").val(name);
@@ -33,10 +34,79 @@ function ajaxRepositoryNameAndRRDataCallback(repositoryNameAndRRData) {
     }
 }
 
+function addTextFileItem(folderComponent,containingFolderId,index) {
+    var textFileItem = "<div class=\"card\">\n" +
+        "<div role=\"tab\" class=\"card-header\">\n" +
+        "<h5 class=\"mb-0\"><a data-toggle=\"collapse\" aria-expanded=\"false\" aria-controls=\""+containingFolderId+" .item-"+index+"\" href=\"#"+containingFolderId+" .item-"+index+"\" style=\"font-size: 14px;\"><i class=\"fa fa-file-text-o\"></i> "+folderComponent.name+"</a></h5>\n" +
+        "</div>\n" +
+        "<div class=\"collapse item-"+index+"\" data-parent=\"#"+containingFolderId+"\" role=\"tabpanel\" >\n" +
+        "<div class=\"card-body\">\n" +
+        "<p class=\"card-text\">"+folderComponent.folderComponent.content+"</p>\n" +
+        "</div>\n" +
+        "</div>\n" +
+        "</div>\n";
+
+    $("#"+containingFolderId+"").append(textFileItem);
+}
+
+function addFolderItem(folderComponent,containingFolderId,index) {
+    var components = folderComponent.folderComponent.components;
+    var folderItem = "<div class=\"card\">\n" +
+        "<div role=\"tab\" class=\"card-header\">\n" +
+        "<h5 class=\"mb-0\"><a data-toggle=\"collapse\" aria-expanded=\"false\" aria-controls=\""+containingFolderId+" .item-"+index+"\" href=\"#"+containingFolderId+" .item-"+index+"\" style=\"font-size: 14px;\"><i class=\"fas fa-folder\" style=\"color: rgb(241,232,15);\"></i> "+folderComponent.name+"</a></h5>\n" +
+        "</div>\n"+
+        "<div role=\"tabpanel\" data-parent=\"#"+containingFolderId+"\" class=\"collapse item-"+index+"\">\n" +
+        "<div class=\"card-body\">" +
+        "<div role=\"tablist\" id=\""+folderComponent.name+"-accordion\"></div>\n" +
+        "</div>\n" +
+        "</div>\n" +
+        "</div>\n";
+
+    $("#"+containingFolderId+"").append(folderItem);
+
+    for(var i=0;i<components.length;i++) {
+
+        if(components[i].folderComponent.content) { // blob
+            addTextFileItem(components[i],folderComponent.name + "-accordion",i+1);
+        } else {
+            addFolderItem(components[i],folderComponent.name + "-accordion",i+1);
+        }
+    }
+}
+
+function addFileItemToWCDisplay(folderComponent,index) {
+
+    if(folderComponent.folderComponent.content) { // blob
+        addTextFileItem(folderComponent,"wc-accordion",index);
+    } else { // folder
+        addFolderItem(folderComponent,"wc-accordion",index);
+    }
+}
+
+function showWCStatus(wcFolderData) {
+    var folderComponents = wcFolderData.components;
+    for(var i=0;i<folderComponents.length;i++) {
+        addFileItemToWCDisplay(folderComponents[i],i+1);
+    }
+}
+
+function ajaxWCFiles() {
+    $.ajax({
+        url: WC_STATUS_URL,
+        data: {
+            currentWatchedRepository : "rep 1"
+        },
+        success: showWCStatus
+    })
+}
+
 $(function () {
     console.log("initializing window");
     ajaxRepositoryNameAndRRData();
     ajaxHeadBranchInformation()
+    //ajaxRepositoryNameAndRRData();
+    //ajaxBranchesInfo();
+    ajaxWCFiles();
 });
 
 
@@ -77,7 +147,7 @@ function addCommitMainFolderComponentsToCommitDisplay(commitSha1,commitMainFolde
     var commitMainFolderElementId= commitSha1+"-main-folder";
     document.getElementById(commitMainFolderElementId).innerHTML="";
     document.getElementById(commitMainFolderElementId).append("amitMethod");
-    
+
 }
 
 function addSingleCommitToHeadBranchCommitsDisplay(headBranchSingleCommitData) {

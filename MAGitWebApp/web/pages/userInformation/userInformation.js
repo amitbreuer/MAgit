@@ -173,17 +173,6 @@ function addSingleRepositoryDataToOtherUser(otherUserSingleRepositoryData, other
 
 }
 
-
-/*function ajaxFork(otherUserName, otherUserRepositoryName, callback) {
-    $.ajax({
-        url: FORK_URL,
-        dataType: "json",
-        success: function (message) {
-            callback(message);
-        }
-    });
-}*/
-
 function showOtherUserRepositories(otherUsername) {
     $("#accordion-2").empty();
     var otherUserData = findOtherUserDataInList(otherUsername);
@@ -270,5 +259,5 @@ function refreshOtherUsersDisplay() {
 }
 
 $(function () {
-    //setInterval(refreshOtherUsersDisplay, 2000);
+    setInterval(refreshOtherUsersDisplay, 5000);
 });

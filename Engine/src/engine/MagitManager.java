@@ -8,7 +8,6 @@ import org.apache.commons.io.FileUtils;
 import puk.team.course.magit.ancestor.finder.AncestorFinder;
 import puk.team.course.magit.ancestor.finder.CommitRepresentative;
 import tasks.LoadRepositoryFromXmlTask;
-
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileAlreadyExistsException;
@@ -126,7 +125,7 @@ public class MagitManager {
         }
     }
 
-    private Folder createFolderFromWC(Path currentPath, String currentDate) throws IOException {
+    public Folder createFolderFromWC(Path currentPath, String currentDate) throws IOException {
         Folder folderToCreate = new Folder();
         List<File> wcFiles = Arrays.asList(currentPath.toFile().listFiles());
         String sha1;
@@ -941,7 +940,7 @@ public class MagitManager {
         createRepositoryFromMagitRepositoryInUsersDirectory(username);
     }
 
-    private void createRepositoryFromMagitRepositoryInUsersDirectory(String username) throws Exception {
+    private void createRepositoryFromMagitRepositoryInUsersDirectory(String username) throws Exception{
         //deleteDirectory(Paths.get(this.xmlManager.getMagitRepository().getLocation()));
         CreateEmptyRepository(Constants.usersDirectoryPath + File.separator + username + File.separator + this.xmlManager.getMagitRepository().getName(), this.xmlManager.getMagitRepository().getName());
         this.repository.getBranches().clear();

@@ -3,17 +3,20 @@
          xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd"
          version="4.0">
 
+
     <servlet>
         <servlet-name>LoginServlet</servlet-name>
         <servlet-class>servlets.loginPageServlet.LoginServlet</servlet-class>
     </servlet>
-    <servlet>
-        <servlet-name>MainFolderOfCommitServlet</servlet-name>
-        <servlet-class>servlets.repositoryInformationPageServlets.MainFolderOfCommitServlet</servlet-class>
-    </servlet>
+
     <servlet>
         <servlet-name>HeadBranchInformationServlet </servlet-name>
         <servlet-class>servlets.repositoryInformationPageServlets.HeadBranchInformationServlet </servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>MainFolderOfCommitServlet</servlet-name>
+        <servlet-class>servlets.repositoryInformationPageServlets.MainFolderOfCommitServlet</servlet-class>
     </servlet>
 
     <servlet>
@@ -22,28 +25,38 @@
     </servlet>
 
     <servlet>
-        <servlet-name>LogoutServlet</servlet-name>
-        <servlet-class>servlets.userInformationPageServlets.LogoutServlet</servlet-class>
-    </servlet>
-    <servlet>
         <servlet-name>CurrentUserInformationServlet</servlet-name>
         <servlet-class>servlets.userInformationPageServlets.CurrentUserInformationServlet</servlet-class>
     </servlet>
-    <servlet>
-        <servlet-name>OtherUsersInformationServlet</servlet-name>
-        <servlet-class>servlets.userInformationPageServlets.OtherUsersInformationServlet</servlet-class>
-    </servlet>
-    <servlet>
-        <servlet-name>NewRepositoryServlet</servlet-name>
-        <servlet-class>servlets.userInformationPageServlets.NewRepositoryServlet</servlet-class>
-    </servlet>
+
     <servlet>
         <servlet-name>ForkServlet</servlet-name>
         <servlet-class>servlets.userInformationPageServlets.ForkServlet</servlet-class>
     </servlet>
+
+    <servlet>
+        <servlet-name>LogoutServlet</servlet-name>
+        <servlet-class>servlets.userInformationPageServlets.LogoutServlet</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>NewRepositoryServlet</servlet-name>
+        <servlet-class>servlets.userInformationPageServlets.NewRepositoryServlet</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>OtherUsersInformationServlet</servlet-name>
+        <servlet-class>servlets.userInformationPageServlets.OtherUsersInformationServlet</servlet-class>
+    </servlet>
+
     <servlet>
         <servlet-name>WatchRepositoryServlet</servlet-name>
         <servlet-class>servlets.userInformationPageServlets.WatchRepositoryServlet</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>WCStatusServlet</servlet-name>
+        <servlet-class>servlets.repositoryInformationPageServlets.WCStatusServlet</servlet-class>
     </servlet>
 
     <servlet-mapping>
@@ -76,21 +89,30 @@
         <servlet-name>CurrentUserInformationServlet</servlet-name>
         <url-pattern>/currentUserInformation</url-pattern>
     </servlet-mapping>
+
     <servlet-mapping>
         <servlet-name>OtherUsersInformationServlet</servlet-name>
         <url-pattern>/otherUsersInformation</url-pattern>
     </servlet-mapping>
+
     <servlet-mapping>
         <servlet-name>NewRepositoryServlet</servlet-name>
         <url-pattern>/newRepository</url-pattern>
     </servlet-mapping>
+
     <servlet-mapping>
         <servlet-name>ForkServlet</servlet-name>
         <url-pattern>/fork</url-pattern>
     </servlet-mapping>
+
     <servlet-mapping>
         <servlet-name>WatchRepositoryServlet</servlet-name>
         <url-pattern>/watchRepository</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>WCStatusServlet</servlet-name>
+        <url-pattern>/wcStatus</url-pattern>
     </servlet-mapping>
 
 </web-app>
