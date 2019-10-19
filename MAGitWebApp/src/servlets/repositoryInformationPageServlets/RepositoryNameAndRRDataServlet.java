@@ -17,6 +17,7 @@ import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 public class RepositoryNameAndRRDataServlet extends HttpServlet {
 
@@ -29,20 +30,21 @@ public class RepositoryNameAndRRDataServlet extends HttpServlet {
         String currentUserName = SessionUtils.getUsername(request);
         String currentWatchedRepository = SessionUtils.getCurrentWatchedRepository(request);
         data.add(currentWatchedRepository);
-String RRPath;
+        String RRPath;
         User currentUser = userManager.getUser(currentUserName);
         if (currentUser.getMagitManager().isTrackingRemoteRepository()) {
             RRPath = currentUser.getMagitManager().getRRPath();
-
-
-            data.add();
-            data.add();
+            final String[] tokens = RRPath.split(Pattern.quote("\\"));
+            String RRUser = tokens[2];
+            String RRName = tokens[3];
+            data.add(RRUser);
+            data.add(RRName);
 
         }
 
         try (PrintWriter out = response.getWriter()) {
             Gson gson = new Gson();
-            String json = gson.toJson(newUrl);
+            String json = gson.toJson(data);
             out.println(json);
             out.flush();
         }

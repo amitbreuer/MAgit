@@ -596,7 +596,7 @@ public class MagitManager {
         if (this.repository.getHeadBranch().getLastCommit() == null) {
             branchHistory.append("There are no commits in current branch");
         } else {
-            List<Commit> activeBranchCommits = getAllCommitsOfActiveBranch();
+            List<Commit> activeBranchCommits = GetAllCommitsOfActiveBranch();
 
             branchHistory.append("All the commits in this branch: \r\n");
             for (Commit currentCommit : activeBranchCommits) {
@@ -620,16 +620,21 @@ public class MagitManager {
         return branchHistory.toString();
     }
 
-    private List<Commit> getAllCommitsOfActiveBranch() throws IOException {
+    public List<Commit> GetAllCommitsOfActiveBranch() {
+        return GetAllCommitsOfBranch(this.GetHeadBranchName());
+    }
+
+
+    public List<Commit> GetAllCommitsOfBranch(String branchName) {
         List<Commit> allCommits = new ArrayList<>();
-        Commit currentCommit = this.repository.getHeadBranch().getLastCommit();
+        Commit currentCommit = this.repository.getBranches().get(branchName).getLastCommit();
         String prevCommitSha1;
 
         if (currentCommit != null) {
             allCommits.add(currentCommit);
             prevCommitSha1 = currentCommit.getPrevCommitSha1();
 
-            while (prevCommitSha1 != null) {
+            while (prevCommitSha1 != null &&!prevCommitSha1.equals("")) {
                 currentCommit = CreateCommitFromSha1(prevCommitSha1, this.repository.GetObjectsDirPath());
                 allCommits.add(currentCommit);
                 prevCommitSha1 = currentCommit.getPrevCommitSha1();
@@ -954,7 +959,7 @@ public class MagitManager {
         spanWCFromCommit(this.repository.getHeadBranch().getLastCommit(), this.repository.getPath());
     }
 
-    private void deleteDirectory(Path path) {
+    public static void deleteDirectory(Path path) {
         File file = path.toFile();
         if (file.isDirectory()) {
             for (File f : file.listFiles())
@@ -1666,5 +1671,18 @@ public class MagitManager {
             e.printStackTrace();
         }
         return RRFullPath;
+    }
+
+    public void SwitchToRepositoryFromUsersDirectory(String currentUserName, String repositoryName) {
+        String directoryPath = Constants.usersDirectoryPath+File.separator+currentUserName+File.separator+repositoryName;
+        try {
+            SwitchRepository(directoryPath);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void SetRepository(Repository repository) {
+        this.repository = repository;
     }
 }

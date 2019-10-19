@@ -8,6 +8,20 @@
         <servlet-class>servlets.loginPageServlet.LoginServlet</servlet-class>
     </servlet>
     <servlet>
+        <servlet-name>MainFolderOfCommitServlet</servlet-name>
+        <servlet-class>servlets.repositoryInformationPageServlets.MainFolderOfCommitServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>HeadBranchInformationServlet </servlet-name>
+        <servlet-class>servlets.repositoryInformationPageServlets.HeadBranchInformationServlet </servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>RepositoryNameAndRRDataServlet</servlet-name>
+        <servlet-class>servlets.repositoryInformationPageServlets.RepositoryNameAndRRDataServlet</servlet-class>
+    </servlet>
+
+    <servlet>
         <servlet-name>LogoutServlet</servlet-name>
         <servlet-class>servlets.userInformationPageServlets.LogoutServlet</servlet-class>
     </servlet>
@@ -36,10 +50,28 @@
         <servlet-name>LoginServlet</servlet-name>
         <url-pattern>/pages/login/login</url-pattern>
     </servlet-mapping>
+
+<servlet-mapping>
+        <servlet-name>MainFolderOfCommitServlet</servlet-name>
+        <url-pattern>/mainFolderOfCommit</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>RepositoryNameAndRRDataServlet</servlet-name>
+        <url-pattern>/repositoryNameAndRRData</url-pattern>
+    </servlet-mapping>
+
     <servlet-mapping>
         <servlet-name>LogoutServlet</servlet-name>
         <url-pattern>/logout</url-pattern>
     </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>HeadBranchInformationServlet </servlet-name>
+        <url-pattern>/headBranchInformation</url-pattern>
+    </servlet-mapping>
+
+
     <servlet-mapping>
         <servlet-name>CurrentUserInformationServlet</servlet-name>
         <url-pattern>/currentUserInformation</url-pattern>

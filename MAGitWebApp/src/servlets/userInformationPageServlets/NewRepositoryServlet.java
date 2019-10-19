@@ -32,6 +32,7 @@ public class NewRepositoryServlet extends HttpServlet {
             out.println(gson.toJson("The repository was uploaded successfully"));
             String repositoryName = user.getMagitManager().getRepositoryName();
             user.CreateRepositoryDataForNewRepository(repositoryName);
+            user.getMagitManager().SetRepository(null);
         } catch (Exception e) {
             out.println(gson.toJson("error: "+ e.getMessage()+".\n the repository was not loaded") );
         }

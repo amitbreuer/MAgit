@@ -2,6 +2,7 @@ package servlets.userInformationPageServlets;
 
 import com.google.gson.Gson;
 import constants.Constants;
+import engine.users.User;
 import engine.users.UserManager;
 import utils.ServletUtils;
 import utils.SessionUtils;
@@ -21,8 +22,12 @@ public class WatchRepositoryServlet extends HttpServlet {
 
         response.setContentType("application/json");
         UserManager userManager = ServletUtils.getUserManager(getServletContext());
-        String repositoryNameFromParameter = request.getParameter("repositoryName");
-        request.getSession(true).setAttribute(Constants.CURRENT_WATCHED_REPOSITORY, repositoryNameFromParameter);
+        String currentUserName = SessionUtils.getUsername(request);
+        User currentUser = userManager.getUser(currentUserName);
+        String repositoryName= request.getParameter("repositoryName");
+
+        currentUser.getMagitManager().SwitchToRepositoryFromUsersDirectory(currentUserName,repositoryName);
+        request.getSession(true).setAttribute(Constants.CURRENT_WATCHED_REPOSITORY, repositoryName);
         String newUrl = "pages/repositoryInformation/repositoryInformation.html";
         try (PrintWriter out = response.getWriter()) {
             Gson gson = new Gson();

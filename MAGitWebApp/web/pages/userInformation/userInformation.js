@@ -96,6 +96,11 @@ function ajaxNewRepository(file, callback) {
     function repositoryAjaxSucceededCallback(message) {
         ShowMessage(message);
         $(fileInput).val(null);
+
+        ajaxCurrentUserData(function (currentUserData) {
+            ajaxCurrentUserDataCallback(currentUserData);
+            showCurrentUserRepositories();
+        });
     }
 
 }
