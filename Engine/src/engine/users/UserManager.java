@@ -17,29 +17,28 @@ of the user of this class to handle the synchronization of isUserExists with oth
  */
 public class UserManager {
 
-    private final Set<String> usersSet;
-    private MagitManager magitManager;
+    private final Map<String,User> usersMap;
 
     public UserManager() {
-        usersSet = new HashSet<>();
-        magitManager = new MagitManager();
+        usersMap = new HashMap<>();
     }
 
     public synchronized void addUser(String username) {
-        usersSet.add(username);
+        User newUser = new User(username);
+        usersMap.put(username,newUser);
         new File("c:" + File.separator + "magit-ex3" + File.separator + username).mkdir();
     }
 
     public synchronized void removeUser(String username) {
-        usersSet.remove(username);
+        usersMap.remove(username);
     }
 
-    public synchronized Set<String> getUsers() {
-        return Collections.unmodifiableSet(usersSet);
+    public synchronized Map<String,User> getUsers() {
+        return Collections.unmodifiableMap(usersMap);
     }
 
     public boolean isUserExists(String username) {
-        return usersSet.contains(username);
+        return usersMap.containsKey(username);
     }
 
     private SingleUserData getUserData(String userName) {
@@ -79,7 +78,7 @@ public class UserManager {
         userData.AddRepositoryDataToRepositorysDataList(repositoryData);
     }
 
-    public AllUsersData GetAllUsersData(String currentUserName) {
+   /* public AllUsersData GetAllUsersData(String currentUserName) {
         AllUsersData allUsersData = new AllUsersData();
         SingleUserData userDataToAdd;
         File usersDirectory = new File(Constants.usersDirectoryPath);
@@ -93,13 +92,9 @@ public class UserManager {
             }
         }
         return allUsersData;
-    }
+    }*/
 
-    public MagitManager getMagitManager() {
-        return magitManager;
-    }
-
-    public SingleUserData GetCurrentUserData(String currentUserName) {
+   /* public SingleUserData GetCurrentUserData(String currentUserName) {
         SingleUserData currentUserData;
         String currentUserDirectoryPath = Constants.usersDirectoryPath + File.separator + currentUserName;
         if (!Files.exists(Paths.get(currentUserDirectoryPath))) {
@@ -109,9 +104,9 @@ public class UserManager {
             currentUserData = getUserData(currentUserName);
             return currentUserData;
         }
-    }
+    }*/
 
-    public List<SingleUserData> GetOtherUsersData(String currentUserName) {
+    /*public List<SingleUserData> GetOtherUsersData(String currentUserName) {
         List<SingleUserData> otherUsersData = new ArrayList<>();
 
         SingleUserData userDataToAdd;
@@ -124,5 +119,9 @@ public class UserManager {
             }
         }
         return otherUsersData;
+    }
+*/
+    public User getUser(String username) {
+        return usersMap.get(username);
     }
 }

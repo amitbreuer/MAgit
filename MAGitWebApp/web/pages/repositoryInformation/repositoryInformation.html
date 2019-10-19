@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html style="scroll-behavior: smooth;">
+<html lang="en" style="scroll-behavior: smooth;">
 
 <head>
     <meta charset="utf-8">
@@ -13,6 +13,10 @@
     <link rel="stylesheet" href="assets/fonts/typicons.min.css">
     <link rel="stylesheet" href="assets/fonts/fontawesome5-overrides.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css">
+
+    <script src="../../common/jquery-3.4.1.min.js"></script>
+    <script src="../../common/context-path-helper.js"></script>
+    <script src="repositoryInformation.js"></script>;
 </head>
 
 <body id="page-top">
@@ -115,26 +119,7 @@
                         <div class="container">
                             <h6>Commits:</h6>
                         </div>
-                        <div class="table-responsive" id="commitsTable">
-                            <table class="table">
-                                <thead>
-                                    <tr>
-                                        <th>sha1</th>
-                                        <th>Message</th>
-                                        <th>Creator</th>
-                                        <th>Date Created</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td><button class="btn btn-link btn-sm" type="button">sha1</button></td>
-                                        <td>Cell 2</td>
-                                        <td>Cell 3</td>
-                                        <td>Cell 4</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
+                        <div role="tablist" id="headbranch-commits-accordion"></div>
                     </div>
                 </div>
                 <hr>
@@ -144,12 +129,7 @@
                             <h5 style="margin-bottom: 15px;">Working Copy &nbsp;&nbsp;<button class="btn btn-success btn-sm" id="commit-button" type="button" style="margin-left: 10px;">Commit</button><button class="btn btn-secondary btn-sm float-right" type="button" style="margin-right: 2px;"><em>Create File</em></button>
                                 <label
                                     class="float-right btn btn-secondary" data-bs-hover-animate="pulse" for="addfile-input" style="height: 31px;font-size: 14px;margin-right: 2px;"><i class="icon ion-plus-round"></i>&nbsp;Add File</label><input class="d-none" type="file" id="addfile-input"></h5>
-                            <ul class="list-group">
-                                <li class="list-group-item"><i class="fas fa-folder" style="color: rgb(241,232,15);"></i><button class="btn btn-link btn-sm border-white" type="button">Folder</button></li>
-                                <li class="list-group-item"><i class="fas fa-folder" style="color: rgb(241,232,15);"></i><button class="btn btn-link btn-sm border-white" type="button">Folder</button></li>
-                                <li class="list-group-item"><i class="fa fa-file-text-o"></i><button class="btn btn-link btn-sm border-white" type="button">File</button></li>
-                                <li class="list-group-item"><i class="fa fa-file-text-o"></i><button class="btn btn-link btn-sm border-white" type="button">File</button></li>
-                            </ul>
+                            <div role="tablist" id="wc-accordion"></div>
                         </div>
                         <hr>
                         <div class="container">

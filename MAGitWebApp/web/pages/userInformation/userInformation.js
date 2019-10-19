@@ -1,7 +1,9 @@
 //var USERS_DATA_URL = buildUrlWithContextPath("usersInformation");
 var CURRENT_USER_DATA_URL = buildUrlWithContextPath("currentUserInformation");
+var WATCH_URL = buildUrlWithContextPath("watchRepository");
 var OTHER_USERS_DATA_URL = buildUrlWithContextPath("otherUsersInformation");
 var NEW_REPOSITORY_URL = buildUrlWithContextPath("newRepository");
+var FORK_URL = buildUrlWithContextPath("fork");
 var CURRENT_USER_DATA;
 var OTHER_USERS_DATA;
 
@@ -9,14 +11,17 @@ function updateCurrentUserButton() {
     var currentUserButton = document.getElementById("currentUser");
     currentUserButton.innerHTML = CURRENT_USER_DATA.userName;
     currentUserButton.onclick = function () {
-        showCurrentUserRepositories();
+        ajaxCurrentUserData(function (currentUserData) {
+            ajaxCurrentUserDataCallback(currentUserData);
+            showCurrentUserRepositories();
+        });
     };
 }
 
-function createCurrentUserSingleRepositoryData(currentUserSingleRepositoryData,watchButtonID) {
+function createCurrentUserSingleRepositoryData(currentUserSingleRepositoryData, watchButtonID) {
     return "<div class=\"card repositoryItem\">\n" +
         "<div class=\"card-header\" role=\"tab\">\n" +
-        "<h5 class=\"mb-0\"><a data-toggle=\"collapse\" aria-expanded=\"true\" aria-controls=\"accordion-2 .item-1\" href=\"#accordion-2 .item-1\">" + currentUserSingleRepositoryData.name + "</a><button id='"+watchButtonID+"' class=\"btn btn-primary btn-sm float-right\" type=\"button\">Watch</button></h5>\n" +
+        "<h5 class=\"mb-0\"><a data-toggle=\"collapse\" aria-expanded=\"true\" aria-controls=\"accordion-2 .item-1\" href=\"#accordion-2 .item-1\">" + currentUserSingleRepositoryData.name + "</a><button id='" + watchButtonID + "' class=\"btn btn-primary btn-sm float-right\" type=\"button\">Watch</button></h5>\n" +
         "</div>\n" +
         "<div class=\"collapse show item-1 repositoryData\" role=\"tabpanel\" data-parent=\"#accordion-2\">\n" +
         "<div class=\"card-body\"><small class =\"d-md-flex justify-content-md-start\">Active branch: &nbsp" + currentUserSingleRepositoryData.activeBranchName + "</small>" +
@@ -27,13 +32,28 @@ function createCurrentUserSingleRepositoryData(currentUserSingleRepositoryData,w
         "</div>";
 }
 
+function ajaxWatch(repositoryName) {
+    $.ajax({
+        url: WATCH_URL,
+        dataType:"json",
+        data:{
+            repositoryName : repositoryName
+        },
+        success:function(newUrl){
+            var fullUrl = buildUrlWithContextPath(newUrl);
+            window.location.replace(fullUrl);
+        }
+    });
+
+}
+
 function watch(repositoryName) {
-    console.log("watch execution");
+    ajaxWatch(repositoryName);
 }
 
 function addSingleRepositoryDataToCurrentUser(index, currentUserSingleRepositoryData) {
-    var watchButtonID ="watch"+ currentUserSingleRepositoryData.name;
-    var singleRepositoryDataButton = createCurrentUserSingleRepositoryData(currentUserSingleRepositoryData,watchButtonID);
+    var watchButtonID = "watch-" + currentUserSingleRepositoryData.name;
+    var singleRepositoryDataButton = createCurrentUserSingleRepositoryData(currentUserSingleRepositoryData, watchButtonID);
 
     $("#accordion-2").append(singleRepositoryDataButton);
     document.getElementById(watchButtonID).onclick = function () {
@@ -46,8 +66,6 @@ function showCurrentUserRepositories() {
 
     $.each(CURRENT_USER_DATA.repositoriesDataList || [], addSingleRepositoryDataToCurrentUser);
 }
-
-
 
 function addNewRepositoryToCurrentUser(event) {
     var file = event.target.files[0];
@@ -107,7 +125,7 @@ function createOtherUserSingleRepositoryData(otherUserSingleRepositoryData, fork
 
     return "<div class=\"card otherUsersRepositoryItem\">\n" +
         "<div class=\"card-header\" role=\"tab\">\n" +
-        "<h5 class=\"mb-0\"><a data-toggle=\"collapse\" aria-expanded=\"true\" aria-controls=\"accordion-2 .item-1\" href=\"#accordion-2 .item-1\">" + otherUserSingleRepositoryData.name + "</a><button class=\"btn btn-primary btn-sm float-right\" type=\"button\">Fork</button></h5>\n" +
+        "<h5 class=\"mb-0\"><a data-toggle=\"collapse\" aria-expanded=\"true\" aria-controls=\"accordion-2 .item-1\" href=\"#accordion-2 .item-1\">" + otherUserSingleRepositoryData.name + "</a><button id='" + forkButtonID + "' class=\"btn btn-primary btn-sm float-right\" type=\"button\">Fork</button></h5>\n" +
         "</div>\n" +
         "<div class=\"collapse show item-1 repositoryData\" role=\"tabpanel\" data-parent=\"#accordion-2\">\n" +
         "<div class=\"card-body\"><small class=\"d-md-flex justify-content-md-start\">Active branch: &nbsp" + otherUserSingleRepositoryData.activeBranchName + "</small>" +
@@ -117,23 +135,54 @@ function createOtherUserSingleRepositoryData(otherUserSingleRepositoryData, fork
         "</div>\n" +
         "</div>";
 
-
 }
 
-function fork() {
-
+function ajaxFork(otherUserName, otherUserRepositoryName, callback) {
+    $.ajax({
+        url: FORK_URL,
+        data:{
+            otherUserName : otherUserName,
+            otherUserRepositoryName: otherUserRepositoryName
+        },
+        success: function (message) {
+            callback(message);
+        }
+    });
 }
 
-function addSingleRepositoryDataToOtherUser(index, otherUserSingleRepositoryData) {
+function fork(otherUserName, otherUserRepositoryName) {
+    ajaxFork(otherUserName, otherUserRepositoryName, ShowMessage);
+}
 
-    var singleRepositoryDataButton = createOtherUserSingleRepositoryData(otherUserSingleRepositoryData);
+function addSingleRepositoryDataToOtherUser(otherUserSingleRepositoryData, otherUserName) {
+    var forkButtonID = "fork-" + otherUserName + '-' + otherUserSingleRepositoryData.name;
+
+    var singleRepositoryDataButton = createOtherUserSingleRepositoryData(otherUserSingleRepositoryData, forkButtonID);
     $("#accordion-2").append(singleRepositoryDataButton);
+    document.getElementById(forkButtonID).onclick = function (ev) {
+        fork(otherUserName, otherUserSingleRepositoryData.name);
+    }
+
+
 }
+
+
+/*function ajaxFork(otherUserName, otherUserRepositoryName, callback) {
+    $.ajax({
+        url: FORK_URL,
+        dataType: "json",
+        success: function (message) {
+            callback(message);
+        }
+    });
+}*/
 
 function showOtherUserRepositories(otherUsername) {
     $("#accordion-2").empty();
     var otherUserData = findOtherUserDataInList(otherUsername);
-    $.each(otherUserData.repositoriesDataList || [], addSingleRepositoryDataToOtherUser)
+    for (var i = 0; otherUserData.repositoriesDataList.length; i++) {
+        addSingleRepositoryDataToOtherUser(otherUserData.repositoriesDataList[i], otherUsername);
+    }
 }
 
 function addSingleOtherUserButton(index, otherUserData) {
@@ -177,13 +226,11 @@ function ajaxOtherUsersData(callback) {
     });
 }
 
-
 function ajaxOtherUsersDataCallback(otherUsersData) {
     OTHER_USERS_DATA = otherUsersData;
     refreshOtherUsersList();
 
 }
-
 
 function initializeWindow() {
     ajaxCurrentUserData(function (currentUserData) {
@@ -215,8 +262,6 @@ function refreshOtherUsersDisplay() {
     });
 }
 
-
 $(function () {
-    setInterval(refreshOtherUsersDisplay, 2000);
-    setInterval(refreshCurrentUserData, 2000);
+    //setInterval(refreshOtherUsersDisplay, 2000);
 });

@@ -1,9 +1,11 @@
-package servlets;
+package servlets.userInformationPageServlets;
 
 import com.google.gson.Gson;
 import engine.users.SingleUserData;
+import engine.users.User;
 import engine.users.UserManager;
 import engine.users.AllUsersData;
+import engine.users.constants.Constants;
 import utils.ServletUtils;
 import utils.SessionUtils;
 
@@ -22,8 +24,10 @@ public class CurrentUserInformationServlet extends HttpServlet {
         UserManager userManager = ServletUtils.getUserManager(getServletContext());
         String currentUserName = SessionUtils.getUsername(request);
 
-        //AllUsersData allUsersData = userManager.GetAllUsersData(currentUserName);
-        SingleUserData currentUserData = userManager.GetCurrentUserData(currentUserName);
+        //SingleUserData currentUserData = userManager.GetCurrentUserData(currentUserName);
+        User currentUser = userManager.getUser(currentUserName);
+        SingleUserData currentUserData = new SingleUserData(currentUser.getUsername());
+        currentUserData.getRepositoriesDataList().addAll(currentUser.getRepositoriesDatas());
 
         try (PrintWriter out = response.getWriter()) {
             Gson gson = new Gson();
