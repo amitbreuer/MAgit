@@ -1,49 +1,56 @@
-package servlets;
+package servlets.repositoryInformationPageServlets;
 
+import com.google.gson.Gson;
+import engine.Commit;
+import engine.Folder;
+import engine.MagitManager;
+import engine.users.CommitData;
+import engine.users.User;
+import engine.users.UserManager;
 import utils.ServletUtils;
 import utils.SessionUtils;
-import engine.users.UserManager;
 
 import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
 
-@WebServlet(name = "LogoutServlet", urlPatterns = {"/logout"})
-public class LogoutServlet extends HttpServlet {
-
+public class MainFolderOfCommitServlet extends HttpServlet {
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String usernameFromSession = SessionUtils.getUsername(request);
+
+        response.setContentType("application/json");
         UserManager userManager = ServletUtils.getUserManager(getServletContext());
+        String currentUserName = SessionUtils.getUsername(request);
+        User currentUser = userManager.getUser(currentUserName);
+        String commitSha1 = request.getParameter("commitSha1");
+        MagitManager magitManager = currentUser.getMagitManager();
+        Commit commit = magitManager.CreateCommitFromSha1(commitSha1,magitManager.GetObjectsDirPath());
+        Folder mainFolder = commit.getMainFolder();
 
-        if (usernameFromSession != null) {
-            System.out.println("Clearing session for " + usernameFromSession);
-            userManager.removeUser(usernameFromSession);
-            SessionUtils.clearSession(request);
-
-            /*
-            when sending redirect, tomcat has a shitty logic how to calculate the URL given, weather its relative or not
-            you can read about it here:
-            https://tomcat.apache.org/tomcat-5.5-doc/servletapi/javax/servlet/http/HttpServletResponse.html#sendRedirect(java.lang.String)
-            the best way (IMO) is to fetch the context path dynamically and build the redirection from it and on
-             */
-
-            response.sendRedirect(request.getContextPath() + "/pages/login/login.html");
+        try (PrintWriter out = response.getWriter()) {
+            Gson gson = new Gson();
+            String json = gson.toJson(mainFolder);
+            out.println(json);
+            out.flush();
         }
     }
 
+
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
+
     /**
      * Handles the HTTP <code>GET</code> method.
      *
-     * @param request servlet request
+     * @param request  servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
+     * @throws IOException      if an I/O error occurs
      */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -54,10 +61,10 @@ public class LogoutServlet extends HttpServlet {
     /**
      * Handles the HTTP <code>POST</code> method.
      *
-     * @param request servlet request
+     * @param request  servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
+     * @throws IOException      if an I/O error occurs
      */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
@@ -74,4 +81,7 @@ public class LogoutServlet extends HttpServlet {
     public String getServletInfo() {
         return "Short description";
     }// </editor-fold>
+
+
+
 }

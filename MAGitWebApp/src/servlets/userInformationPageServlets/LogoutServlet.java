@@ -1,48 +1,46 @@
-package servlets;
+package servlets.userInformationPageServlets;
 
-import com.google.gson.Gson;
-import engine.users.SingleUserData;
-import engine.users.UserManager;
-import engine.users.AllUsersData;
 import utils.ServletUtils;
 import utils.SessionUtils;
+import engine.users.UserManager;
 
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.PrintWriter;
 
-public class CurrentUserInformationServlet extends HttpServlet {
+@WebServlet(name = "LogoutServlet", urlPatterns = {"/logout"})
+public class LogoutServlet extends HttpServlet {
+
+
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        String usernameFromSession = SessionUtils.getUsername(request);
 
-        response.setContentType("application/json");
-        UserManager userManager = ServletUtils.getUserManager(getServletContext());
-        String currentUserName = SessionUtils.getUsername(request);
+        if (usernameFromSession != null) {
+            //SessionUtils.clearSession(request);
 
-        //AllUsersData allUsersData = userManager.GetAllUsersData(currentUserName);
-        SingleUserData currentUserData = userManager.GetCurrentUserData(currentUserName);
+            /*
+            when sending redirect, tomcat has a shitty logic how to calculate the URL given, weather its relative or not
+            you can read about it here:
+            https://tomcat.apache.org/tomcat-5.5-doc/servletapi/javax/servlet/http/HttpServletResponse.html#sendRedirect(java.lang.String)
+            the best way (IMO) is to fetch the context path dynamically and build the redirection from it and on
+             */
 
-        try (PrintWriter out = response.getWriter()) {
-            Gson gson = new Gson();
-            String json = gson.toJson(currentUserData);
-            out.println(json);
-            out.flush();
+            response.sendRedirect(request.getContextPath() + "/pages/login/login.html");
         }
     }
 
-
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-
     /**
      * Handles the HTTP <code>GET</code> method.
      *
-     * @param request  servlet request
+     * @param request servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException      if an I/O error occurs
+     * @throws IOException if an I/O error occurs
      */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -53,10 +51,10 @@ public class CurrentUserInformationServlet extends HttpServlet {
     /**
      * Handles the HTTP <code>POST</code> method.
      *
-     * @param request  servlet request
+     * @param request servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException      if an I/O error occurs
+     * @throws IOException if an I/O error occurs
      */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
