@@ -10,8 +10,8 @@
     </servlet>
 
     <servlet>
-        <servlet-name>HeadBranchInformationServlet </servlet-name>
-        <servlet-class>servlets.repositoryInformationPageServlets.HeadBranchInformationServlet </servlet-class>
+        <servlet-name>HeadBranchInformationServlet</servlet-name>
+        <servlet-class>servlets.repositoryInformationPageServlets.HeadBranchInformationServlet</servlet-class>
     </servlet>
 
     <servlet>
@@ -59,12 +59,18 @@
         <servlet-class>servlets.repositoryInformationPageServlets.WCStatusServlet</servlet-class>
     </servlet>
 
+
     <servlet-mapping>
         <servlet-name>LoginServlet</servlet-name>
         <url-pattern>/pages/login/login</url-pattern>
     </servlet-mapping>
 
-<servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>HeadBranchInformationServlet</servlet-name>
+        <url-pattern>/headBranchInformation</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
         <servlet-name>MainFolderOfCommitServlet</servlet-name>
         <url-pattern>/mainFolderOfCommit</url-pattern>
     </servlet-mapping>
@@ -75,29 +81,13 @@
     </servlet-mapping>
 
     <servlet-mapping>
-        <servlet-name>LogoutServlet</servlet-name>
-        <url-pattern>/logout</url-pattern>
+        <servlet-name>WCStatusServlet</servlet-name>
+        <url-pattern>/wcStatus</url-pattern>
     </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>HeadBranchInformationServlet </servlet-name>
-        <url-pattern>/headBranchInformation</url-pattern>
-    </servlet-mapping>
-
 
     <servlet-mapping>
         <servlet-name>CurrentUserInformationServlet</servlet-name>
         <url-pattern>/currentUserInformation</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>OtherUsersInformationServlet</servlet-name>
-        <url-pattern>/otherUsersInformation</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>NewRepositoryServlet</servlet-name>
-        <url-pattern>/newRepository</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>
@@ -106,13 +96,23 @@
     </servlet-mapping>
 
     <servlet-mapping>
-        <servlet-name>WatchRepositoryServlet</servlet-name>
-        <url-pattern>/watchRepository</url-pattern>
+        <servlet-name>LogoutServlet</servlet-name>
+        <url-pattern>/logout</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>
-        <servlet-name>WCStatusServlet</servlet-name>
-        <url-pattern>/wcStatus</url-pattern>
+        <servlet-name>NewRepositoryServlet</servlet-name>
+        <url-pattern>/newRepository</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>OtherUsersInformationServlet</servlet-name>
+        <url-pattern>/otherUsersInformation</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>WatchRepositoryServlet</servlet-name>
+        <url-pattern>/watchRepository</url-pattern>
     </servlet-mapping>
 
 </web-app>

@@ -36,12 +36,6 @@ public class WCStatusServlet extends HttpServlet {
         Folder wcFolder = user.getMagitManager().createFolderFromWC(Paths.get(Constants.usersDirectoryPath +
                 File.separator + username + File.separator + repositoryName),currentDate);
 
-        /*FolderData wcData = new FolderData();
-        File wcDir = new File(Constants.usersDirectoryPath + File.separator + username
-                + File.separator + repositoryName);
-
-        wcData.createFilesDatasFromFiles(wcDir.listFiles());*/
-
         Gson gson = new Gson();
         String json = gson.toJson(wcFolder);
 
