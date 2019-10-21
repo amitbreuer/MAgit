@@ -1,10 +1,14 @@
 package utils;
 
 //import engine.chat.ChatManager;
+import constants.Constants;
 import engine.users.UserManager;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
+
+import java.io.File;
+import java.util.StringTokenizer;
 
 import static constants.Constants.INT_PARAMETER_ERROR;
 
@@ -50,4 +54,29 @@ public class ServletUtils {
 		return INT_PARAMETER_ERROR;
 	}
 
+	public static String getFixedFileName(String fileNameFromParameter, String userName, String repositoryName) {
+		StringTokenizer tokenizer = new StringTokenizer(fileNameFromParameter,"-");
+		tokenizer.nextToken(); // skip wc
+		tokenizer.nextToken(); // skip accordion
+		StringBuilder fileName = new StringBuilder(Constants.usersDirectoryPath + File.separator +
+				userName + File.separator + repositoryName);
+		while (tokenizer.hasMoreTokens()) {
+			fileName.append(File.separator);
+			fileName.append(tokenizer.nextToken());
+		}
+
+		return fileName.toString();
+	}
+
+	public static String getFixedFilePathForAddedFile(String filePathFromParameter, String userName) {
+		StringTokenizer tokenizer = new StringTokenizer(filePathFromParameter,"/");
+		StringBuilder fileName = new StringBuilder(Constants.usersDirectoryPath + File.separator +
+				userName);
+		while (tokenizer.hasMoreTokens()) {
+			fileName.append(File.separator);
+			fileName.append(tokenizer.nextToken());
+		}
+
+		return fileName.toString();
+	}
 }

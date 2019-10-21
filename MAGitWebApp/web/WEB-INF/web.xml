@@ -59,6 +59,22 @@
         <servlet-class>servlets.repositoryInformationPageServlets.WCStatusServlet</servlet-class>
     </servlet>
 
+    <servlet>
+        <servlet-name>EditFileServlet</servlet-name>
+        <servlet-class>servlets.repositoryInformationPageServlets.EditFileServlet</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>DeleteFileServlet</servlet-name>
+        <servlet-class>servlets.repositoryInformationPageServlets.DeleteFileServlet</servlet-class>
+    </servlet>AddFileServlet
+
+    <servlet>
+        <servlet-name>AddFileServlet</servlet-name>
+        <servlet-class>servlets.repositoryInformationPageServlets.AddFileServlet</servlet-class>
+    </servlet>
+
+
 
     <servlet-mapping>
         <servlet-name>LoginServlet</servlet-name>
@@ -113,6 +129,21 @@
     <servlet-mapping>
         <servlet-name>WatchRepositoryServlet</servlet-name>
         <url-pattern>/watchRepository</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+    <servlet-name>EditFileServlet</servlet-name>
+    <url-pattern>/editFile</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>DeleteFileServlet</servlet-name>
+        <url-pattern>/deleteFile</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>AddFileServlet</servlet-name>
+        <url-pattern>/addFile</url-pattern>
     </servlet-mapping>
 
 </web-app>

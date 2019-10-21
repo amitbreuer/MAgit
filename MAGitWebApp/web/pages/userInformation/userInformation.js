@@ -71,7 +71,6 @@ function showCurrentUserRepositories() {
 function addNewRepositoryToCurrentUser(event) {
     var file = event.target.files[0];
     ajaxNewRepository(file, ShowMessage);
-
 }
 
 function ajaxNewRepository(file, callback) {
@@ -114,9 +113,6 @@ function ShowMessage(message) {
     span.onclick = function () {
         modal.style.display = "none";
     };
-
-    //alert(message);
-
 }
 
 function findOtherUserDataInList(otherUsername) {

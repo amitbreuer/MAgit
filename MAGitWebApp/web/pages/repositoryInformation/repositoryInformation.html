@@ -21,25 +21,25 @@
 
 <body id="page-top">
     <div id="wrapper">
-        <nav class="navbar navbar-dark align-items-start sidebar sidebar-dark accordion bg-gradient-primary p-0">
+        <nav class="navbar navbar-dark align-items-start sidebar sidebar-dark accordion bg-gradient-primary p-0" style="width: 245px;min-width: 245px;">
             <div class="container-fluid d-flex flex-column p-0">
                 <a class="navbar-brand d-flex justify-content-center align-items-center sidebar-brand m-0" href="#">
                     <div class="sidebar-brand-icon rotate-n-15"><i class="fa fa-magic"></i></div>
                     <div class="sidebar-brand-text mx-3"><span>M.A.Git</span></div>
                 </a>
-                <hr class="visible"><a class="text-white" href="#wcSection">Working Copy</a>
-                <hr class="visible">
-                <h5 class="text-light d-md-flex align-items-md-center"><i class="fas fa-code-branch d-md-flex align-items-md-center"></i>&nbsp;Branches</h5><button class="btn btn-primary btn-sm" type="button">&nbsp;New Branch<i class="typcn typcn-plus float-left"></i></button>
-                <hr style="margin: 5px;">
-                <div class="btn-group"><button class="btn btn-primary btn-sm" type="button">Checkout</button><button class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-expanded="false" type="button"></button>
-                    <div class="dropdown-menu"
-                        role="menu"></div>
+                <hr class="visible" /><a class="text-white" href="#wcSection">Working Copy</a>
+                <hr class="visible" />
+                <h5 class="text-light d-md-flex align-items-md-center"><i class="fas fa-code-branch d-md-flex align-items-md-center"></i> Branches</h5>
+                <hr style="margin: 5px;" /><button class="btn btn-primary btn-sm" type="button"> New Branch<i class="typcn typcn-plus float-left"></i></button>
+                <hr style="margin: 5px;" />
+                <div class="text-center"><a class="btn btn-primary btn-sm text-white" data-toggle="collapse" aria-expanded="false" aria-controls="collapse-1" href="#collapse-1" role="button" style="height: 28px;font-size: 15px;margin-bottom: 4px;">branch name</a>
+                    <div class="collapse text-center"
+                         id="collapse-1"><em class="text-white d-flex" style="font-size: 10px;">0123456789012345678901234567890123456789<br /></em>
+                        <div role="group" class="btn-group"><button class="btn btn-primary btn-sm" type="button" style="margin-right: 2px;font-size: 12px;height: 25px;">Delete</button><button class="btn btn-primary btn-sm" type="button" style="height: 25px;font-size: 12px;">Checkout</button></div>
+                    </div>
                 </div>
-                <hr style="margin: 5px;">
-                <div class="btn-group"><button class="btn btn-primary btn-sm" type="button">Delete</button><button class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-expanded="false" type="button"></button>
-                    <div class="dropdown-menu" role="menu"></div>
-                </div>
-                <hr class="visible"><a class="text-white" href="#prSection"><i class="icon ion-pull-request"></i>&nbsp; Pull Requests</a></div>
+                <hr style="margin: 5px;" />
+                <hr class="visible" /><a class="text-white" href="#prSection"><i class="icon ion-pull-request"></i>  Pull Requests</a></div>
         </nav>
         <div class="d-flex flex-column" id="content-wrapper">
             <div id="content">
@@ -126,10 +126,19 @@
                 <div class="row" id="wcSection">
                     <div class="col">
                         <div class="container">
-                            <h5 style="margin-bottom: 15px;">Working Copy &nbsp;&nbsp;<button class="btn btn-success btn-sm" id="commit-button" type="button" style="margin-left: 10px;">Commit</button><button class="btn btn-secondary btn-sm float-right" type="button" style="margin-right: 2px;"><em>Create File</em></button>
-                                <label
-                                    class="float-right btn btn-secondary" data-bs-hover-animate="pulse" for="addfile-input" style="height: 31px;font-size: 14px;margin-right: 2px;"><i class="icon ion-plus-round"></i>&nbsp;Add File</label><input class="d-none" type="file" id="addfile-input"></h5>
-                            <div role="tablist" id="wc-accordion"></div>
+                            <h5 style="margin-bottom: 15px;">Working Copy &nbsp;&nbsp;<button class="btn btn-success btn-sm" id="commit-button" type="button" style="margin-left: 10px;">Commit</button><button class="btn btn-secondary btn-sm float-right" type="button" onclick='showCreateFileModal("wc-accordion","")' style="margin-right: 15px;"><i class="icon ion-plus-round"></i><em> Add File</em></button></h5>
+                            <div role="tablist" Id="wc-accordion"></div>
+                        </div>
+                        <div id="createFileModal" role="dialog" tabindex="-1" class="modal fade show" style="display: none">
+                            <div class="modal-dialog" role="document">
+                                <form id="createFileForm" action="../../addFile">
+                                <div class="modal-content">
+                                    <div class="modal-header"><input name="createFile-path" type="text" readonly /><span style="height: 30px;font-size: 20px;"> / </span><input name="createFile-name" type="text" placeholder="Enter file name" /><h4 style="height: 30px;font-size: 20px;">.txt</h4><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span id="createFile-xButton" aria-hidden="true">×</span></button></div>
+                                    <div class="modal-body" style="height: 170px;"><textarea name="createFile-content" placeholder="Enter content" form="createFileForm" cols="56" style="height: 140px;"></textarea></div>
+                                    <div class="modal-footer" style="height: 53px;"><button class="btn btn-light btn-sm" type="button" data-dismiss="modal">Close</button><button id="createFile-saveButton" class="btn btn-primary btn-sm" type="submit">Save</button></div>
+                                </div>
+                                </form>
+                            </div>
                         </div>
                         <hr>
                         <div class="container">
@@ -142,22 +151,13 @@
                                 </ul>
                                 <div class="tab-content">
                                     <div class="tab-pane active" role="tabpanel" id="tab-1">
-                                        <ul class="list-group" id="addedFiles-list">
-                                            <li class="list-group-item"><i class="fa fa-file-text-o"></i><button class="btn btn-link btn-sm border-white" type="button">File full path</button></li>
-                                            <li class="list-group-item"><i class="fas fa-folder" style="color: rgb(241,232,15);"></i><button class="btn btn-link btn-sm border-white" type="button">Folder full path</button></li>
-                                        </ul>
+                                        <ul class="list-group" id="addedFiles-list"></ul>
                                     </div>
                                     <div class="tab-pane" role="tabpanel" id="tab-2">
-                                        <ul class="list-group" id="updatedFiles-list">
-                                            <li class="list-group-item"><i class="fa fa-file-text-o"></i><button class="btn btn-link btn-sm border-white" type="button">File full path</button></li>
-                                            <li class="list-group-item"><i class="fas fa-folder" style="color: rgb(241,232,15);"></i><button class="btn btn-link btn-sm border-white" type="button">Folder full path</button></li>
-                                        </ul>
+                                        <ul class="list-group" id="updatedFiles-list"></ul>
                                     </div>
                                     <div class="tab-pane" role="tabpanel" id="tab-3">
-                                        <ul class="list-group" id="deletedFiles-list">
-                                            <li class="list-group-item"><i class="fa fa-file-text-o"></i><button class="btn btn-link btn-sm border-white" type="button">File full path</button></li>
-                                            <li class="list-group-item"><i class="fas fa-folder" style="color: rgb(241,232,15);"></i><button class="btn btn-link btn-sm border-white" type="button">Folder full path</button></li>
-                                        </ul>
+                                        <ul class="list-group" id="deletedFiles-list"></ul>
                                     </div>
                                 </div>
                             </div>

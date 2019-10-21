@@ -1,48 +1,39 @@
-package servlets.userInformationPageServlets;
+package servlets.repositoryInformationPageServlets;
 
 import com.google.gson.Gson;
 import constants.Constants;
-import engine.users.User;
-import engine.users.UserManager;
+import engine.MagitManager;
 import utils.ServletUtils;
 import utils.SessionUtils;
-
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.file.Paths;
 
-public class ForkServlet extends HttpServlet {
+public class DeleteFileServlet extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
         response.setContentType("application/json");
-        UserManager userManager = ServletUtils.getUserManager(getServletContext());
+        String currentUserName = SessionUtils.getUsername(request);
+        String repositoryName = request.getParameter(Constants.CURRENT_WATCHED_REPOSITORY);
+        String fileNameFromParameter = request.getParameter(Constants.FileName);
+        String fileName = ServletUtils.getFixedFileName(fileNameFromParameter,currentUserName,repositoryName);
 
-        String username = SessionUtils.getUsername(request);
-        String otherUserName = request.getParameter(Constants.OTHER_USERNAME);
-        String otherUserRepositoryName = request.getParameter(Constants.OTHER_USER_REPOSITORY_NAME);
-        String message = "The Fork was executed successfully";
-        User user = userManager.getUser(username);
+        String message = fileName + " was deleted";
 
-        try {
-            user.getMagitManager().Fork(username,otherUserName,otherUserRepositoryName);
-            user.CreateRepositoryDataForNewRepository(otherUserRepositoryName);
-        } catch (Exception e) {
-            message = e.getMessage();
-        } finally {
-            try (PrintWriter out = response.getWriter()) {
-                Gson gson = new Gson();
-                String json = gson.toJson(message);
-                out.println(json);
-                out.flush();
-            }
+        MagitManager.deleteDirectory(Paths.get(fileName));
+
+        try (PrintWriter out = response.getWriter()) {
+            Gson gson = new Gson();
+            String json = gson.toJson(message);
+            out.println(json);
+            out.flush();
         }
-
     }
-
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
 
