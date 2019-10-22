@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="assets/fonts/typicons.min.css">
     <link rel="stylesheet" href="assets/fonts/fontawesome5-overrides.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css">
+    <link rel="stylesheet" href="repositoryInformation.css">
 
     <script src="../../common/jquery-3.4.1.min.js"></script>
     <script src="../../common/context-path-helper.js"></script>
@@ -20,6 +21,14 @@
 </head>
 
 <body id="page-top">
+<div id="MessageModal" class="modal">
+
+    <div class="modal-content">
+        <span class="closeMessage">&times;</span>
+        <p id="MessageContent">Some text in the Modal..</p>
+    </div>
+</div>
+
     <div id="wrapper">
         <nav class="navbar navbar-dark align-items-start sidebar sidebar-dark accordion bg-gradient-primary p-0" style="width: 245px;min-width: 245px;">
             <div class="container-fluid d-flex flex-column p-0">
@@ -30,16 +39,32 @@
                 <hr class="visible" /><a class="text-white" href="#wcSection">Working Copy</a>
                 <hr class="visible" />
                 <h5 class="text-light d-md-flex align-items-md-center"><i class="fas fa-code-branch d-md-flex align-items-md-center"></i> Branches</h5>
-                <hr style="margin: 5px;" /><button class="btn btn-primary btn-sm" type="button"> New Branch<i class="typcn typcn-plus float-left"></i></button>
-                <hr style="margin: 5px;" />
-                <div class="text-center"><a class="btn btn-primary btn-sm text-white" data-toggle="collapse" aria-expanded="false" aria-controls="collapse-1" href="#collapse-1" role="button" style="height: 28px;font-size: 15px;margin-bottom: 4px;">branch name</a>
-                    <div class="collapse text-center"
-                         id="collapse-1"><em class="text-white d-flex" style="font-size: 10px;">0123456789012345678901234567890123456789<br /></em>
-                        <div role="group" class="btn-group"><button class="btn btn-primary btn-sm" type="button" style="margin-right: 2px;font-size: 12px;height: 25px;">Delete</button><button class="btn btn-primary btn-sm" type="button" style="height: 25px;font-size: 12px;">Checkout</button></div>
+                <div id="branchNameModal" role="dialog" tabindex="-1" class="modal fade show" style="display: none">
+                    <div class="modal-dialog modal-sm" role="document">
+                        <form id="branchNameForm" action="/createNewBranch">
+                            <div class="modal-content">
+                                <div class="modal-header" style="height: 55px;">
+                                    <h5 class="modal-title">New Branch</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span id="branchName-xbutton"
+                                                                                                                      aria-hidden="true">×</span></button>
+                                </div>
+                                <div class="modal-body"><input id="branchNameTextInput" type="text" style="height: 31px;"
+                                                               placeholder="Enter branch&#39;s name" name="newBranchName"/>
+                                </div>
+                                <div class="modal-footer" style="height: 51px;">
+                                    <button class="btn btn-primary btn-sm" type="submit">Save</button>
+                                </div>
+                            </div>
+                        </form>
                     </div>
                 </div>
+
+                <hr style="margin: 5px;" /><button class="btn btn-primary btn-sm" type="button"> New Branch<i class="typcn typcn-plus float-left"></i></button>
                 <hr style="margin: 5px;" />
-                <hr class="visible" /><a class="text-white" href="#prSection"><i class="icon ion-pull-request"></i>  Pull Requests</a></div>
+                <div class="container" id="otherBranchesList" style="padding: 0px;">
+                </div>
+                <hr class="visible"/>
+                <a class="text-white" href="#prSection"><i class="icon ion-pull-request"></i>  Pull Requests</a></div>
         </nav>
         <div class="d-flex flex-column" id="content-wrapper">
             <div id="content">
@@ -101,7 +126,11 @@
                                 </div>
                             </li>
                             <div class="d-none d-sm-block topbar-divider"></div>
-                            <li class="nav-item align-self-center dropdown no-arrow" role="presentation"><button class="btn btn-outline-secondary btn-sm text-center float-none" id="backToUsersPage-button" type="button">Back To User's Page</button></li>
+                            <li class="nav-item align-self-center dropdown no-arrow" role="presentation">
+                                <button onclick="BackToUserInformationPage()" class="btn btn-outline-secondary btn-sm text-center float-none"
+                                        id="backToUsersPage-button" type="button">Back To User's Page
+                                </button>
+                            </li>
                         </ul>
                     </div>
                 </nav>
@@ -113,7 +142,13 @@
                     <div class="col">
                         <div class="container">
                             <h5>Head Branch: &nbsp;<strong id="headBranch-label"></strong>&nbsp;
-                                <div class="btn-group float-right" role="group" style="margin-right: 100px;"><button class="btn btn-info btn-sm" type="button" style="margin-right: 3px;">Push</button><button class="btn btn-info btn-sm" type="button" style="margin-right: 3px;">Pull</button><button class="btn btn-info btn-sm" type="button">New Pull Request</button></div>
+                                <div class="btn-group float-right" role="group" style="margin-right: 100px;">
+                                    <button onclick="push()" class="btn btn-info btn-sm collaboration-buttons" type="button" style="margin-right: 3px;">Push
+                                    </button>
+                                    <button onclick="pull()"  class="btn btn-info btn-sm collaboration-buttons" type="button" style="margin-right: 3px;">Pull
+                                    </button>
+                                    <button onclick="pullRequest()"  class="btn btn-info btn-sm collaboration-buttons" type="button">New Pull Request</button>
+                                </div>
                             </h5>
                         </div>
                         <div class="container">
