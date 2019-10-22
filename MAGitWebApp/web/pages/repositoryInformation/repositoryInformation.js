@@ -2,7 +2,14 @@ var REPOSITORY_NAME_AND_RR_DATA_URL = buildUrlWithContextPath("repositoryNameAnd
 var HEAD_BRANCH_INFORMATION_URL = buildUrlWithContextPath("headBranchInformation");
 var MAIN_FOLDER_OF_COMMIT_URL = buildUrlWithContextPath("mainFolderOfCommit");
 var WC_STATUS_URL = buildUrlWithContextPath("wcStatus");
+var OTHER_BRANCHES_INFORMATION_URL = buildUrlWithContextPath("otherBranchesInformation");
+var DELETE_BRANCH_URL = buildUrlWithContextPath("deleteBranch");
+var CHECKOUT_BRANCH_URL = buildUrlWithContextPath("checkout");
+var CREATE_NEW_BRANCH_URL = buildUrlWithContextPath("createNewBranch");
+var PUSH_URL = buildUrlWithContextPath("push");
+var PULL_URL = buildUrlWithContextPath("pull");
 var REPOSITORY_NAME;
+
 
 function setRepositoryName(name) {
     REPOSITORY_NAME = name;
@@ -13,6 +20,7 @@ function ajaxRepositoryNameAndRRData() {
     $.ajax(
         {
             url: REPOSITORY_NAME_AND_RR_DATA_URL,
+
             success: ajaxRepositoryNameAndRRDataCallback
         }
     )
@@ -23,12 +31,19 @@ function setRRData(RRUser, RRName) {
     $("rrUser-label").val = RRUser;
 }
 
+function hideCollaborationButtons() {
+    $(".collaboration-buttons").hide();
+}
+
 function ajaxRepositoryNameAndRRDataCallback(repositoryNameAndRRData) {
     setRepositoryName(repositoryNameAndRRData[0]);
     if (repositoryNameAndRRData[1]) {
         setRRData(repositoryNameAndRRData[1], repositoryNameAndRRData[2]);
+    }else {
+        hideCollaborationButtons();
     }
     ajaxWCFiles();
+
 }
 
 function addTextFileItem(folderComponent, containingFolderId, index) {
@@ -55,20 +70,20 @@ function addFolderItem(folderComponent, containingFolderId, index) {
         "</div>\n" +
         "<div role=\"tabpanel\" data-parent=\"#" + containingFolderId + "\" class=\"collapse item-" + index + "\">\n" +
         "<div class=\"card-body\">" +
-        "<div role=\"tablist\" id=\""+ containingFolderId + "-" + folderComponent.name + "-accordion\"></div>\n" +
+        "<div role=\"tablist\" id=\"" + containingFolderId + "-" + folderComponent.name + "-accordion\"></div>\n" +
         "</div>\n" +
         "</div>\n" +
         "</div>\n";
 
     //document.getElementById(containingFolderId).appendChild(folderItem);
-    $("#"+containingFolderId).append(folderItem);
+    $("#" + containingFolderId).append(folderItem);
 
     for (var i = 0; i < components.length; i++) {
 
         if (components[i].folderComponent.content) { // blob
-            addTextFileItem(components[i], containingFolderId+'-'+folderComponent.name + "-accordion", i + 1);
+            addTextFileItem(components[i], containingFolderId + '-' + folderComponent.name + "-accordion", i + 1);
         } else {
-            addFolderItem(components[i], containingFolderId+'-'+folderComponent.name + "-accordion", i + 1);
+            addFolderItem(components[i], containingFolderId + '-' + folderComponent.name + "-accordion", i + 1);
         }
     }
 }
@@ -83,6 +98,7 @@ function addFileItemToWCDisplay(folderComponent, index) {
 }
 
 function showWCStatus(wcFolderData) {
+
     var folderComponents = wcFolderData.components;
     for (var i = 0; i < folderComponents.length; i++) {
         addFileItemToWCDisplay(folderComponents[i], i + 1);
@@ -93,6 +109,7 @@ function showWCStatus(wcFolderData) {
 function ajaxWCFiles() {
     $.ajax({
         url: WC_STATUS_URL,
+        dataType: "json",
         data: {
             currentWatchedRepository: REPOSITORY_NAME
         },
@@ -100,11 +117,13 @@ function ajaxWCFiles() {
     })
 }
 
-function ajaxHeadBranchInformation() {
+function ajaxHeadBranchInformation(callback) {
     $.ajax(
         {
             url: HEAD_BRANCH_INFORMATION_URL,
-            success: ajaxHeadBranchInformationCallback
+            dataType: "json",
+
+            success: callback
         }
     )
 }
@@ -173,6 +192,7 @@ function updateHeadBranchCommitsDisplay(headBranchInformation) {
 
 function updateHeadBranchInformation(headBranchInformation) {
     $("#headBranch-label")[0].textContent = headBranchInformation[0];
+    $("#headbranch-commits-accordion").empty();
     updateHeadBranchCommitsDisplay(headBranchInformation);
 }
 
@@ -180,7 +200,183 @@ function ajaxHeadBranchInformationCallback(headBranchInformation) {
     updateHeadBranchInformation(headBranchInformation);
 }
 
+function ajaxOtherBranchesInformation() {
+    /*
+                 data will arrive in the next form:
+                 {
+                    json[0] = branch name
+                    json[1] = branch commit's sha1
+                    json[2] = another branch name
+                    json[3] = another branch commit's sha1
+                    .
+                    .
+                    .
+                 */
+    $.ajax(
+        {
+            url: OTHER_BRANCHES_INFORMATION_URL,
+            dataType: "json",
+            success: ajaxOtherBranchesInformationCallback
+        }
+    )
+}
+
+function createOtherBranchElement(singleBranchName, singleBranchCommitSha1) {
+    return "<div class=\"text-center\"><a class=\"btn btn-primary btn-sm text-white\" data-toggle=\"collapse\" aria-expanded=\"false\" aria-controls=\"collapse-" + singleBranchName + "\" href=\"#collapse-" + singleBranchName + "\" role=\"button\" style=\"height: 28px;font-size: 15px;margin-bottom: 4px;\">" + singleBranchName + "</a>" +
+        "<div class=\"collapse text-center\"" +
+        "id=\"collapse-" + singleBranchName + "\"><em class=\"text-white d-flex\" style=\"font-size: 10px;\">" + singleBranchCommitSha1 + "<br /></em>" +
+        "<div role=\"group\" class=\"btn-group\"><button id =\"delete-branch-" + singleBranchName + "\" class=\"btn btn-primary btn-sm\" type=\"button\" style=\"margin-right: 2px;font-size: 12px;height: 25px;\">Delete</button><button id =\"checkout-branch-" + singleBranchName + "\" class=\"btn btn-primary btn-sm\" type=\"button\" style=\"height: 25px;font-size: 12px;\">Checkout</button></div>" +
+        "</div>" +
+        "</div>" +
+        "<hr style=\"margin: 5px;\" />"
+}
+
+function ajaxDeleteBranch(singleBranchName) {
+    $.ajax({
+        url: DELETE_BRANCH_URL,
+        data: {
+            branchToDeleteName: singleBranchName
+        },
+        success: ajaxDeleteBranchCallback
+    })
+}
+
+function ajaxDeleteBranchCallback(message) {
+    ShowMessage(message);
+    ajaxOtherBranchesInformation();
+}
+
+function ShowMessage(message) {
+    var modal = $("#MessageModal")[0];
+    var span = document.getElementsByClassName("closeMessage")[0];
+    var content = document.getElementById("MessageContent");
+    content.textContent = message;
+    modal.style.display = "block";
+    span.onclick = function () {
+        modal.style.display = "none";
+    };
+}
+
+
+function ajaxCheckout(singleBranchName) {
+    $.ajax({
+        url: CHECKOUT_BRANCH_URL,
+        dataType: "json",
+        data: {
+            repositoryName: REPOSITORY_NAME,
+            branchToCheckoutName: singleBranchName
+        },
+        success: function (newUrl) {
+            var fullUrl = buildUrlWithContextPath(newUrl);
+            window.location.replace(fullUrl);
+        }
+    })
+}
+
+function addSingleOtherBranchItem(singleBranchName, singleBranchCommitSha1) {
+    var branchElement = createOtherBranchElement(singleBranchName, singleBranchCommitSha1);
+    $("#otherBranchesList").append(branchElement);
+    document.getElementById("checkout-branch-" + singleBranchName).onclick = function (ev) {
+        ajaxCheckout(singleBranchName);
+    };
+    document.getElementById("delete-branch-" + singleBranchName).onclick = function (ev) {
+        ajaxDeleteBranch(singleBranchName);
+    };
+}
+
+function ajaxOtherBranchesInformationCallback(otherBranchesInformation) {
+    $("#otherBranchesList").empty();
+    for (var i = 0; i < otherBranchesInformation.length; i += 2) {
+        addSingleOtherBranchItem(otherBranchesInformation[i], otherBranchesInformation[i + 1]);
+    }
+}
+
+
+function ajaxCreateNewBranchCallback(message) {
+    if (message === "There is already branch with this name") {
+        ShowMessage(message);
+    } else {
+        ajaxOtherBranchesInformation();
+    }
+    $("#branchNameModal")[0].style.display = "none";
+}
+
+
+function showNewBranchModal() {
+    var branchNameModal = $("#branchNameModal")[0];
+    branchNameModal.style.display = "block";
+}
+
+function initializeBranchNameModal() {
+    var branchNameModal = $("#branchNameModal")[0];
+    var span = $("#branchName-xbutton")[0];
+    span.onclick = function () {
+        $("#branchNameTextInput").val("");
+        branchNameModal.style.display = "none";
+    };
+
+    $("#branchNameForm").submit(function (event) {
+        event.preventDefault();
+            $.ajax({
+                url: CREATE_NEW_BRANCH_URL,
+                data: $(this).serialize(),
+                success: ajaxCreateNewBranchCallback
+            });
+        $("#branchNameTextInput").val("");
+
+        return false;
+        }
+    );
+}
+
+function initializeModals() {
+    initializeBranchNameModal();
+
+}
+
+function push() {
+    $.ajax(
+        {
+            url: PUSH_URL,
+            success: pushCallback
+        }
+    )
+}
+
+function pushCallback(message) {
+ShowMessage(message);
+}
+
+function pull() {
+    $.ajax(
+        {
+            url: PULL_URL,
+            success: pullCallback
+        }
+    )
+}
+function pullCallback(message) {
+    ShowMessage(message);
+    if(message === "pull executed successfully"){
+        ajaxHeadBranchInformation();
+    }
+}
+
+function pullRequest(){
+
+}
+
+function BackToUserInformationPage(){
+    var fullUrl = buildUrlWithContextPath("pages/userInformation/userInformation.html");
+    window.location.replace(fullUrl);
+
+}
+
 $(function () {
     ajaxRepositoryNameAndRRData();
-    ajaxHeadBranchInformation();
+    ajaxHeadBranchInformation(function (headBranchInformation) {
+        ajaxHeadBranchInformationCallback(headBranchInformation);
+        ajaxOtherBranchesInformation();
+    });
+    initializeModals();
 });

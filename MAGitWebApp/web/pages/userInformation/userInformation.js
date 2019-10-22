@@ -4,8 +4,10 @@ var WATCH_URL = buildUrlWithContextPath("watchRepository");
 var OTHER_USERS_DATA_URL = buildUrlWithContextPath("otherUsersInformation");
 var NEW_REPOSITORY_URL = buildUrlWithContextPath("newRepository");
 var FORK_URL = buildUrlWithContextPath("fork");
+var MESSAGES_URL = buildUrlWithContextPath("messages");
 var CURRENT_USER_DATA;
 var OTHER_USERS_DATA;
+var messagesVersion = 0;
 
 function updateCurrentUserButton() {
     var currentUserButton = document.getElementById("currentUser");
@@ -35,11 +37,11 @@ function createCurrentUserSingleRepositoryData(currentUserSingleRepositoryData, 
 function ajaxWatch(repositoryName) {
     $.ajax({
         url: WATCH_URL,
-        dataType:"json",
-        data:{
-            repositoryName : repositoryName
+        dataType: "json",
+        data: {
+            repositoryName: repositoryName
         },
-        success:function(newUrl){
+        success: function (newUrl) {
             var fullUrl = buildUrlWithContextPath(newUrl);
             window.location.replace(fullUrl);
         }
@@ -114,9 +116,6 @@ function ShowMessage(message) {
     span.onclick = function () {
         modal.style.display = "none";
     };
-
-    //alert(message);
-
 }
 
 function findOtherUserDataInList(otherUsername) {
@@ -146,8 +145,8 @@ function createOtherUserSingleRepositoryData(otherUserSingleRepositoryData, fork
 function ajaxFork(otherUserName, otherUserRepositoryName, callback) {
     $.ajax({
         url: FORK_URL,
-        data:{
-            otherUserName : otherUserName,
+        data: {
+            otherUserName: otherUserName,
             otherUserRepositoryName: otherUserRepositoryName
         },
         success: function (message) {
@@ -258,6 +257,46 @@ function refreshOtherUsersDisplay() {
     });
 }
 
+function appendMessagesToMessages(messages) {
+    for (var i = 0; i < messages.length; i++) {
+        addSingleMessageToMessagesDisplay(messages[i]);
+    }
+}
+
+function refreshMessages() {
+    $.ajax({
+        url: MESSAGES_URL,
+        data: "messagesVersion=" + messagesVersion,
+        dataType: 'json',
+        success: function (data) {
+            console.log("Server chat version: " + data.version + ", Current chat version: " +messagesVersion);
+            if (data.version !== messagesVersion) {
+                messagesVersion = data.version;
+                appendMessagesToMessages(data.messages);
+            }
+        }
+
+    })
+}
+
+function createMessageElement(message) {
+    return "<div class=\"card forkMessage\">" +
+        "<div role=\"tab\" class=\"card-header\">" +
+        "<h5 class=\"mb-0\"><a data-toggle=\"collapse\" aria-expanded=\"true\" aria-controls=\"messages .item-1\" href=\"#messages .item-1\">Message</a></h5>" +
+        "</div>" +
+        "<div role=\"tabpanel\" data-parent=\"#messages\" class=\"collapse item-1\">" +
+        "<div class=\"card-body\"><strong class=\"d-lg-flex justify-content-lg-start\">" + message + "</strong></div>" +
+        "</div>" +
+        "</div>"
+}
+
+function addSingleMessageToMessagesDisplay(message) {
+    var messageElement = createMessageElement(message);
+    $("#messages").append(messageElement);
+}
+
+
 $(function () {
     setInterval(refreshOtherUsersDisplay, 5000);
+    setInterval(refreshMessages, 2000);
 });

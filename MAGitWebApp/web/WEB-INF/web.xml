@@ -59,6 +59,41 @@
         <servlet-class>servlets.repositoryInformationPageServlets.WCStatusServlet</servlet-class>
     </servlet>
 
+    <servlet>
+        <servlet-name>OtherBranchesInformationServlet</servlet-name>
+        <servlet-class>servlets.repositoryInformationPageServlets.OtherBranchesInformationServlet</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>DeleteBranchServlet</servlet-name>
+        <servlet-class>servlets.repositoryInformationPageServlets.DeleteBranchServlet</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>CheckoutBranchServlet</servlet-name>
+        <servlet-class>servlets.repositoryInformationPageServlets.CheckoutBranchServlet</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>CreateNewBranchServlet</servlet-name>
+        <servlet-class>servlets.repositoryInformationPageServlets.CreateNewBranchServlet</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>PushServlet</servlet-name>
+        <servlet-class>servlets.repositoryInformationPageServlets.PushServlet</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>PullServlet</servlet-name>
+        <servlet-class>servlets.repositoryInformationPageServlets.PullServlet</servlet-class>
+    </servlet>
+
+<servlet>
+        <servlet-name>MessagesServlet</servlet-name>
+        <servlet-class>servlets.userInformationPageServlets.MessagesServlet</servlet-class>
+    </servlet>
+
 
     <servlet-mapping>
         <servlet-name>LoginServlet</servlet-name>
@@ -113,6 +148,41 @@
     <servlet-mapping>
         <servlet-name>WatchRepositoryServlet</servlet-name>
         <url-pattern>/watchRepository</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>OtherBranchesInformationServlet</servlet-name>
+        <url-pattern>/otherBranchesInformation</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>DeleteBranchServlet</servlet-name>
+        <url-pattern>/deleteBranch</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>CheckoutBranchServlet</servlet-name>
+        <url-pattern>/checkout</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>CreateNewBranchServlet</servlet-name>
+        <url-pattern>/createNewBranch</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>PushServlet</servlet-name>
+        <url-pattern>/push</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>PullServlet</servlet-name>
+        <url-pattern>/pull</url-pattern>
+    </servlet-mapping>
+
+ <servlet-mapping>
+        <servlet-name>MessagesServlet</servlet-name>
+        <url-pattern>/messages</url-pattern>
     </servlet-mapping>
 
 </web-app>

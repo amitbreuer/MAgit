@@ -26,7 +26,7 @@ public class HeadBranchInformationServlet extends HttpServlet {
         UserManager userManager = ServletUtils.getUserManager(getServletContext());
         String currentUserName = SessionUtils.getUsername(request);
         User currentUser = userManager.getUser(currentUserName);
-        List<Object> headBranchInformation = new ArrayList<>();
+            List<Object> headBranchInformation = new ArrayList<>();
         List<Commit>activeBranchCommits = currentUser.getMagitManager().GetAllCommitsOfActiveBranch();
 
         headBranchInformation.add(currentUser.getMagitManager().GetHeadBranchName());

@@ -6,215 +6,349 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
     <title>Dashboard - Brand</title>
     <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i">
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i">
     <link rel="stylesheet" href="assets/fonts/fontawesome-all.min.css">
     <link rel="stylesheet" href="assets/fonts/font-awesome.min.css">
     <link rel="stylesheet" href="assets/fonts/ionicons.min.css">
     <link rel="stylesheet" href="assets/fonts/typicons.min.css">
     <link rel="stylesheet" href="assets/fonts/fontawesome5-overrides.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css">
+    <link rel="stylesheet" href="repositoryInformation.css">
 
     <script src="../../common/jquery-3.4.1.min.js"></script>
     <script src="../../common/context-path-helper.js"></script>
-    <script src="repositoryInformation.js"></script>;
+    <script src="repositoryInformation.js"></script>
+    ;
 </head>
 
 <body id="page-top">
-    <div id="wrapper">
-        <nav class="navbar navbar-dark align-items-start sidebar sidebar-dark accordion bg-gradient-primary p-0">
-            <div class="container-fluid d-flex flex-column p-0">
-                <a class="navbar-brand d-flex justify-content-center align-items-center sidebar-brand m-0" href="#">
-                    <div class="sidebar-brand-icon rotate-n-15"><i class="fa fa-magic"></i></div>
-                    <div class="sidebar-brand-text mx-3"><span>M.A.Git</span></div>
-                </a>
-                <hr class="visible"><a class="text-white" href="#wcSection">Working Copy</a>
-                <hr class="visible">
-                <h5 class="text-light d-md-flex align-items-md-center"><i class="fas fa-code-branch d-md-flex align-items-md-center"></i>&nbsp;Branches</h5><button class="btn btn-primary btn-sm" type="button">&nbsp;New Branch<i class="typcn typcn-plus float-left"></i></button>
-                <hr style="margin: 5px;">
-                <div class="btn-group"><button class="btn btn-primary btn-sm" type="button">Checkout</button><button class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-expanded="false" type="button"></button>
-                    <div class="dropdown-menu"
-                        role="menu"></div>
-                </div>
-                <hr style="margin: 5px;">
-                <div class="btn-group"><button class="btn btn-primary btn-sm" type="button">Delete</button><button class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-expanded="false" type="button"></button>
-                    <div class="dropdown-menu" role="menu"></div>
-                </div>
-                <hr class="visible"><a class="text-white" href="#prSection"><i class="icon ion-pull-request"></i>&nbsp; Pull Requests</a></div>
-        </nav>
-        <div class="d-flex flex-column" id="content-wrapper">
-            <div id="content">
-                <nav class="navbar navbar-light navbar-expand bg-white shadow mb-4 topbar static-top">
-                    <div class="container-fluid">
-                        <h2 class="d-lg-flex justify-content-lg-center align-items-lg-end" id="repositoryName-label">Repository name</h2>
-                        <ul class="nav navbar-nav flex-wrap ml-auto">
-                            <li class="nav-item dropdown d-sm-none no-arrow"><a class="dropdown-toggle nav-link" data-toggle="dropdown" aria-expanded="false" href="#"><i class="fas fa-search"></i></a>
-                                <div class="dropdown-menu dropdown-menu-right p-3 animated--grow-in" role="menu" aria-labelledby="searchDropdown">
-                                    <form class="form-inline mr-auto navbar-search w-100">
-                                        <div class="input-group"><input class="bg-light form-control border-0 small" type="text" placeholder="Search for ...">
-                                            <div class="input-group-append"><button class="btn btn-primary py-0" type="button"><i class="fas fa-search"></i></button></div>
-                                        </div>
-                                    </form>
-                                </div>
-                            </li>
-                            <li class="nav-item align-self-center dropdown no-arrow" role="presentation">
-                                <div class="nav-item dropdown no-arrow"><a class="dropdown-toggle nav-link" data-toggle="dropdown" aria-expanded="false" href="#"><i class="fas fa-envelope fa-fw"></i><span class="badge badge-danger badge-counter">7</span></a>
-                                    <div class="dropdown-menu dropdown-menu-right dropdown-list dropdown-menu-right animated--grow-in"
-                                        role="menu">
-                                        <h6 class="dropdown-header">alerts center</h6>
-                                        <a class="d-flex align-items-center dropdown-item" href="#">
-                                            <div class="dropdown-list-image mr-3"><img class="rounded-circle" src="assets/img/avatars/avatar4.jpeg">
-                                                <div class="bg-success status-indicator"></div>
-                                            </div>
-                                            <div class="font-weight-bold">
-                                                <div class="text-truncate"><span>Hi there! I am wondering if you can help me with a problem I've been having.</span></div>
-                                                <p class="small text-gray-500 mb-0">Emily Fowler - 58m</p>
-                                            </div>
-                                        </a>
-                                        <a class="d-flex align-items-center dropdown-item" href="#">
-                                            <div class="dropdown-list-image mr-3"><img class="rounded-circle" src="assets/img/avatars/avatar2.jpeg">
-                                                <div class="status-indicator"></div>
-                                            </div>
-                                            <div class="font-weight-bold">
-                                                <div class="text-truncate"><span>I have the photos that you ordered last month!</span></div>
-                                                <p class="small text-gray-500 mb-0">Jae Chun - 1d</p>
-                                            </div>
-                                        </a>
-                                        <a class="d-flex align-items-center dropdown-item" href="#">
-                                            <div class="dropdown-list-image mr-3"><img class="rounded-circle" src="assets/img/avatars/avatar3.jpeg">
-                                                <div class="bg-warning status-indicator"></div>
-                                            </div>
-                                            <div class="font-weight-bold">
-                                                <div class="text-truncate"><span>Last month's report looks great, I am very happy with the progress so far, keep up the good work!</span></div>
-                                                <p class="small text-gray-500 mb-0">Morgan Alvarez - 2d</p>
-                                            </div>
-                                        </a>
-                                        <a class="d-flex align-items-center dropdown-item" href="#">
-                                            <div class="dropdown-list-image mr-3"><img class="rounded-circle" src="assets/img/avatars/avatar5.jpeg">
-                                                <div class="bg-success status-indicator"></div>
-                                            </div>
-                                            <div class="font-weight-bold">
-                                                <div class="text-truncate"><span>Am I a good boy? The reason I ask is because someone told me that people say this to all dogs, even if they aren't good...</span></div>
-                                                <p class="small text-gray-500 mb-0">Chicken the Dog · 2w</p>
-                                            </div>
-                                        </a>
-                                    </div>
-                                </div>
-                            </li>
-                            <div class="d-none d-sm-block topbar-divider"></div>
-                            <li class="nav-item align-self-center dropdown no-arrow" role="presentation"><button class="btn btn-outline-secondary btn-sm text-center float-none" id="backToUsersPage-button" type="button">Back To User's Page</button></li>
-                        </ul>
-                    </div>
-                </nav>
-                <div class="container">
-                    <h6 class="text-primary"><strong style="margin-right: 4px;">RR:</strong><strong id="rrName-label" style="margin-right: 150px;"></strong><strong style="margin-right: 4px;">User:</strong><strong id="rrUser-label"></strong></h6>
-                </div>
-                <hr>
-                <div class="row">
-                    <div class="col">
-                        <div class="container">
-                            <h5>Head Branch: &nbsp;<strong id="headBranch-label"></strong>&nbsp;
-                                <div class="btn-group float-right" role="group" style="margin-right: 100px;"><button class="btn btn-info btn-sm" type="button" style="margin-right: 3px;">Push</button><button class="btn btn-info btn-sm" type="button" style="margin-right: 3px;">Pull</button><button class="btn btn-info btn-sm" type="button">New Pull Request</button></div>
-                            </h5>
-                        </div>
-                        <div class="container">
-                            <h6>Commits:</h6>
-                            <div role="tablist" id="headbranch-commits-accordion"></div>
-                        </div>
-                    </div>
-                </div>
-                <hr>
-                <div class="row" id="wcSection">
-                    <div class="col">
-                        <div class="container">
-                            <h5 style="margin-bottom: 15px;">Working Copy &nbsp;&nbsp;<button class="btn btn-success btn-sm" id="commit-button" type="button" style="margin-left: 10px;">Commit</button><button class="btn btn-secondary btn-sm float-right" type="button" style="margin-right: 2px;"><em>Create File</em></button>
-                                <label
-                                    class="float-right btn btn-secondary" data-bs-hover-animate="pulse" for="addfile-input" style="height: 31px;font-size: 14px;margin-right: 2px;"><i class="icon ion-plus-round"></i>&nbsp;Add File</label><input class="d-none" type="file" id="addfile-input"></h5>
-                            <div role="tablist" id="wc-accordion"></div>
-                        </div>
-                        <hr>
-                        <div class="container">
-                            <h6>Open Changes</h6>
-                            <div>
-                                <ul class="nav nav-tabs">
-                                    <li class="nav-item"><a class="nav-link active" role="tab" data-toggle="tab" href="#tab-1">Added</a></li>
-                                    <li class="nav-item"><a class="nav-link" role="tab" data-toggle="tab" href="#tab-2">Updated</a></li>
-                                    <li class="nav-item"><a class="nav-link" role="tab" data-toggle="tab" href="#tab-3">Deleted</a></li>
-                                </ul>
-                                <div class="tab-content">
-                                    <div class="tab-pane active" role="tabpanel" id="tab-1">
-                                        <ul class="list-group" id="addedFiles-list">
-                                            <li class="list-group-item"><i class="fa fa-file-text-o"></i><button class="btn btn-link btn-sm border-white" type="button">File full path</button></li>
-                                            <li class="list-group-item"><i class="fas fa-folder" style="color: rgb(241,232,15);"></i><button class="btn btn-link btn-sm border-white" type="button">Folder full path</button></li>
-                                        </ul>
-                                    </div>
-                                    <div class="tab-pane" role="tabpanel" id="tab-2">
-                                        <ul class="list-group" id="updatedFiles-list">
-                                            <li class="list-group-item"><i class="fa fa-file-text-o"></i><button class="btn btn-link btn-sm border-white" type="button">File full path</button></li>
-                                            <li class="list-group-item"><i class="fas fa-folder" style="color: rgb(241,232,15);"></i><button class="btn btn-link btn-sm border-white" type="button">Folder full path</button></li>
-                                        </ul>
-                                    </div>
-                                    <div class="tab-pane" role="tabpanel" id="tab-3">
-                                        <ul class="list-group" id="deletedFiles-list">
-                                            <li class="list-group-item"><i class="fa fa-file-text-o"></i><button class="btn btn-link btn-sm border-white" type="button">File full path</button></li>
-                                            <li class="list-group-item"><i class="fas fa-folder" style="color: rgb(241,232,15);"></i><button class="btn btn-link btn-sm border-white" type="button">Folder full path</button></li>
-                                        </ul>
-                                    </div>
-                                </div>
+<div id="MessageModal" class="modal">
+
+    <div class="modal-content">
+        <span class="closeMessage">&times;</span>
+        <p id="MessageContent">Some text in the Modal..</p>
+    </div>
+</div>
+
+<div id="wrapper">
+    <nav class="navbar navbar-dark align-items-start sidebar sidebar-dark accordion bg-gradient-primary p-0"
+         style="width: 245px;min-width: 245px;">
+        <div class="container-fluid d-flex flex-column p-0">
+            <a class="navbar-brand d-flex justify-content-center align-items-center sidebar-brand m-0" href="#">
+                <div class="sidebar-brand-icon rotate-n-15"><i class="fa fa-magic"></i></div>
+                <div class="sidebar-brand-text mx-3"><span>M.A.Git</span></div>
+            </a>
+            <hr class="visible"/>
+            <a class="text-white" href="#wcSection">Working Copy</a>
+            <hr class="visible"/>
+            <h5 class="text-light d-md-flex align-items-md-center"><i
+                    class="fas fa-code-branch d-md-flex align-items-md-center"></i> Branches</h5>
+
+            <div id="branchNameModal" role="dialog" tabindex="-1" class="modal fade show" style="display: none">
+                <div class="modal-dialog modal-sm" role="document">
+                    <form id="branchNameForm" action="/createNewBranch">
+                        <div class="modal-content">
+                            <div class="modal-header" style="height: 55px;">
+                                <h5 class="modal-title">New Branch</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span id="branchName-xbutton"
+                                        aria-hidden="true">×</span></button>
+                            </div>
+                            <div class="modal-body"><input id="branchNameTextInput" type="text" style="height: 31px;"
+                                                           placeholder="Enter branch&#39;s name" name="newBranchName"/>
+                            </div>
+                            <div class="modal-footer" style="height: 51px;">
+                                <button class="btn btn-primary btn-sm" type="submit">Save</button>
                             </div>
                         </div>
+                    </form>
+                </div>
+            </div>
+
+            <hr style="margin: 5px;"/>
+            <button id="newBranchButton" class="btn btn-primary btn-sm" type="button" onclick="showNewBranchModal()"> New Branch<i
+                    class="typcn typcn-plus float-left"></i></button>
+            <hr style="margin: 5px;"/>
+            <div class="container" id="otherBranchesList" style="padding: 0px;">
+
+            </div>
+            <hr class="visible"/>
+            <a class="text-white" href="#prSection"><i class="icon ion-pull-request"></i>  Pull Requests</a></div>
+    </nav>
+    <div class="d-flex flex-column" id="content-wrapper">
+        <div id="content">
+            <nav class="navbar navbar-light navbar-expand bg-white shadow mb-4 topbar static-top">
+                <div class="container-fluid">
+                    <h2 class="d-lg-flex justify-content-lg-center align-items-lg-end" id="repositoryName-label">
+                        Repository name</h2>
+                    <ul class="nav navbar-nav flex-wrap ml-auto">
+                        <li class="nav-item dropdown d-sm-none no-arrow"><a class="dropdown-toggle nav-link"
+                                                                            data-toggle="dropdown" aria-expanded="false"
+                                                                            href="#"><i class="fas fa-search"></i></a>
+                            <div class="dropdown-menu dropdown-menu-right p-3 animated--grow-in" role="menu"
+                                 aria-labelledby="searchDropdown">
+                                <form class="form-inline mr-auto navbar-search w-100">
+                                    <div class="input-group"><input class="bg-light form-control border-0 small"
+                                                                    type="text" placeholder="Search for ...">
+                                        <div class="input-group-append">
+                                            <button class="btn btn-primary py-0" type="button"><i
+                                                    class="fas fa-search"></i></button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </li>
+                        <li class="nav-item align-self-center dropdown no-arrow" role="presentation">
+                            <div class="nav-item dropdown no-arrow"><a class="dropdown-toggle nav-link"
+                                                                       data-toggle="dropdown" aria-expanded="false"
+                                                                       href="#"><i
+                                    class="fas fa-envelope fa-fw"></i><span
+                                    class="badge badge-danger badge-counter">7</span></a>
+                                <div class="dropdown-menu dropdown-menu-right dropdown-list dropdown-menu-right animated--grow-in"
+                                     role="menu">
+                                    <h6 class="dropdown-header">alerts center</h6>
+                                    <a class="d-flex align-items-center dropdown-item" href="#">
+                                        <div class="dropdown-list-image mr-3"><img class="rounded-circle"
+                                                                                   src="assets/img/avatars/avatar4.jpeg">
+                                            <div class="bg-success status-indicator"></div>
+                                        </div>
+                                        <div class="font-weight-bold">
+                                            <div class="text-truncate"><span>Hi there! I am wondering if you can help me with a problem I've been having.</span>
+                                            </div>
+                                            <p class="small text-gray-500 mb-0">Emily Fowler - 58m</p>
+                                        </div>
+                                    </a>
+                                    <a class="d-flex align-items-center dropdown-item" href="#">
+                                        <div class="dropdown-list-image mr-3"><img class="rounded-circle"
+                                                                                   src="assets/img/avatars/avatar2.jpeg">
+                                            <div class="status-indicator"></div>
+                                        </div>
+                                        <div class="font-weight-bold">
+                                            <div class="text-truncate"><span>I have the photos that you ordered last month!</span>
+                                            </div>
+                                            <p class="small text-gray-500 mb-0">Jae Chun - 1d</p>
+                                        </div>
+                                    </a>
+                                    <a class="d-flex align-items-center dropdown-item" href="#">
+                                        <div class="dropdown-list-image mr-3"><img class="rounded-circle"
+                                                                                   src="assets/img/avatars/avatar3.jpeg">
+                                            <div class="bg-warning status-indicator"></div>
+                                        </div>
+                                        <div class="font-weight-bold">
+                                            <div class="text-truncate"><span>Last month's report looks great, I am very happy with the progress so far, keep up the good work!</span>
+                                            </div>
+                                            <p class="small text-gray-500 mb-0">Morgan Alvarez - 2d</p>
+                                        </div>
+                                    </a>
+                                    <a class="d-flex align-items-center dropdown-item" href="#">
+                                        <div class="dropdown-list-image mr-3"><img class="rounded-circle"
+                                                                                   src="assets/img/avatars/avatar5.jpeg">
+                                            <div class="bg-success status-indicator"></div>
+                                        </div>
+                                        <div class="font-weight-bold">
+                                            <div class="text-truncate"><span>Am I a good boy? The reason I ask is because someone told me that people say this to all dogs, even if they aren't good...</span>
+                                            </div>
+                                            <p class="small text-gray-500 mb-0">Chicken the Dog · 2w</p>
+                                        </div>
+                                    </a>
+                                </div>
+                            </div>
+                        </li>
+                        <div class="d-none d-sm-block topbar-divider"></div>
+                        <li class="nav-item align-self-center dropdown no-arrow" role="presentation">
+                            <button onclick="BackToUserInformationPage()" class="btn btn-outline-secondary btn-sm text-center float-none"
+                                    id="backToUsersPage-button" type="button">Back To User's Page
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+            <div class="container">
+                <h6 class="text-primary"><strong style="margin-right: 4px;">RR:</strong><strong id="rrName-label"
+                                                                                                style="margin-right: 150px;"></strong><strong
+                        style="margin-right: 4px;">User:</strong><strong id="rrUser-label"></strong></h6>
+            </div>
+            <hr>
+            <div class="row">
+                <div class="col">
+                    <div class="container">
+                        <h5>Head Branch: &nbsp;<strong id="headBranch-label"></strong>&nbsp;
+                            <div class="btn-group float-right" role="group" style="margin-right: 100px;">
+                                <button onclick="push()" class="btn btn-info btn-sm collaboration-buttons" type="button" style="margin-right: 3px;">Push
+                                </button>
+                                <button onclick="pull()"  class="btn btn-info btn-sm collaboration-buttons" type="button" style="margin-right: 3px;">Pull
+                                </button>
+                                <button onclick="pullRequest()"  class="btn btn-info btn-sm collaboration-buttons" type="button">New Pull Request</button>
+                            </div>
+                        </h5>
+                    </div>
+                    <div class="container">
+                        <h6>Commits:</h6>
+                        <div role="tablist" id="headbranch-commits-accordion"></div>
                     </div>
                 </div>
-                <hr>
-                <div class="row" id="prSection">
-                    <div class="col">
-                        <div class="container">
-                            <h5 style="margin-bottom: 15px;">Pull Requests</h5>
-                            <div class="table-responsive">
-                                <table class="table">
-                                    <thead>
-                                        <tr>
-                                            <th>User</th>
-                                            <th>Target Branch</th>
-                                            <th>Base Branch</th>
-                                            <th>Date</th>
-                                            <th>Status</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>user 1</td>
-                                            <td>Cell 2</td>
-                                            <td>Cell 3</td>
-                                            <td>Cell 3</td>
-                                            <td>open</td>
-                                        </tr>
-                                        <tr>
-                                            <td>user 2</td>
-                                            <td>Cell 4</td>
-                                            <td>Cell 3</td>
-                                            <td>Cell 3</td>
-                                            <td>closed</td>
-                                        </tr>
-                                        <tr>
-                                            <td>user 3</td>
-                                            <td>Cell 2</td>
-                                            <td>Cell 3</td>
-                                            <td>Cell 4</td>
-                                            <td>denied</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+            </div>
+            <hr>
+            <div class="row" id="wcSection">
+                <div class="col">
+                    <div class="container">
+                        <h5 style="margin-bottom: 15px;">Working Copy &nbsp;&nbsp;<button class="btn btn-success btn-sm"
+                                                                                          id="commit-button"
+                                                                                          type="button"
+                                                                                          style="margin-left: 10px;">
+                            Commit
+                        </button>
+                            <button class="btn btn-secondary btn-sm float-right" type="button"
+                                    onclick='showCreateFileModal()' style="margin-right: 15px;"><i
+                                    class="icon ion-plus-round"></i><em> Add File</em></button>
+                        </h5>
+                        <div role="tablist" class="wc-accordion"></div>
+                    </div>
+                    <div id="createFileModal" role="dialog" tabindex="-1" class="modal fade show" style="display: none">
+                        <div class="modal-dialog" role="document">
+                            <form id="createFileForm" action="../../addFile">
+                                <div class="modal-content">
+                                    <div class="modal-header"><label id="pathLabel"
+                                                                     style="height: 30px;font-size: 20px;">Label</label><span
+                                            style="height: 30px;font-size: 20px;"> / </span><input id="createFile-name"
+                                                                                                   type="text"
+                                                                                                   placeholder="Enter file name"/>
+                                        <h4 style="height: 30px;font-size: 20px;">.txt</h4>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span id="createFile-xButton" aria-hidden="true">×</span></button>
+                                    </div>
+                                    <div class="modal-body" style="height: 170px;"><textarea id="createFile-content"
+                                                                                             placeholder="Enter content"
+                                                                                             form="createFileModal"
+                                                                                             cols="56"
+                                                                                             style="height: 140px;"></textarea>
+                                    </div>
+                                    <div class="modal-footer" style="height: 53px;">
+                                        <button class="btn btn-light btn-sm" type="button" data-dismiss="modal">Close
+                                        </button>
+                                        <button id="createFile-saveButton" class="btn btn-primary btn-sm" type="submit">
+                                            Save
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="container">
+                        <h6>Open Changes</h6>
+                        <div>
+                            <ul class="nav nav-tabs">
+                                <li class="nav-item"><a class="nav-link active" role="tab" data-toggle="tab"
+                                                        href="#tab-1">Added</a></li>
+                                <li class="nav-item"><a class="nav-link" role="tab" data-toggle="tab" href="#tab-2">Updated</a>
+                                </li>
+                                <li class="nav-item"><a class="nav-link" role="tab" data-toggle="tab" href="#tab-3">Deleted</a>
+                                </li>
+                            </ul>
+                            <div class="tab-content">
+                                <div class="tab-pane active" role="tabpanel" id="tab-1">
+                                    <ul class="list-group" id="addedFiles-list">
+                                        <li class="list-group-item"><i class="fa fa-file-text-o"></i>
+                                            <button class="btn btn-link btn-sm border-white" type="button">File full
+                                                path
+                                            </button>
+                                        </li>
+                                        <li class="list-group-item"><i class="fas fa-folder"
+                                                                       style="color: rgb(241,232,15);"></i>
+                                            <button class="btn btn-link btn-sm border-white" type="button">Folder full
+                                                path
+                                            </button>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="tab-pane" role="tabpanel" id="tab-2">
+                                    <ul class="list-group" id="updatedFiles-list">
+                                        <li class="list-group-item"><i class="fa fa-file-text-o"></i>
+                                            <button class="btn btn-link btn-sm border-white" type="button">File full
+                                                path
+                                            </button>
+                                        </li>
+                                        <li class="list-group-item"><i class="fas fa-folder"
+                                                                       style="color: rgb(241,232,15);"></i>
+                                            <button class="btn btn-link btn-sm border-white" type="button">Folder full
+                                                path
+                                            </button>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="tab-pane" role="tabpanel" id="tab-3">
+                                    <ul class="list-group" id="deletedFiles-list">
+                                        <li class="list-group-item"><i class="fa fa-file-text-o"></i>
+                                            <button class="btn btn-link btn-sm border-white" type="button">File full
+                                                path
+                                            </button>
+                                        </li>
+                                        <li class="list-group-item"><i class="fas fa-folder"
+                                                                       style="color: rgb(241,232,15);"></i>
+                                            <button class="btn btn-link btn-sm border-white" type="button">Folder full
+                                                path
+                                            </button>
+                                        </li>
+                                    </ul>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div><a class="border rounded d-inline scroll-to-top" href="#page-top"><i class="fas fa-angle-up"></i></a></div>
-    <script src="assets/js/jquery.min.js"></script>
-    <script src="assets/bootstrap/js/bootstrap.min.js"></script>
-    <script src="assets/js/bs-animation.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.js"></script>
-    <script src="assets/js/theme.js"></script>
+            <hr>
+            <div class="row" id="prSection">
+                <div class="col">
+                    <div class="container">
+                        <h5 style="margin-bottom: 15px;">Pull Requests</h5>
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                <tr>
+                                    <th>User</th>
+                                    <th>Target Branch</th>
+                                    <th>Base Branch</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td>user 1</td>
+                                    <td>Cell 2</td>
+                                    <td>Cell 3</td>
+                                    <td>Cell 3</td>
+                                    <td>open</td>
+                                </tr>
+                                <tr>
+                                    <td>user 2</td>
+                                    <td>Cell 4</td>
+                                    <td>Cell 3</td>
+                                    <td>Cell 3</td>
+                                    <td>closed</td>
+                                </tr>
+                                <tr>
+                                    <td>user 3</td>
+                                    <td>Cell 2</td>
+                                    <td>Cell 3</td>
+                                    <td>Cell 4</td>
+                                    <td>denied</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <a class="border rounded d-inline scroll-to-top" href="#page-top"><i class="fas fa-angle-up"></i></a></div>
+<script src="assets/js/jquery.min.js"></script>
+<script src="assets/bootstrap/js/bootstrap.min.js"></script>
+<script src="assets/js/bs-animation.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.js"></script>
+<script src="assets/js/theme.js"></script>
 </body>
 
 </html>

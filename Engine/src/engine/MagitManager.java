@@ -8,12 +8,15 @@ import org.apache.commons.io.FileUtils;
 import puk.team.course.magit.ancestor.finder.AncestorFinder;
 import puk.team.course.magit.ancestor.finder.CommitRepresentative;
 import tasks.LoadRepositoryFromXmlTask;
+
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -633,7 +636,7 @@ public class MagitManager {
             allCommits.add(currentCommit);
             prevCommitSha1 = currentCommit.getPrevCommitSha1();
 
-            while (prevCommitSha1 != null &&!prevCommitSha1.equals("")) {
+            while (prevCommitSha1 != null && !prevCommitSha1.equals("")) {
                 currentCommit = CreateCommitFromSha1(prevCommitSha1, this.repository.GetObjectsDirPath());
                 allCommits.add(currentCommit);
                 prevCommitSha1 = currentCommit.getPrevCommitSha1();
@@ -940,7 +943,7 @@ public class MagitManager {
         createRepositoryFromMagitRepositoryInUsersDirectory(username);
     }
 
-    private void createRepositoryFromMagitRepositoryInUsersDirectory(String username) throws Exception{
+    private void createRepositoryFromMagitRepositoryInUsersDirectory(String username) throws Exception {
         //deleteDirectory(Paths.get(this.xmlManager.getMagitRepository().getLocation()));
         CreateEmptyRepository(Constants.usersDirectoryPath + File.separator + username + File.separator + this.xmlManager.getMagitRepository().getName(), this.xmlManager.getMagitRepository().getName());
         this.repository.getBranches().clear();
@@ -1663,9 +1666,9 @@ public class MagitManager {
 
     public String getRRPath() {
         String pathToConvert = this.repository.getPath().toString() + File.separator + ".magit" + File.separator + "remoteRepositoryPath.txt";
-        String RRFullPath =null;
+        String RRFullPath = null;
         try {
-             RRFullPath =convertTextFileToString(pathToConvert);
+            RRFullPath = convertTextFileToString(pathToConvert);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -1673,7 +1676,7 @@ public class MagitManager {
     }
 
     public void SwitchToRepositoryFromUsersDirectory(String currentUserName, String repositoryName) {
-        String directoryPath = Constants.usersDirectoryPath+File.separator+currentUserName+File.separator+repositoryName;
+        String directoryPath = Constants.usersDirectoryPath + File.separator + currentUserName + File.separator + repositoryName;
         try {
             SwitchRepository(directoryPath);
         } catch (Exception e) {
@@ -1683,5 +1686,31 @@ public class MagitManager {
 
     public void SetRepository(Repository repository) {
         this.repository = repository;
+    }
+
+    public Map<String, Branch> GetAllBranches() {
+        return this.repository.getBranches();
+    }
+
+    public Commit GetLastCommitOfRepository() {
+        Map<String, Commit> allCommitsMap = GetAllCommitsMap();
+        List<Commit> allCommitsList = new ArrayList<>(allCommitsMap.values());
+
+        Collections.sort(allCommitsList, new Comparator<Commit>() {
+            @Override
+            public int compare(Commit o1, Commit o2) {
+                SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yyyy-HH:mm:ss:SSS");
+                Date date1 = null;
+                Date date2 = null;
+                try {
+                    date1 = formatter.parse(o1.getDateCreated());
+                    date2 = formatter.parse(o2.getDateCreated());
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+                return date2.compareTo(date1);
+            }
+        });
+        return allCommitsList.get(0);
     }
 }
