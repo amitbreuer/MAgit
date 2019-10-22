@@ -13,6 +13,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class ForkServlet extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
@@ -24,6 +26,7 @@ public class ForkServlet extends HttpServlet {
         String username = SessionUtils.getUsername(request);
         String otherUserName = request.getParameter(Constants.OTHER_USERNAME);
         String otherUserRepositoryName = request.getParameter(Constants.OTHER_USER_REPOSITORY_NAME);
+        userManager.getUser(otherUserName).AddMessage(username+" has forked your repository-"+otherUserRepositoryName+"\nAt :"+userManager.getDate());
         String message = "The Fork was executed successfully";
         User user = userManager.getUser(username);
 
@@ -43,7 +46,13 @@ public class ForkServlet extends HttpServlet {
 
     }
 
+    private String getDate() {
 
+        SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yyyy-HH:mm:ss:SSS");
+        Date date = new Date();
+        return formatter.format(date);
+
+    }
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
 
     /**

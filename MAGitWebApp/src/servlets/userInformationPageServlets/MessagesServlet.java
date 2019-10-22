@@ -1,8 +1,9 @@
 package servlets.userInformationPageServlets;
 
 import com.google.gson.Gson;
-import engine.users.*;
-import engine.users.constants.Constants;
+import constants.Constants;
+import engine.users.User;
+import engine.users.UserManager;
 import utils.ServletUtils;
 import utils.SessionUtils;
 
@@ -10,45 +11,46 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
-public class OtherUsersInformationServlet extends HttpServlet {
-
+public class MessagesServlet extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
         response.setContentType("application/json");
         UserManager userManager = ServletUtils.getUserManager(getServletContext());
         String currentUserName = SessionUtils.getUsername(request);
-        Map<String, User> users = userManager.getUsers();
-
-        List<SingleUserData> otherUsersData = new ArrayList<>();
-
-        for (Map.Entry<String,User> entry : users.entrySet()) {
-            User user = entry.getValue();
-            if(!user.getUsername().equals(currentUserName)) {
-                otherUsersData.add(createUserDataFromUser(user));
-            }
+        int messagesVersionFromRequest = ServletUtils.getIntParameter(request, Constants.MESSAGES_VERSION_PARAMETER);
+        if (messagesVersionFromRequest == Constants.INT_PARAMETER_ERROR) {
+            return;
         }
+        List<String> messages;
+        User currentUser = userManager.getUser(currentUserName);
+        int userMessagesVersion;
+            userMessagesVersion = currentUser.getMessagesVersion();
+            messages = currentUser.getMessages(messagesVersionFromRequest);
+
+        MessagesAndVersion mav = new MessagesAndVersion(messages, userMessagesVersion);
 
         try (PrintWriter out = response.getWriter()) {
             Gson gson = new Gson();
-            String json = gson.toJson(otherUsersData);
+            String json = gson.toJson(mav);
             out.println(json);
             out.flush();
         }
     }
 
-    private SingleUserData createUserDataFromUser(User user) {
-        SingleUserData userData = new SingleUserData(user.getUsername());
-        userData.getRepositoriesDataList().addAll(user.getRepositoriesData());
+    private static class MessagesAndVersion {
 
-        return userData;
+        final private List<String> messages;
+        final private int version;
+
+        public MessagesAndVersion(List<String> messages, int version) {
+            this.messages = messages;
+            this.version = version;
+        }
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
@@ -90,4 +92,5 @@ public class OtherUsersInformationServlet extends HttpServlet {
     public String getServletInfo() {
         return "Short description";
     }// </editor-fold>
+
 }

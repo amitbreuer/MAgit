@@ -27,7 +27,7 @@ public class CurrentUserInformationServlet extends HttpServlet {
         //SingleUserData currentUserData = userManager.GetCurrentUserData(currentUserName);
         User currentUser = userManager.getUser(currentUserName);
         SingleUserData currentUserData = new SingleUserData(currentUser.getUsername());
-        currentUserData.getRepositoriesDataList().addAll(currentUser.getRepositoriesDatas());
+        currentUserData.getRepositoriesDataList().addAll(currentUser.getRepositoriesData());
 
         try (PrintWriter out = response.getWriter()) {
             Gson gson = new Gson();

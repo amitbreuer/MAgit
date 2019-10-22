@@ -13,9 +13,12 @@ public class Constants {
     public static final String FileNewContent = "fileNewContent";
     public static final String COMMIT_MESSAGE = "commitMessage";
 
+    public static final String BRANCH_TO_DELETE_NAME = "branchToDeleteName";
+    public static final String BRANCH_TO_CHECKOUT_NAME = "branchToCheckoutName";
+    public static final String NEW_BRANCH_NAME= "newBranchName";
+
     public static final int INT_PARAMETER_ERROR = Integer.MIN_VALUE;
 
     public static final String usersDirectoryPath = "c:" + File.separator+"magit-ex3";
-
-
+    public static final String MESSAGES_VERSION_PARAMETER = "messagesVersion";
 }

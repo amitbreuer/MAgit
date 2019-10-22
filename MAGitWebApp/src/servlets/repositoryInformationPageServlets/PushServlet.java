@@ -1,8 +1,10 @@
-package servlets.userInformationPageServlets;
+package servlets.repositoryInformationPageServlets;
 
 import com.google.gson.Gson;
-import engine.users.*;
-import engine.users.constants.Constants;
+import constants.Constants;
+import engine.Folder;
+import engine.users.User;
+import engine.users.UserManager;
 import utils.ServletUtils;
 import utils.SessionUtils;
 
@@ -13,43 +15,45 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
-public class OtherUsersInformationServlet extends HttpServlet {
+public class PushServlet extends HttpServlet {
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
         response.setContentType("application/json");
         UserManager userManager = ServletUtils.getUserManager(getServletContext());
-        String currentUserName = SessionUtils.getUsername(request);
-        Map<String, User> users = userManager.getUsers();
 
-        List<SingleUserData> otherUsersData = new ArrayList<>();
+        String username = SessionUtils.getUsername(request);
+        User user = userManager.getUser(username);
+        try {
+            user.getMagitManager().Push();
+            Gson gson = new Gson();
+            String json = gson.toJson("push executed successfully");
 
-        for (Map.Entry<String,User> entry : users.entrySet()) {
-            User user = entry.getValue();
-            if(!user.getUsername().equals(currentUserName)) {
-                otherUsersData.add(createUserDataFromUser(user));
+            try (PrintWriter out = response.getWriter()) {
+                out.println(json);
+                out.flush();
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            Gson gson = new Gson();
+            String json = gson.toJson(e.getMessage());
+
+            try (PrintWriter out = response.getWriter()) {
+                out.println(json);
+                out.flush();
             }
         }
 
-        try (PrintWriter out = response.getWriter()) {
-            Gson gson = new Gson();
-            String json = gson.toJson(otherUsersData);
-            out.println(json);
-            out.flush();
-        }
+
+
     }
 
-    private SingleUserData createUserDataFromUser(User user) {
-        SingleUserData userData = new SingleUserData(user.getUsername());
-        userData.getRepositoriesDataList().addAll(user.getRepositoriesData());
-
-        return userData;
-    }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
 
@@ -90,4 +94,5 @@ public class OtherUsersInformationServlet extends HttpServlet {
     public String getServletInfo() {
         return "Short description";
     }// </editor-fold>
+
 }

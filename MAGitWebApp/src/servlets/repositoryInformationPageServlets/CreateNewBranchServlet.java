@@ -1,8 +1,10 @@
-package servlets.userInformationPageServlets;
+package servlets.repositoryInformationPageServlets;
 
 import com.google.gson.Gson;
-import engine.users.*;
-import engine.users.constants.Constants;
+import constants.Constants;
+import engine.users.RepositoryData;
+import engine.users.User;
+import engine.users.UserManager;
 import utils.ServletUtils;
 import utils.SessionUtils;
 
@@ -10,46 +12,48 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
-public class OtherUsersInformationServlet extends HttpServlet {
-
+public class CreateNewBranchServlet extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
         response.setContentType("application/json");
         UserManager userManager = ServletUtils.getUserManager(getServletContext());
         String currentUserName = SessionUtils.getUsername(request);
-        Map<String, User> users = userManager.getUsers();
+        User currentUser = userManager.getUser(currentUserName);
+        String currentRepositoryName = currentUser.getMagitManager().getRepositoryName();
+        String branchToAddName = request.getParameter(Constants.NEW_BRANCH_NAME);
 
-        List<SingleUserData> otherUsersData = new ArrayList<>();
-
-        for (Map.Entry<String,User> entry : users.entrySet()) {
-            User user = entry.getValue();
-            if(!user.getUsername().equals(currentUserName)) {
-                otherUsersData.add(createUserDataFromUser(user));
+        try {
+            currentUser.getMagitManager().CreateNewRegularBranch(branchToAddName, false, true, null);
+            for (RepositoryData repositoryData : currentUser.getRepositoriesData()) {
+                if (repositoryData.getName().equals(currentRepositoryName)) {
+                    repositoryData.setNumberOfBranches(repositoryData.getNumberOfBranches() + 1);
+                }
             }
+            try (PrintWriter out = response.getWriter()) {
+                Gson gson = new Gson();
+                String json = gson.toJson("The branch was added successfully");
+                out.println(json);
+                out.flush();
+            }
+
+
+        } catch (Exception e) {
+            try (PrintWriter out = response.getWriter()) {
+                Gson gson = new Gson();
+                String json = gson.toJson("There is already branch with this name");
+                out.println(json);
+                out.flush();
+            }
+            e.printStackTrace();
+
         }
 
-        try (PrintWriter out = response.getWriter()) {
-            Gson gson = new Gson();
-            String json = gson.toJson(otherUsersData);
-            out.println(json);
-            out.flush();
-        }
     }
 
-    private SingleUserData createUserDataFromUser(User user) {
-        SingleUserData userData = new SingleUserData(user.getUsername());
-        userData.getRepositoriesDataList().addAll(user.getRepositoriesData());
-
-        return userData;
-    }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
 

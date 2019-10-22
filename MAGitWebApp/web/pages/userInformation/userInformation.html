@@ -19,74 +19,55 @@
 </head>
 
 <body>
-    <nav class="navbar navbar-light navbar-expand-md" style="background-color: #72a3dd;" action="&quot;../login/login.html">
-        <div class="container-fluid">
-            <a class="navbar-brand d-flex justify-content-center align-items-center sidebar-brand m-0" href="#">
-                <div class="sidebar-brand-icon rotate-n-15"><i class="fas fa-magic"></i></div>
-                <div class="sidebar-brand-text mx-3"><span>M.A.git</span></div>
-            </a>
-            <h1>User's Page</h1>
-            <ul class="nav navbar-nav"></ul><button id="logoutButton" onclick="location.href = '../../logout'" class="btn btn-primary btn-sm text-secondary border rounded-0 border-secondary" data-bs-hover-animate="pulse" type="button" style="background-color: #72a3dd;color: rgba(65,65,65,0.95);filter: contrast(100%);">Logout</button>
-            <button
-                class="navbar-toggler" data-toggle="collapse"><span class="sr-only">Toggle navigation</span><span class="navbar-toggler-icon"></span></button>
+<nav class="navbar navbar-light navbar-expand-md" style="background-color: #72a3dd;" action="&quot;../login/login.html">
+    <div class="container-fluid">
+        <a class="navbar-brand d-flex justify-content-center align-items-center sidebar-brand m-0" href="#">
+            <div class="sidebar-brand-icon rotate-n-15"><i class="fas fa-magic"></i></div>
+            <div class="sidebar-brand-text mx-3"><span>M.A.git</span></div>
+        </a>
+        <h1>User's Page</h1>
+        <ul class="nav navbar-nav"></ul>
+        <button id="logoutButton" onclick="location.href = '../../logout'"
+                class="btn btn-primary btn-sm text-secondary border rounded-0 border-secondary"
+                data-bs-hover-animate="pulse" type="button"
+                style="background-color: #72a3dd;color: rgba(65,65,65,0.95);filter: contrast(100%);">Logout
+        </button>
+        <button
+                class="navbar-toggler" data-toggle="collapse"><span class="sr-only">Toggle navigation</span><span
+                class="navbar-toggler-icon"></span></button>
+    </div>
+</nav>
+<div class="container-fluid" style="max-height: 500px;padding-top: 10px;">
+    <div class="row" data-aos="fade" style="max-height: inherit;">
+        <div class="col-md-3 col-lg-2" style="max-height: inherit;">
+            <h5>Users</h5>
+            <button id="currentUser" class="btn btn-link border-white" type="button">Current User</button>
+            <hr>
+            <ul data-aos="fade" id="otherUsersList" class="otherUsersList"
+                style="max-height: 90%;overflow-y: scroll;"></ul>
         </div>
-    </nav>
-    <div class="container-fluid" style="max-height: 500px;padding-top: 10px;">
-        <div class="row" data-aos="fade" style="max-height: inherit;">
-            <div class="col-md-3 col-lg-2" style="max-height: inherit;">
-                <h5>Users</h5>
-                <button id="currentUser" class="btn btn-link border-white" type="button">Current User</button>
-                <hr>
-                <ul data-aos="fade" id="otherUsersList" class="otherUsersList" style="max-height: 90%;overflow-y: scroll;"></ul>
-            </div>
-            <div class="col" style="max-height: inherit;">
-                <div id="newRepositoryMessageModal" class="modal">
+        <div class="col" style="max-height: inherit;">
+            <div id="newRepositoryMessageModal" class="modal">
 
-                    <div class="modal-content">
-                        <span class="closeRepositoryMessage">&times;</span>
-                        <p id="newRepositoryMessageContent">Some text in the Modal..</p>
-                    </div>
-
+                <div class="modal-content">
+                    <span class="closeRepositoryMessage">&times;</span>
+                    <p id="newRepositoryMessageContent">Some text in the Modal..</p>
                 </div>
-
-                <h3 style="height: 42px;">Repositories<input type="file" class="float-none invisible" id="fileInput" onchange ="addNewRepositoryToCurrentUser(event)" style="height: 10px;width: 10px;" /><label class="float-right btn btn-success" for="fileInput" style="background-color: rgb(47,195,81);">New Repository</label></h3>
-
-
-                <div role="tablist" data-aos="fade" data-aos-duration="100" id="accordion-2" style="max-height: inherit;overflow-y: scroll;"></div>
             </div>
-            <div class="col-md-3" style="max-height: inherit;">
-                <h5>Notifications</h5>
-                <div role="tablist" data-aos="fade" class="messagesAccordion" style="max-height: inherit;overflow-y: scroll;">
-                    <div class="card forkMessage">
-                        <div class="card-header" role="tab">
-                            <h5 class="mb-0"><a data-toggle="collapse" aria-expanded="true" aria-controls="messages .item-1">Fork Message</a></h5>
-                        </div>
-                        <div class="collapse item-1" role="tabpanel" data-parent="#messages">
-                            <div class="card-body"><strong class="d-lg-flex justify-content-lg-start">Repository's name</strong><strong class="d-lg-flex justify-content-lg-start">User that forked</strong><code>Time Stamp</code></div>
-                        </div>
-                    </div>
-                    <div class="card newPRMessage">
-                        <div class="card-header" role="tab">
-                            <h5 class="mb-0"><a data-toggle="collapse" aria-expanded="true" aria-controls="messages .item-2" href="#messages .item-2">New PR message</a></h5>
-                        </div>
-                        <div class="collapse item-2" role="tabpanel" data-parent="#messages">
-                            <div class="card-body">
-                                <h6>Repository:&nbsp;</h6>
-                                <h6>From User:&nbsp;</h6>
-                                <p>Message</p><small>Target Branch:&nbsp;</small><small class="d-lg-flex justify-content-lg-start">Base Branch:&nbsp;</small><code id="timeStamp">Time Stamp</code></div>
-                        </div>
-                    </div>
-                    <div class="card prResponse">
-                        <div class="card-header" role="tab">
-                            <h5 class="mb-0"><a data-toggle="collapse" aria-expanded="true" aria-controls="messages .item-3" href="#messages .item-3">PR response</a></h5>
-                        </div>
-                        <div class="collapse show item-3" role="tabpanel" data-parent="#messages">
-                            <div class="card-body">
-                                <h6>PR's status</h6>
-                                <p>Message if rejected</p><code>Time Stamp</code></div>
-                        </div>
-                    </div>
-                </div>
+
+            <h3 style="height: 42px;">Repositories<input type="file" class="float-none invisible" id="fileInput"
+                                                         onchange="addNewRepositoryToCurrentUser(event)"
+                                                         style="height: 10px;width: 10px;"/><label
+                    class="float-right btn btn-success" for="fileInput" style="background-color: rgb(47,195,81);">New
+                Repository</label></h3>
+
+
+            <div role="tablist" data-aos="fade" data-aos-duration="100" id="accordion-2"
+                 style="max-height: inherit;overflow-y: scroll;"></div>
+        </div>
+        <div class="col-md-3" style="max-height: inherit;">
+            <h5>Notifications</h5>
+            <div role="tablist" id="messages" class="messagesAccordion" style="max-height: inherit;overflow-y: scroll;">
             </div>
         </div>
     </div>
@@ -94,6 +75,7 @@
     <script src="assets/bootstrap/js/bootstrap.min.js"></script>
     <script src="assets/js/bs-animation.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.1.1/aos.js"></script>
+</div>
 </body>
 
 </html>

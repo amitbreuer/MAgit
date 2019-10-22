@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /*
@@ -41,16 +42,16 @@ public class UserManager {
         return usersMap.containsKey(username);
     }
 
-    private SingleUserData getUserData(String userName) {
+    /*private SingleUserData getUserData(String userName) {
         SingleUserData userData = new SingleUserData(userName);
         File userDirectory = new File(Constants.usersDirectoryPath + File.separator + userName);
         for (File file : userDirectory.listFiles()) {
             addRepositoryDirectoryToUserData(userData, file, userName);
         }
         return userData;
-    }
+    }*/
 
-    private void addRepositoryDirectoryToUserData(SingleUserData userData, File directoryFile, String userName) {
+    /*private void addRepositoryDirectoryToUserData(SingleUserData userData, File directoryFile, String userName) {
         RepositoryData repositoryData;
         String name;
         Integer numberOfBranches;
@@ -76,7 +77,7 @@ public class UserManager {
 
         repositoryData = new RepositoryData(name, activeBranchName, numberOfBranches, lastCommitDate, lastCommitMessage);
         userData.AddRepositoryDataToRepositorysDataList(repositoryData);
-    }
+    }*/
 
    /* public AllUsersData GetAllUsersData(String currentUserName) {
         AllUsersData allUsersData = new AllUsersData();
@@ -123,5 +124,13 @@ public class UserManager {
 */
     public User getUser(String username) {
         return usersMap.get(username);
+    }
+
+    public String getDate() {
+
+        SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yyyy-HH:mm:ss:SSS");
+        Date date = new Date();
+        return formatter.format(date);
+
     }
 }
