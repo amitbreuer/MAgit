@@ -422,17 +422,6 @@ function initializeCommitMessageModal() {
 }
 
 function ajaxOtherBranchesInformation() {
-    /*
-                 data will arrive in the next form:
-                 {
-                    json[0] = branch name
-                    json[1] = branch commit's sha1
-                    json[2] = another branch name
-                    json[3] = another branch commit's sha1
-                    .
-                    .
-                    .
-                 */
     $.ajax(
         {
             url: OTHER_BRANCHES_INFORMATION_URL,
@@ -444,8 +433,7 @@ function ajaxOtherBranchesInformation() {
 
 function createOtherBranchElement(singleBranchName, singleBranchCommitSha1) {
     return "<div class=\"text-center\"><a class=\"btn btn-primary btn-sm text-white\" data-toggle=\"collapse\" aria-expanded=\"false\" aria-controls=\"collapse-" + singleBranchName + "\" href=\"#collapse-" + singleBranchName + "\" role=\"button\" style=\"height: 28px;font-size: 15px;margin-bottom: 4px;\">" + singleBranchName + "</a>" +
-        "<div class=\"collapse text-center\"" +
-        "id=\"collapse-" + singleBranchName + "\"><em class=\"text-white d-flex\" style=\"font-size: 10px;\">" + singleBranchCommitSha1 + "<br /></em>" +
+        "<div class=\"collapse text-center\" id=\"collapse-" + singleBranchName + "\"><em class=\"text-white d-flex\" style=\"font-size: 10px;\">" + singleBranchCommitSha1 + "<br /></em>" +
         "<div role=\"group\" class=\"btn-group\"><button id =\"delete-branch-" + singleBranchName + "\" class=\"btn btn-primary btn-sm\" type=\"button\" style=\"margin-right: 2px;font-size: 12px;height: 25px;\">Delete</button><button id =\"checkout-branch-" + singleBranchName + "\" class=\"btn btn-primary btn-sm\" type=\"button\" style=\"height: 25px;font-size: 12px;\">Checkout</button></div>" +
         "</div>" +
         "</div>" +
@@ -552,7 +540,8 @@ function initializeBranchNameModal() {
 
 function initializeModals() {
     initializeBranchNameModal();
-
+    initializeAddFileModal();
+    initializeCommitMessageModal();
 }
 
 function push() {
@@ -600,10 +589,4 @@ $(function () {
         ajaxOtherBranchesInformation();
     });
     initializeModals();
-    ajaxHeadBranchInformation();
-
-    initializeAddFileModal();
-    initializeCommitMessageModal();
-
-
 });
