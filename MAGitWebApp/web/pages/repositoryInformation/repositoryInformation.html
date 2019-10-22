@@ -126,16 +126,28 @@
                 <div class="row" id="wcSection">
                     <div class="col">
                         <div class="container">
-                            <h5 style="margin-bottom: 15px;">Working Copy &nbsp;&nbsp;<button class="btn btn-success btn-sm" id="commit-button" type="button" style="margin-left: 10px;">Commit</button><button class="btn btn-secondary btn-sm float-right" type="button" onclick='showCreateFileModal("wc-accordion","")' style="margin-right: 15px;"><i class="icon ion-plus-round"></i><em> Add File</em></button></h5>
+                            <h5 style="margin-bottom: 15px;">Working Copy &nbsp;&nbsp;<button class="btn btn-success btn-sm" id="commit-button" type="button" onclick="showCommitMessageModal()" style="margin-left: 10px;">Commit</button><button class="btn btn-secondary btn-sm float-right" type="button" onclick='showCreateFileModal("wc-accordion","")' style="margin-right: 15px;"><i class="icon ion-plus-round"></i><em> Add File</em></button></h5>
                             <div role="tablist" Id="wc-accordion"></div>
+                        </div>
+                        <div id="commitMessageModal" role="dialog" tabindex="-1" class="modal fade show" style="display: none">
+                            <div class="modal-dialog modal-sm" role="document">
+                                <form id="commitMessageForm">
+                                <div class="modal-content">
+                                    <div class="modal-header" style="height: 55px;">
+                                        <h5 class="modal-title">Commit&#39;s Message</h5><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true" id="commitMessage-xButton">×</span></button></div>
+                                    <div class="modal-body" style="height: 100px;"><textarea form="commitMessageForm" name="commitMessage" placeholder="Enter message" style="width: 264px;height: 68px;"></textarea></div>
+                                    <div class="modal-footer" style="height: 51px;"><button class="btn btn-primary btn-sm" type="submit">Save</button></div>
+                                </div>
+                                </form>
+                            </div>
                         </div>
                         <div id="createFileModal" role="dialog" tabindex="-1" class="modal fade show" style="display: none">
                             <div class="modal-dialog" role="document">
-                                <form id="createFileForm" action="../../addFile">
+                                <form id="createFileForm">
                                 <div class="modal-content">
                                     <div class="modal-header"><input name="createFile-path" type="text" readonly /><span style="height: 30px;font-size: 20px;"> / </span><input name="createFile-name" type="text" placeholder="Enter file name" /><h4 style="height: 30px;font-size: 20px;">.txt</h4><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span id="createFile-xButton" aria-hidden="true">×</span></button></div>
                                     <div class="modal-body" style="height: 170px;"><textarea name="createFile-content" placeholder="Enter content" form="createFileForm" cols="56" style="height: 140px;"></textarea></div>
-                                    <div class="modal-footer" style="height: 53px;"><button class="btn btn-light btn-sm" type="button" data-dismiss="modal">Close</button><button id="createFile-saveButton" class="btn btn-primary btn-sm" type="submit">Save</button></div>
+                                    <div class="modal-footer" style="height: 53px;"><button id="createFile-saveButton" class="btn btn-primary btn-sm" type="submit">Save</button></div>
                                 </div>
                                 </form>
                             </div>

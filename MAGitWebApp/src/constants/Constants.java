@@ -11,6 +11,7 @@ public class Constants {
     public static final String OTHER_USER_REPOSITORY_NAME = "otherUserRepositoryName";
     public static final String FileName = "fileFullName";
     public static final String FileNewContent = "fileNewContent";
+    public static final String COMMIT_MESSAGE = "commitMessage";
 
     public static final int INT_PARAMETER_ERROR = Integer.MIN_VALUE;
 

@@ -1,11 +1,13 @@
 var REPOSITORY_NAME_AND_RR_DATA_URL = buildUrlWithContextPath("repositoryNameAndRRData");
 var HEAD_BRANCH_INFORMATION_URL = buildUrlWithContextPath("headBranchInformation");
 var MAIN_FOLDER_OF_COMMIT_URL = buildUrlWithContextPath("mainFolderOfCommit");
-var WC_STATUS_URL = buildUrlWithContextPath("wcStatus");
+var WC_Files_URL = buildUrlWithContextPath("wcFiles");
 var REPOSITORY_NAME;
 var EDIT_FILE_URL = buildUrlWithContextPath("editFile");
 var DELETE_FILE_URL = buildUrlWithContextPath("deleteFile");
 var ADD_FILE_URL = buildUrlWithContextPath("addFile");
+var OPEN_CHANGES = buildUrlWithContextPath("openChanges");
+var COMMIT_URL = buildUrlWithContextPath("commit");
 
 function setRepositoryName(name) {
     REPOSITORY_NAME = name;
@@ -34,7 +36,41 @@ function ajaxRepositoryNameAndRRDataCallback(repositoryNameAndRRData) {
     ajaxWCFiles();
 }
 
-function ajaxSaveNewContent(fileItemContentId,saveButtonId,fileID,content,fileFullName) {
+function emptyOpenChanesLists() {
+    $("#addedFiles-list").empty();
+    $("#updatedFiles-list").empty();
+    $("#deletedFiles-list").empty();
+}
+
+function showOpenChanges(delta) {
+    var addedFiles = delta.addedFiles;
+    var updatedFiles = delta.updatedFiles;
+    var deletedFiles = delta.deletedFiles;
+
+    emptyOpenChanesLists();
+
+    for(var i=0;i<addedFiles.length;i++){
+        addFileToOpenChanges(addedFiles[i].fullNameFromMainFolder,"addedFiles-list");
+    }
+    for(var j=0;j<updatedFiles.length;j++){
+        addFileToOpenChanges(updatedFiles[j].fullNameFromMainFolder,"updatedFiles-list");
+    }
+    for(var k=0;k<deletedFiles.length;k++){
+        addFileToOpenChanges(deletedFiles[k].fullNameFromMainFolder,"deletedFiles-list");
+    }
+}
+
+function ajaxOpenChanges() {
+    $.ajax({
+        url: OPEN_CHANGES,
+        data: {
+            currentWatchedRepository : REPOSITORY_NAME
+        },
+        success: showOpenChanges
+    })
+}
+
+function ajaxSaveNewContent(fileItemContentId,saveButtonId,fileID,content) {
     $.ajax({
         url: EDIT_FILE_URL,
         data: {
@@ -46,7 +82,7 @@ function ajaxSaveNewContent(fileItemContentId,saveButtonId,fileID,content,fileFu
             document.getElementById(fileItemContentId).setAttribute("contentEditable","false");
             document.getElementById(saveButtonId).setAttribute("class","btn btn-secondary btn-sm d-none float-right");
             console.log(message);
-            addFileToOpenChanges(fileFullName,"updatedFiles-list");
+            ajaxOpenChanges();
         }
     })
 }
@@ -56,7 +92,7 @@ function editTextFile(fileItemContentId,saveButtonId) {
     document.getElementById(saveButtonId).setAttribute("class","btn btn-secondary btn-sm float-right");
 }
 
-function ajaxDeleteFile(fileID,fileFullName) {
+function ajaxDeleteFile(fileID) {
     $.ajax({
         url : DELETE_FILE_URL,
         data : {
@@ -66,17 +102,12 @@ function ajaxDeleteFile(fileID,fileFullName) {
         success: function (message){
             document.getElementById(fileID+"Item").remove();
             console.log(message);
-            addFileToOpenChanges(fileFullName,"deletedFiles-list");
+            ajaxOpenChanges();
         }
     })
 }
 
-function addEditableTextFileItem(folderComponent, containingFolderId, index,containingFolderName) {
-    var fixedFileName = containingFolderName;
-    if(containingFolderName !== "") {
-        fixedFileName += "/";
-    }
-    fixedFileName  += folderComponent.name;
+function addEditableTextFileItem(folderComponent, containingFolderId, index) {
 
     var fileName = containingFolderId+"-"+folderComponent.name;
     var contentId = fileName+"-content";
@@ -85,9 +116,9 @@ function addEditableTextFileItem(folderComponent, containingFolderId, index,cont
     var textFileItem = "<div id=\""+fileName+"Item\" class=\"card\">" +
         "<div role=\"tab\" class=\"card-header\">" +
         "<h5 class=\"mb-0\"><a data-toggle=\"collapse\" aria-expanded=\"false\" aria-controls=\"" + containingFolderId + " .item-" + index + "\" href=\"#" + containingFolderId + " .item-" + index + "\" style=\"font-size: 14px;\"><i class=\"fa fa-file-text-o\"></i> " + folderComponent.name + "</a>" +
-        "<button class=\"btn btn-secondary btn-sm float-right\" type=\"button\" onclick='ajaxDeleteFile(\""+fileName+"\",\""+fixedFileName +"\")'><i class=\"fas fa-trash-alt\"></i> Delete</button>" +
+        "<button class=\"btn btn-secondary btn-sm float-right\" type=\"button\" onclick='ajaxDeleteFile(\""+fileName+"\")'><i class=\"fas fa-trash-alt\"></i> Delete</button>" +
         "<button class=\"btn btn-secondary btn-sm float-right\" type=\"button\" onclick='editTextFile(\""+contentId+"\",\""+saveButtonId+"\")' style=\"margin-right: 3px;\"><i class=\"fa fa-pencil\"></i> Edit</button>" +
-        "<button id=\""+saveButtonId+"\" class=\"btn btn-secondary btn-sm d-none float-right\" type=\"button\" onclick='ajaxSaveNewContent(\""+contentId+"\",\""+saveButtonId+"\",\""+containingFolderId+"-"+folderComponent.name+"\",document.getElementById(\""+contentId+"\").textContent,\""+fixedFileName+"\")' style=\"margin-right: 2px;\"><i class=\"fa fa-save\"></i> Save</button>" +
+        "<button id=\""+saveButtonId+"\" class=\"btn btn-secondary btn-sm d-none float-right\" type=\"button\" onclick='ajaxSaveNewContent(\""+contentId+"\",\""+saveButtonId+"\",\""+containingFolderId+"-"+folderComponent.name+"\",document.getElementById(\""+contentId+"\").textContent)' style=\"margin-right: 2px;\"><i class=\"fa fa-save\"></i> Save</button>" +
         "</h5>" +
         "</div>" +
         "<div class=\"collapse item-" + index + "\" data-parent=\"#" + containingFolderId + "\" role=\"tabpanel\" >" +
@@ -111,7 +142,7 @@ function addEditableFolderItem(folderComponent, containingFolderId, index,contai
     var folderItem = "<div id=\""+ containingFolderId + "-" + folderComponent.name + "Item\" class=\"card\">" +
         "<div role=\"tab\" class=\"card-header\">" +
         "<h5 class=\"mb-0\"><a data-toggle=\"collapse\" aria-expanded=\"false\" aria-controls=\"" + containingFolderId + " .item-" + index + "\" href=\"#" + containingFolderId + " .item-" + index + "\" style=\"font-size: 14px;\"><i class=\"fas fa-folder\" style=\"color: rgb(241,232,15);\"></i> " + folderComponent.name + "</a>" +
-        "<button class=\"btn btn-secondary btn-sm float-right\" type=\"button\" onclick='ajaxDeleteFile(\""+ containingFolderId + "-" + folderComponent.name + "\",\""+ fixedFolderName + "\")'><i class=\"fas fa-trash-alt\"></i> Delete</button>" +
+        "<button class=\"btn btn-secondary btn-sm float-right\" type=\"button\" onclick='ajaxDeleteFile(\""+ containingFolderId + "-" + folderComponent.name + "\")'><i class=\"fas fa-trash-alt\"></i> Delete</button>" +
         "<button class=\"btn btn-secondary btn-sm float-right\" type=\"button\" onclick='showCreateFileModal(\""+containingFolderId+"-"+folderComponent.name+"\",\""+ fixedFolderName + "\")' style=\"margin-right: 3px;\"><i class=\"icon ion-plus-round\"></i> Add File</button>" +
         "</h5>" +
         "</div>" +
@@ -127,7 +158,7 @@ function addEditableFolderItem(folderComponent, containingFolderId, index,contai
     for (var i = 0; i < components.length; i++) {
 
         if (components[i].folderComponent.content) { // blob
-            addEditableTextFileItem(components[i], containingFolderId+'-'+folderComponent.name, i + 1,fixedFolderName);
+            addEditableTextFileItem(components[i], containingFolderId+'-'+folderComponent.name, i + 1);
         } else {
             addEditableFolderItem(components[i], containingFolderId+'-'+folderComponent.name, i + 1,fixedFolderName);
         }
@@ -177,7 +208,7 @@ function addFolderItem(folderComponent, containingFolderId, index) {
 function addFileItemToWCDisplay(folderComponent, index) {
 
     if (folderComponent.folderComponent.content) { // blob
-        addEditableTextFileItem(folderComponent, "wc-accordion", index,"");
+        addEditableTextFileItem(folderComponent, "wc-accordion", index);
     } else { // folder
         addEditableFolderItem(folderComponent, "wc-accordion", index,"");
     }
@@ -185,9 +216,7 @@ function addFileItemToWCDisplay(folderComponent, index) {
 
 function showCreateFileModal(containingItemId,containingFolder) {
     var modal = $("#createFileModal")[0];
-    var xButton = document.getElementById("createFile-xButton");
-    var fileNameTextField = document.getElementsByName("createFile-name")[0];
-    var contentTextArea = document.getElementsByName("createFile-content")[0];
+
     var pathLabel = document.getElementsByName("createFile-path")[0];
 
     pathLabel.value = REPOSITORY_NAME;
@@ -195,26 +224,7 @@ function showCreateFileModal(containingItemId,containingFolder) {
         pathLabel.value += "/" + containingFolder;
     }
 
-    xButton.onclick = function () {
-        fileNameTextField.value = "";
-        contentTextArea.value = "";
-        modal.style.display = "none";
-    };
-
-    $("#createFileForm").submit(function () {
-        $.ajax({
-            url: ADD_FILE_URL,
-            data: $(this).serialize(),
-            success: function(data) {
-                console.log(data[0]);// show message
-                createFileCallBack(containingFolder,containingItemId,data[1])
-            }
-        });
-        return false;
-    });
-
     modal.style.display = "block";
-
 }
 
 function addFileToOpenChanges(fileFullName, changesList) {
@@ -228,15 +238,9 @@ function addFileToOpenChanges(fileFullName, changesList) {
     $("#"+changesList).append(newItem);
 }
 
-function createFileCallBack(containingFolder,containingItemId,newFolderComponent) {
-    var container = document.getElementById(containingItemId);
-    addEditableTextFileItem(newFolderComponent,containingItemId,container.children.length + 1,containingFolder);
-    var fileFullName = "";
-    if(containingFolder !== "") {
-        fileFullName = containingFolder + "/";
-    }
-    fileFullName += newFolderComponent.name;
-    addFileToOpenChanges(fileFullName,"addedFiles-list");
+function createFileCallBack() {
+    ajaxOpenChanges();
+    ajaxWCFiles();
 
     var modal = $("#createFileModal")[0];
     var fileNameTextField = document.getElementsByName("createFile-name")[0];
@@ -246,7 +250,8 @@ function createFileCallBack(containingFolder,containingItemId,newFolderComponent
     contentTextArea.value = "";
 }
 
-function showWCStatus(wcFolderData) {
+function showWCFiles(wcFolderData) {
+    $("#wc-accordion").empty();
     var folderComponents = wcFolderData.components;
     for (var i = 0; i < folderComponents.length; i++) {
         addFileItemToWCDisplay(folderComponents[i], i + 1);
@@ -255,11 +260,11 @@ function showWCStatus(wcFolderData) {
 
 function ajaxWCFiles() {
     $.ajax({
-        url: WC_STATUS_URL,
+        url: WC_Files_URL,
         data: {
             currentWatchedRepository: REPOSITORY_NAME
         },
-        success: showWCStatus
+        success: showWCFiles
     })
 }
 
@@ -270,6 +275,11 @@ function ajaxHeadBranchInformation() {
             success: ajaxHeadBranchInformationCallback
         }
     )
+}
+
+function showCommitMessageModal() {
+    var modal = $("#commitMessageModal")[0];
+    modal.style.display = "block";
 }
 
 function createHeadBranchSingleCommitElement(headBranchSingleCommitData, index) {
@@ -343,7 +353,64 @@ function ajaxHeadBranchInformationCallback(headBranchInformation) {
     updateHeadBranchInformation(headBranchInformation);
 }
 
+function initializeAddFileModal() {
+    var modal = $("#createFileModal");
+    var xButton = document.getElementById("createFile-xButton");
+    var fileNameTextField = document.getElementsByName("createFile-name")[0];
+    var contentTextArea = document.getElementsByName("createFile-content")[0];
+    xButton.onclick = function () {
+        fileNameTextField.value = "";
+        contentTextArea.value = "";
+        modal.style.display = "none";
+    };
+    $("#createFileForm").submit(function () {
+        $.ajax({
+            url: ADD_FILE_URL,
+            data: $(this).serialize(),
+            success: function(message) {
+                console.log(message);
+                createFileCallBack();
+            }
+        });
+        return false;
+    });
+}
+
+function commitCallBack() {
+    ajaxOpenChanges();
+    var commitsMessage = document.getElementsByName("commitMessage")[0];
+    var modal = $("#commitMessageModal")[0];
+    modal.style.display = "none";
+    commitsMessage.value = "";
+}
+
+function initializeCommitMessageModal() {
+    var modal = $("#commitMessageModal")[0];
+    var xButton = document.getElementById("commitMessage-xButton");
+    var commitsMessage = document.getElementsByName("commitMessage")[0];
+    xButton.onclick = function () {
+        commitsMessage.value = "";
+        modal.style.display = "none";
+    };
+    $("#commitMessageForm").submit(function () {
+        $.ajax({
+            url: COMMIT_URL,
+            data: $(this).serialize(),
+            success: function(message) {
+                console.log(message);
+                commitCallBack();
+            }
+        });
+        return false;
+    });
+}
+
 $(function () {
     ajaxRepositoryNameAndRRData();
     ajaxHeadBranchInformation();
+
+    initializeAddFileModal();
+    initializeCommitMessageModal();
+
+
 });

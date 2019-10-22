@@ -57,4 +57,16 @@ public class Delta {
         }
         return  sb.toString();
     }
+
+    public void setDeltaComponentsNamesFromMainFolder(String repositoryPath) {
+        for(DeltaComponent dc : addedFiles) {
+            dc.setFullNameFromMainFolder(repositoryPath);
+        }
+        for(DeltaComponent dc : updatedFiles) {
+            dc.setFullNameFromMainFolder(repositoryPath);
+        }
+        for(DeltaComponent dc : deletedFiles) {
+            dc.setFullNameFromMainFolder(repositoryPath);
+        }
+    }
 }

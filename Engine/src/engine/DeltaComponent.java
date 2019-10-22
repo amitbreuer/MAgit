@@ -4,6 +4,7 @@ import java.io.File;
 
 public class DeltaComponent {
     private String name;
+    private String fullNameFromMainFolder;
     private FolderComponent folderComponent;
     private String path;
     private String type;
@@ -38,5 +39,10 @@ public class DeltaComponent {
 
     public String GetFullName(){
         return path + File.separator + name;
+    }
+
+    public void setFullNameFromMainFolder(String repositoryPath) {
+        String fullName = path + File.separator + name;
+        this.fullNameFromMainFolder = fullName.substring(repositoryPath.length()+1); //+ "/"
     }
 }

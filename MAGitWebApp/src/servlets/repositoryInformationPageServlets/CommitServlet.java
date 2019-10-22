@@ -2,9 +2,7 @@ package servlets.repositoryInformationPageServlets;
 
 import com.google.gson.Gson;
 import constants.Constants;
-import engine.Folder;
-import engine.MagitManager;
-import engine.users.FolderData;
+import engine.Delta;
 import engine.users.User;
 import engine.users.UserManager;
 import utils.ServletUtils;
@@ -17,11 +15,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.nio.file.Paths;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
-public class WCStatusServlet extends HttpServlet {
+public class CommitServlet extends HttpServlet {
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -30,23 +25,25 @@ public class WCStatusServlet extends HttpServlet {
         UserManager userManager = ServletUtils.getUserManager(getServletContext());
 
         String username = SessionUtils.getUsername(request);
-        String repositoryName = request.getParameter(Constants.CURRENT_WATCHED_REPOSITORY);
+        String commitMessage = request.getParameter(Constants.COMMIT_MESSAGE);
         User user = userManager.getUser(username);
-        String currentDate = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss.SSS"));;
-        Folder wcFolder = user.getMagitManager().createFolderFromWC(Paths.get(Constants.usersDirectoryPath +
-                File.separator + username + File.separator + repositoryName),currentDate);
-
-        Gson gson = new Gson();
-        String json = gson.toJson(wcFolder);
+        String message = "Commit was Executed successfully";
+        if(user.getMagitManager().GetWCDelta().isEmpty()) {
+            message = "There are no open changes";
+        }
+        try {
+            user.getMagitManager().ExecuteCommit(commitMessage,null);
+        } catch (Exception e) {
+            message= e.getMessage();
+        }
 
         try (PrintWriter out = response.getWriter()) {
+            Gson gson = new Gson();
+            String json = gson.toJson(message);
             out.println(json);
             out.flush();
         }
     }
-
-
-
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
 
     /**
@@ -86,5 +83,4 @@ public class WCStatusServlet extends HttpServlet {
     public String getServletInfo() {
         return "Short description";
     }// </editor-fold>
-
 }

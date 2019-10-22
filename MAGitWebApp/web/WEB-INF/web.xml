@@ -55,8 +55,8 @@
     </servlet>
 
     <servlet>
-        <servlet-name>WCStatusServlet</servlet-name>
-        <servlet-class>servlets.repositoryInformationPageServlets.WCStatusServlet</servlet-class>
+        <servlet-name>WCFilesServlet</servlet-name>
+        <servlet-class>servlets.repositoryInformationPageServlets.WCFilesServlet</servlet-class>
     </servlet>
 
     <servlet>
@@ -74,7 +74,15 @@
         <servlet-class>servlets.repositoryInformationPageServlets.AddFileServlet</servlet-class>
     </servlet>
 
+    <servlet>
+        <servlet-name>OpenChangesServlet</servlet-name>
+        <servlet-class>servlets.repositoryInformationPageServlets.OpenChangesServlet</servlet-class>
+    </servlet>
 
+    <servlet>
+        <servlet-name>CommitServlet</servlet-name>
+        <servlet-class>servlets.repositoryInformationPageServlets.CommitServlet</servlet-class>
+    </servlet>
 
     <servlet-mapping>
         <servlet-name>LoginServlet</servlet-name>
@@ -97,8 +105,8 @@
     </servlet-mapping>
 
     <servlet-mapping>
-        <servlet-name>WCStatusServlet</servlet-name>
-        <url-pattern>/wcStatus</url-pattern>
+        <servlet-name>WCFilesServlet</servlet-name>
+        <url-pattern>/wcFiles</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>
@@ -144,6 +152,16 @@
     <servlet-mapping>
         <servlet-name>AddFileServlet</servlet-name>
         <url-pattern>/addFile</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>OpenChangesServlet</servlet-name>
+        <url-pattern>/openChanges</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>CommitServlet</servlet-name>
+        <url-pattern>/commit</url-pattern>
     </servlet-mapping>
 
 </web-app>
