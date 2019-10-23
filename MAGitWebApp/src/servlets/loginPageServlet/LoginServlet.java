@@ -17,7 +17,7 @@ public class LoginServlet extends HttpServlet {
 
     private final String USER_INFORMATION_URL = "../userInformation/userInformation.html";
     private final String SIGN_UP_URL = "../login/login.html";
-    private final String LOGIN_ERROR_URL = "/pages/loginerror/login_attempt_after_error.jsp";
+    private final String LOGIN_ERROR_URL = "/pages/loginerror/login_attempt_after_error.html";
      /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
      * methods.

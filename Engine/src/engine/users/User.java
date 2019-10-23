@@ -16,7 +16,9 @@ public class User {
     private String username;
     private List<RepositoryData> repositoriesData;
     private MagitManager magitManager;
-    private List<String> messages =new ArrayList<>();
+    private List<String> messages = new ArrayList<>();
+    private static final Object addMessageLock = new Object();
+
 
     public User(String username) {
         this.username = username;
@@ -35,13 +37,16 @@ public class User {
     public MagitManager getMagitManager() {
         return magitManager;
     }
-    public void AddMessage(String message){
-        this.messages.add(message);
+
+    public void AddMessage(String message) {
+        synchronized (addMessageLock) {
+            this.messages.add(message);
+        }
     }
 
 
-    public void ClearMessages(){
-     this.messages.clear();
+    public void ClearMessages() {
+        this.messages.clear();
     }
 
     public void CreateRepositoryDataForNewRepository(String repositoryName) {
@@ -56,10 +61,10 @@ public class User {
         numberOfBranches = new File(repositoryBranchesPath).listFiles().length - 1;
 
 
-            Commit lastCommit = magitManager.GetLastCommitOfRepository();
-            activeBranchName =magitManager.GetHeadBranchName();
-            lastCommitDate = lastCommit.getDateCreated();
-            lastCommitMessage = lastCommit.getMessage();
+        Commit lastCommit = magitManager.GetLastCommitOfRepository();
+        activeBranchName = magitManager.GetHeadBranchName();
+        lastCommitDate = lastCommit.getDateCreated();
+        lastCommitMessage = lastCommit.getMessage();
 
 
         repositoriesData.add(new RepositoryData(repositoryName, activeBranchName, numberOfBranches, lastCommitDate, lastCommitMessage));
