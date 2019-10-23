@@ -36,6 +36,7 @@ public class OtherBranchesInformationServlet extends HttpServlet {
             if (!entry.getKey().equals(headBranchName)) {
                 otherBranchesInformation.add(entry.getKey());
                 otherBranchesInformation.add(entry.getValue().getLastCommit().getSha1());
+                otherBranchesInformation.add(currentUser.getMagitManager().BranchIsRB(entry.getKey()));
             }
         }
 

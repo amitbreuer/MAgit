@@ -1713,4 +1713,14 @@ public class MagitManager {
         });
         return allCommitsList.get(0);
     }
+
+    public Branch GetHeadBranch() {
+        return this.repository.getHeadBranch();
+    }
+
+    public boolean BranchIsRB(String branchToDeleteName) {
+        return this.repository.getBranches().get(branchToDeleteName).getIsRB();
+    }
+
+
 }

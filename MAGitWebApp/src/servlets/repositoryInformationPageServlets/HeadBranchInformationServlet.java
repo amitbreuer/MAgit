@@ -30,6 +30,7 @@ public class HeadBranchInformationServlet extends HttpServlet {
         List<Commit>activeBranchCommits = currentUser.getMagitManager().GetAllCommitsOfActiveBranch();
 
         headBranchInformation.add(currentUser.getMagitManager().GetHeadBranchName());
+        headBranchInformation.add(currentUser.getMagitManager().GetHeadBranch().getIsRTB());
 
         for(Commit commit:activeBranchCommits){
 

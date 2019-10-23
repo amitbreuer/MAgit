@@ -6,7 +6,7 @@ var OTHER_BRANCHES_INFORMATION_URL = buildUrlWithContextPath("otherBranchesInfor
 var DELETE_BRANCH_URL = buildUrlWithContextPath("deleteBranch");
 var CHECKOUT_BRANCH_URL = buildUrlWithContextPath("checkout");
 var CREATE_NEW_BRANCH_URL = buildUrlWithContextPath("createNewBranch");
-var PUSH_URL = buildUrlWithContextPath("push");
+var PUSH_NONRTB_TO_RR_URL = buildUrlWithContextPath("pushNonRTBToRR");
 var PULL_URL = buildUrlWithContextPath("pull");
 var REPOSITORY_NAME;
 var EDIT_FILE_URL = buildUrlWithContextPath("editFile");
@@ -14,6 +14,9 @@ var DELETE_FILE_URL = buildUrlWithContextPath("deleteFile");
 var ADD_FILE_URL = buildUrlWithContextPath("addFile");
 var OPEN_CHANGES = buildUrlWithContextPath("openChanges");
 var COMMIT_URL = buildUrlWithContextPath("commit");
+var MESSAGES_URL = buildUrlWithContextPath("messages");
+
+var messagesVersion = 0;
 
 
 function setRepositoryName(name) {
@@ -43,7 +46,7 @@ function ajaxRepositoryNameAndRRDataCallback(repositoryNameAndRRData) {
     setRepositoryName(repositoryNameAndRRData[0]);
     if (repositoryNameAndRRData[1]) {
         setRRData(repositoryNameAndRRData[1], repositoryNameAndRRData[2]);
-    }else {
+    } else {
         hideCollaborationButtons();
     }
     ajaxWCFiles();
@@ -63,14 +66,14 @@ function showOpenChanges(delta) {
 
     emptyOpenChangesLists();
 
-    for(var i=0;i<addedFiles.length;i++){
-        addFileToOpenChanges(addedFiles[i].fullNameFromMainFolder,"addedFiles-list");
+    for (var i = 0; i < addedFiles.length; i++) {
+        addFileToOpenChanges(addedFiles[i].fullNameFromMainFolder, "addedFiles-list");
     }
-    for(var j=0;j<updatedFiles.length;j++){
-        addFileToOpenChanges(updatedFiles[j].fullNameFromMainFolder,"updatedFiles-list");
+    for (var j = 0; j < updatedFiles.length; j++) {
+        addFileToOpenChanges(updatedFiles[j].fullNameFromMainFolder, "updatedFiles-list");
     }
-    for(var k=0;k<deletedFiles.length;k++){
-        addFileToOpenChanges(deletedFiles[k].fullNameFromMainFolder,"deletedFiles-list");
+    for (var k = 0; k < deletedFiles.length; k++) {
+        addFileToOpenChanges(deletedFiles[k].fullNameFromMainFolder, "deletedFiles-list");
     }
 }
 
@@ -78,43 +81,43 @@ function ajaxOpenChanges() {
     $.ajax({
         url: OPEN_CHANGES,
         data: {
-            currentWatchedRepository : REPOSITORY_NAME
+            currentWatchedRepository: REPOSITORY_NAME
         },
         success: showOpenChanges
     })
 }
 
-function ajaxSaveNewContent(fileItemContentId,saveButtonId,fileID,content) {
+function ajaxSaveNewContent(fileItemContentId, saveButtonId, fileID, content) {
     $.ajax({
         url: EDIT_FILE_URL,
         data: {
-            currentWatchedRepository : REPOSITORY_NAME,
-            fileFullName : fileID,
-            fileNewContent : content
+            currentWatchedRepository: REPOSITORY_NAME,
+            fileFullName: fileID,
+            fileNewContent: content
         },
-        success: function (message){
-            document.getElementById(fileItemContentId).setAttribute("contentEditable","false");
-            document.getElementById(saveButtonId).setAttribute("class","btn btn-secondary btn-sm d-none float-right");
+        success: function (message) {
+            document.getElementById(fileItemContentId).setAttribute("contentEditable", "false");
+            document.getElementById(saveButtonId).setAttribute("class", "btn btn-secondary btn-sm d-none float-right");
             console.log(message);
             ajaxOpenChanges();
         }
     })
 }
 
-function editTextFile(fileItemContentId,saveButtonId) {
-    document.getElementById(fileItemContentId).setAttribute("contentEditable","true");
-    document.getElementById(saveButtonId).setAttribute("class","btn btn-secondary btn-sm float-right");
+function editTextFile(fileItemContentId, saveButtonId) {
+    document.getElementById(fileItemContentId).setAttribute("contentEditable", "true");
+    document.getElementById(saveButtonId).setAttribute("class", "btn btn-secondary btn-sm float-right");
 }
 
 function ajaxDeleteFile(fileID) {
     $.ajax({
-        url : DELETE_FILE_URL,
-        data : {
-            currentWatchedRepository : REPOSITORY_NAME,
-            fileFullName : fileID
+        url: DELETE_FILE_URL,
+        data: {
+            currentWatchedRepository: REPOSITORY_NAME,
+            fileFullName: fileID
         },
-        success: function (message){
-            document.getElementById(fileID+"Item").remove();
+        success: function (message) {
+            document.getElementById(fileID + "Item").remove();
             console.log(message);
             ajaxOpenChanges();
         }
@@ -123,21 +126,21 @@ function ajaxDeleteFile(fileID) {
 
 function addEditableTextFileItem(folderComponent, containingFolderId, index) {
 
-    var fileName = containingFolderId+"-"+folderComponent.name;
-    var contentId = fileName+"-content";
-    var saveButtonId = fileName+"-save";
+    var fileName = containingFolderId + "-" + folderComponent.name;
+    var contentId = fileName + "-content";
+    var saveButtonId = fileName + "-save";
 
-    var textFileItem = "<div id=\""+fileName+"Item\" class=\"card\">" +
+    var textFileItem = "<div id=\"" + fileName + "Item\" class=\"card\">" +
         "<div role=\"tab\" class=\"card-header\">" +
         "<h5 class=\"mb-0\"><a data-toggle=\"collapse\" aria-expanded=\"false\" aria-controls=\"" + containingFolderId + " .item-" + index + "\" href=\"#" + containingFolderId + " .item-" + index + "\" style=\"font-size: 14px;\"><i class=\"fa fa-file-text-o\"></i> " + folderComponent.name + "</a>" +
-        "<button class=\"btn btn-secondary btn-sm float-right\" type=\"button\" onclick='ajaxDeleteFile(\""+fileName+"\")'><i class=\"fas fa-trash-alt\"></i> Delete</button>" +
-        "<button class=\"btn btn-secondary btn-sm float-right\" type=\"button\" onclick='editTextFile(\""+contentId+"\",\""+saveButtonId+"\")' style=\"margin-right: 3px;\"><i class=\"fa fa-pencil\"></i> Edit</button>" +
-        "<button id=\""+saveButtonId+"\" class=\"btn btn-secondary btn-sm d-none float-right\" type=\"button\" onclick='ajaxSaveNewContent(\""+contentId+"\",\""+saveButtonId+"\",\""+containingFolderId+"-"+folderComponent.name+"\",document.getElementById(\""+contentId+"\").textContent)' style=\"margin-right: 2px;\"><i class=\"fa fa-save\"></i> Save</button>" +
+        "<button class=\"btn btn-secondary btn-sm float-right\" type=\"button\" onclick='ajaxDeleteFile(\"" + fileName + "\")'><i class=\"fas fa-trash-alt\"></i> Delete</button>" +
+        "<button class=\"btn btn-secondary btn-sm float-right\" type=\"button\" onclick='editTextFile(\"" + contentId + "\",\"" + saveButtonId + "\")' style=\"margin-right: 3px;\"><i class=\"fa fa-pencil\"></i> Edit</button>" +
+        "<button id=\"" + saveButtonId + "\" class=\"btn btn-secondary btn-sm d-none float-right\" type=\"button\" onclick='ajaxSaveNewContent(\"" + contentId + "\",\"" + saveButtonId + "\",\"" + containingFolderId + "-" + folderComponent.name + "\",document.getElementById(\"" + contentId + "\").textContent)' style=\"margin-right: 2px;\"><i class=\"fa fa-save\"></i> Save</button>" +
         "</h5>" +
         "</div>" +
         "<div class=\"collapse item-" + index + "\" data-parent=\"#" + containingFolderId + "\" role=\"tabpanel\" >" +
         "<div class=\"card-body\">" +
-        "<p id=\""+contentId+"\" class=\"card-text\">" + folderComponent.folderComponent.content + "</p>" +
+        "<p id=\"" + contentId + "\" class=\"card-text\">" + folderComponent.folderComponent.content + "</p>" +
         "</div>" +
         "</div>" +
         "</div>";
@@ -145,36 +148,36 @@ function addEditableTextFileItem(folderComponent, containingFolderId, index) {
     $("#" + containingFolderId).append(textFileItem);
 }
 
-function addEditableFolderItem(folderComponent, containingFolderId, index,containingFolderName) {
+function addEditableFolderItem(folderComponent, containingFolderId, index, containingFolderName) {
     var fixedFolderName = containingFolderName;
-    if(containingFolderName !== "") {
+    if (containingFolderName !== "") {
         fixedFolderName += "/";
     }
-    fixedFolderName  += folderComponent.name;
+    fixedFolderName += folderComponent.name;
 
     var components = folderComponent.folderComponent.components;
-    var folderItem = "<div id=\""+ containingFolderId + "-" + folderComponent.name + "Item\" class=\"card\">" +
+    var folderItem = "<div id=\"" + containingFolderId + "-" + folderComponent.name + "Item\" class=\"card\">" +
         "<div role=\"tab\" class=\"card-header\">" +
         "<h5 class=\"mb-0\"><a data-toggle=\"collapse\" aria-expanded=\"false\" aria-controls=\"" + containingFolderId + " .item-" + index + "\" href=\"#" + containingFolderId + " .item-" + index + "\" style=\"font-size: 14px;\"><i class=\"fas fa-folder\" style=\"color: rgb(241,232,15);\"></i> " + folderComponent.name + "</a>" +
-        "<button class=\"btn btn-secondary btn-sm float-right\" type=\"button\" onclick='ajaxDeleteFile(\""+ containingFolderId + "-" + folderComponent.name + "\")'><i class=\"fas fa-trash-alt\"></i> Delete</button>" +
-        "<button class=\"btn btn-secondary btn-sm float-right\" type=\"button\" onclick='showCreateFileModal(\""+containingFolderId+"-"+folderComponent.name+"\",\""+ fixedFolderName + "\")' style=\"margin-right: 3px;\"><i class=\"icon ion-plus-round\"></i> Add File</button>" +
+        "<button class=\"btn btn-secondary btn-sm float-right\" type=\"button\" onclick='ajaxDeleteFile(\"" + containingFolderId + "-" + folderComponent.name + "\")'><i class=\"fas fa-trash-alt\"></i> Delete</button>" +
+        "<button class=\"btn btn-secondary btn-sm float-right\" type=\"button\" onclick='showCreateFileModal(\"" + containingFolderId + "-" + folderComponent.name + "\",\"" + fixedFolderName + "\")' style=\"margin-right: 3px;\"><i class=\"icon ion-plus-round\"></i> Add File</button>" +
         "</h5>" +
         "</div>" +
         "<div role=\"tabpanel\" data-parent=\"#" + containingFolderId + "\" class=\"collapse item-" + index + "\">" +
         "<div class=\"card-body\">" +
-        "<div role=\"tablist\" id=\""+ containingFolderId + "-" + folderComponent.name + "\"></div>" +
+        "<div role=\"tablist\" id=\"" + containingFolderId + "-" + folderComponent.name + "\"></div>" +
         "</div>" +
         "</div>" +
         "</div>";
 
-    $("#"+containingFolderId).append(folderItem);
+    $("#" + containingFolderId).append(folderItem);
 
     for (var i = 0; i < components.length; i++) {
 
         if (components[i].folderComponent.content) { // blob
-            addEditableTextFileItem(components[i], containingFolderId+'-'+folderComponent.name, i + 1);
+            addEditableTextFileItem(components[i], containingFolderId + '-' + folderComponent.name, i + 1);
         } else {
-            addEditableFolderItem(components[i], containingFolderId+'-'+folderComponent.name, i + 1,fixedFolderName);
+            addEditableFolderItem(components[i], containingFolderId + '-' + folderComponent.name, i + 1, fixedFolderName);
         }
     }
 }
@@ -202,19 +205,19 @@ function addFolderItem(folderComponent, containingFolderId, index) {
         "</div>" +
         "<div role=\"tabpanel\" data-parent=\"#" + containingFolderId + "\" class=\"collapse item-" + index + "\">" +
         "<div class=\"card-body\">" +
-        "<div role=\"tablist\" id=\""+ containingFolderId + "-" + folderComponent.name + "\"></div>" +
+        "<div role=\"tablist\" id=\"" + containingFolderId + "-" + folderComponent.name + "\"></div>" +
         "</div>" +
         "</div>" +
         "</div>";
 
-    $("#"+containingFolderId).append(folderItem);
+    $("#" + containingFolderId).append(folderItem);
 
     for (var i = 0; i < components.length; i++) {
 
         if (components[i].folderComponent.content) { // blob
-            addTextFileItem(components[i], containingFolderId+'-'+folderComponent.name, i + 1);
+            addTextFileItem(components[i], containingFolderId + '-' + folderComponent.name, i + 1);
         } else {
-            addFolderItem(components[i], containingFolderId+'-'+folderComponent.name, i + 1);
+            addFolderItem(components[i], containingFolderId + '-' + folderComponent.name, i + 1);
         }
     }
 }
@@ -224,17 +227,17 @@ function addFileItemToWCDisplay(folderComponent, index) {
     if (folderComponent.folderComponent.content) { // blob
         addEditableTextFileItem(folderComponent, "wc-accordion", index);
     } else { // folder
-        addEditableFolderItem(folderComponent, "wc-accordion", index,"");
+        addEditableFolderItem(folderComponent, "wc-accordion", index, "");
     }
 }
 
-function showCreateFileModal(containingItemId,containingFolder) {
+function showCreateFileModal(containingItemId, containingFolder) {
     var modal = $("#createFileModal")[0];
 
     var pathLabel = document.getElementsByName("createFile-path")[0];
 
     pathLabel.value = REPOSITORY_NAME;
-    if(containingFolder !== "") {
+    if (containingFolder !== "") {
         pathLabel.value += "/" + containingFolder;
     }
 
@@ -243,13 +246,13 @@ function showCreateFileModal(containingItemId,containingFolder) {
 
 function addFileToOpenChanges(fileFullName, changesList) {
     var newItem;
-    if(fileFullName.match(".txt")) {
-        newItem = "<li class=\"list-group-item\"><i class=\"fa fa-file-text-o\"></i><button class=\"btn btn-link btn-sm border-white\" type=\"button\"> "+fileFullName+"</button></li>";
+    if (fileFullName.match(".txt")) {
+        newItem = "<li class=\"list-group-item\"><i class=\"fa fa-file-text-o\"></i><button class=\"btn btn-link btn-sm border-white\" type=\"button\"> " + fileFullName + "</button></li>";
     } else {
-        newItem = "<li class=\"list-group-item\"><i class=\"fa fa-folder\"></i><button class=\"btn btn-link btn-sm border-white\" type=\"button\"> "+fileFullName+"</button></li>";
+        newItem = "<li class=\"list-group-item\"><i class=\"fa fa-folder\"></i><button class=\"btn btn-link btn-sm border-white\" type=\"button\"> " + fileFullName + "</button></li>";
 
     }
-    $("#"+changesList).append(newItem);
+    $("#" + changesList).append(newItem);
 }
 
 function createFileCallBack() {
@@ -355,13 +358,28 @@ function addSingleCommitToHeadBranchCommitsDisplay(headBranchSingleCommitData, i
 }
 
 function updateHeadBranchCommitsDisplay(headBranchInformation) {
-    for (var i = 1; i < headBranchInformation.length; i++) {
+    for (var i = 2; i < headBranchInformation.length; i++) {
         addSingleCommitToHeadBranchCommitsDisplay(headBranchInformation[i], i + 1);
     }
 }
 
+
+function disablePushNonRTBToRRButton() {
+    document.getElementById("pushNonRTBTORRButton").disabled = true;
+}
+
+function enablePushNonRTBToRRButton() {
+    document.getElementById("pushNonRTBTORRButton").disabled = false;
+}
+
 function updateHeadBranchInformation(headBranchInformation) {
     $("#headBranch-label")[0].textContent = headBranchInformation[0];
+    if (headBranchInformation[1] === true) {
+        disablePushNonRTBToRRButton();
+    } else {
+        enablePushNonRTBToRRButton();
+    }
+
     $("#headbranch-commits-accordion").empty();
     updateHeadBranchCommitsDisplay(headBranchInformation);
 }
@@ -384,7 +402,7 @@ function initializeAddFileModal() {
         $.ajax({
             url: ADD_FILE_URL,
             data: $(this).serialize(),
-            success: function(message) {
+            success: function (message) {
                 console.log(message);
                 createFileCallBack();
             }
@@ -413,7 +431,7 @@ function initializeCommitMessageModal() {
         $.ajax({
             url: COMMIT_URL,
             data: $(this).serialize(),
-            success: function(message) {
+            success: function (message) {
                 console.log(message);
                 commitCallBack();
             }
@@ -432,10 +450,10 @@ function ajaxOtherBranchesInformation() {
     )
 }
 
-function createOtherBranchElement(singleBranchName, singleBranchCommitSha1) {
-    return "<div class=\"text-center\"><a class=\"btn btn-primary btn-sm text-white\" data-toggle=\"collapse\" aria-expanded=\"false\" aria-controls=\"collapse-" + singleBranchName + "\" href=\"#collapse-" + singleBranchName + "\" role=\"button\" style=\"height: 28px;font-size: 15px;margin-bottom: 4px;\">" + singleBranchName + "</a>" +
-        "<div class=\"collapse text-center\" id=\"collapse-" + singleBranchName + "\"><em class=\"text-white d-flex\" style=\"font-size: 10px;\">" + singleBranchCommitSha1 + "<br /></em>" +
-        "<div role=\"group\" class=\"btn-group\"><button id =\"delete-branch-" + singleBranchName + "\" class=\"btn btn-primary btn-sm\" type=\"button\" style=\"margin-right: 2px;font-size: 12px;height: 25px;\">Delete</button><button id =\"checkout-branch-" + singleBranchName + "\" class=\"btn btn-primary btn-sm\" type=\"button\" style=\"height: 25px;font-size: 12px;\">Checkout</button></div>" +
+function createOtherBranchElement(singleBranchName, singleBranchCommitSha1, branchIndex) {
+    return "<div class=\"text-center\"><a class=\"btn btn-primary btn-sm text-white\" data-toggle=\"collapse\" aria-expanded=\"false\" aria-controls=\"branchesCollapse-" + branchIndex + "\" href=\"#branchesCollapse-" + branchIndex + "\" role=\"button\" style=\"height: 28px;font-size: 15px;margin-bottom: 4px;\">" + singleBranchName + "</a>" +
+        "<div class=\"collapse text-center\" id=\"branchesCollapse-" + branchIndex + "\"><em class=\"text-white d-flex\" style=\"font-size: 10px;\">" + singleBranchCommitSha1 + "<br /></em>" +
+        "<div role=\"group\" class=\"btn-group\"><button id =\"delete-branch-" + singleBranchName + "\" class=\"btn btn-primary btn-sm\" type=\"button\" style=\"margin-right: 2px;font-size: 12px;height: 25px;\">Delete</button><button name=\"" + singleBranchName + "\" id =\"checkout-branch-" + singleBranchName + "\" class=\"btn btn-primary btn-sm\" type=\"button\" style=\"height: 25px;font-size: 12px;\">Checkout</button></div>" +
         "</div>" +
         "</div>" +
         "<hr style=\"margin: 5px;\" />"
@@ -483,12 +501,45 @@ function ajaxCheckout(singleBranchName) {
     })
 }
 
-function addSingleOtherBranchItem(singleBranchName, singleBranchCommitSha1) {
-    var branchElement = createOtherBranchElement(singleBranchName, singleBranchCommitSha1);
+function addSingleOtherBranchItem(singleBranchName, singleBranchCommitSha1, singleBranchCommitIsRB, branchIndex) {
+    var branchElement = createOtherBranchElement(singleBranchName, singleBranchCommitSha1, singleBranchCommitIsRB, branchIndex);
     $("#otherBranchesList").append(branchElement);
-    document.getElementById("checkout-branch-" + singleBranchName).onclick = function (ev) {
-        ajaxCheckout(singleBranchName);
-    };
+
+    if (singleBranchCommitIsRB) {
+        var firstSlashIndex = singleBranchName.indexOf('\\') + 1;
+        var newRTBName = singleBranchName.substring(firstSlashIndex);
+        document.getElementById("checkout-branch-" + singleBranchName).innerText += " as RTB";
+
+        document.getElementById("checkout-branch-" + singleBranchName).onclick = function (ev) {
+            if (!document.getElementsByName(newRTBName)) {
+                $.ajax({
+                    url: CREATE_NEW_BRANCH_URL,
+                    data: {
+                        newBranchName: newRTBName,
+                        isRTB: true
+                    },
+                    success: function (message) {
+                        ajaxCreateNewBranchCallback(message);
+                        ajaxCheckout(newRTBName);
+                    }
+                });
+            } else {
+                if ($("#headBranch-label")[0].textContent === newRTBName) {
+                    ShowMessage("The RTB of this RB is already the head branch");
+                } else {
+                    ajaxCheckout(newRTBName);
+                }
+            }
+
+        }
+
+    } else {
+        document.getElementById("checkout-branch-" + singleBranchName).onclick = function (ev) {
+            ajaxCheckout(singleBranchName);
+        };
+    }
+
+
     document.getElementById("delete-branch-" + singleBranchName).onclick = function (ev) {
         ajaxDeleteBranch(singleBranchName);
     };
@@ -496,8 +547,10 @@ function addSingleOtherBranchItem(singleBranchName, singleBranchCommitSha1) {
 
 function ajaxOtherBranchesInformationCallback(otherBranchesInformation) {
     $("#otherBranchesList").empty();
-    for (var i = 0; i < otherBranchesInformation.length; i += 2) {
-        addSingleOtherBranchItem(otherBranchesInformation[i], otherBranchesInformation[i + 1]);
+    var branchIndex = 1;
+    for (var i = 0; i < otherBranchesInformation.length; i += 3) {
+        addSingleOtherBranchItem(otherBranchesInformation[i], otherBranchesInformation[i + 1], otherBranchesInformation[i + 2], branchIndex);
+        branchIndex++;
     }
 }
 
@@ -526,18 +579,19 @@ function initializeBranchNameModal() {
     };
 
     $("#branchNameForm").submit(function (event) {
-        event.preventDefault();
+            event.preventDefault();
             $.ajax({
                 url: CREATE_NEW_BRANCH_URL,
                 data: $(this).serialize(),
                 success: ajaxCreateNewBranchCallback
             });
-        $("#branchNameTextInput").val("");
+            $("#branchNameTextInput").val("");
 
-        return false;
+            return false;
         }
     );
 }
+
 
 function initializeModals() {
     initializeBranchNameModal();
@@ -545,17 +599,17 @@ function initializeModals() {
     initializeCommitMessageModal();
 }
 
-function push() {
+function pushNonRTBTORR() {
     $.ajax(
         {
-            url: PUSH_URL,
-            success: pushCallback
+            url: PUSH_NONRTB_TO_RR_URL,
+            success: pushNonRTBTORRCallback
         }
     )
 }
 
-function pushCallback(message) {
-ShowMessage(message);
+function pushNonRTBTORRCallback(message) {
+    ShowMessage(message);
 }
 
 function pull() {
@@ -566,22 +620,56 @@ function pull() {
         }
     )
 }
+
 function pullCallback(message) {
     ShowMessage(message);
-    if(message === "pull executed successfully"){
-        ajaxHeadBranchInformation();
+    if (message === "pull executed successfully") {
+        ajaxHeadBranchInformation(ajaxHeadBranchInformationCallback);
     }
 }
 
-function pullRequest(){
+function pullRequest() {
 
 }
 
-function BackToUserInformationPage(){
+function BackToUserInformationPage() {
     var fullUrl = buildUrlWithContextPath("pages/userInformation/userInformation.html");
     window.location.replace(fullUrl);
 
 }
+
+function refreshMessages() {
+    $.ajax({
+        url: MESSAGES_URL,
+        data: "messagesVersion=" + messagesVersion,
+        dataType: 'json',
+        success: function (data) {
+            if (data.version !== messagesVersion) {
+                messagesVersion = data.version;
+                appendMessagesToMessages(data.messages);
+            }
+        }
+
+    })
+}
+function appendMessagesToMessages(messages) {
+    for (var i = 0; i < messages.length; i++) {
+        addSingleMessageToMessagesDisplay(messages[i]);
+    }
+}
+
+function addSingleMessageToMessagesDisplay(message) {
+    var messageElement = createMessageElement(message);
+    $("#messagesList").append(messageElement);
+}
+
+function createMessageElement(message) {
+    return "<a class=\"d-flex align-items-center dropdown-item\" href=\"#\">"+
+        "<div class=\"font-weight-bold\">"+message+"</div>"+
+        "</a>"
+}
+
+
 
 $(function () {
     ajaxRepositoryNameAndRRData();
@@ -590,4 +678,8 @@ $(function () {
         ajaxOtherBranchesInformation();
     });
     initializeModals();
+});
+
+$(function () {
+    setInterval(refreshMessages,2000);
 });
