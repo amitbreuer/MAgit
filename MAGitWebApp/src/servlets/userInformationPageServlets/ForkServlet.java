@@ -33,6 +33,8 @@ public class ForkServlet extends HttpServlet {
         try {
             user.getMagitManager().Fork(username,otherUserName,otherUserRepositoryName);
             user.CreateRepositoryDataForNewRepository(otherUserRepositoryName);
+            user.getMagitManager().SetRepository(null);
+
         } catch (Exception e) {
             message = e.getMessage();
         } finally {

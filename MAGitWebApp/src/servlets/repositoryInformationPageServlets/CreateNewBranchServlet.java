@@ -26,8 +26,12 @@ public class CreateNewBranchServlet extends HttpServlet {
         String currentRepositoryName = currentUser.getMagitManager().getRepositoryName();
         String branchToAddName = request.getParameter(Constants.NEW_BRANCH_NAME);
 
+        boolean isRTB = request.getParameter("isRTB") != null;
+
         try {
             currentUser.getMagitManager().CreateNewRegularBranch(branchToAddName, false, true, null);
+
+            currentUser.getMagitManager().GetCurrentRepository().FindBranchByName(branchToAddName).setIsRB(isRTB);
             for (RepositoryData repositoryData : currentUser.getRepositoriesData()) {
                 if (repositoryData.getName().equals(currentRepositoryName)) {
                     repositoryData.setNumberOfBranches(repositoryData.getNumberOfBranches() + 1);

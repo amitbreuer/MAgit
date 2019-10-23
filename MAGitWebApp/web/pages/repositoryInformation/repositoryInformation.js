@@ -14,6 +14,9 @@ var DELETE_FILE_URL = buildUrlWithContextPath("deleteFile");
 var ADD_FILE_URL = buildUrlWithContextPath("addFile");
 var OPEN_CHANGES = buildUrlWithContextPath("openChanges");
 var COMMIT_URL = buildUrlWithContextPath("commit");
+var MESSAGES_URL = buildUrlWithContextPath("messages");
+
+var messagesVersion = 0;
 
 
 function setRepositoryName(name) {
@@ -364,6 +367,7 @@ function updateHeadBranchCommitsDisplay(headBranchInformation) {
 function disablePushNonRTBToRRButton() {
     document.getElementById("pushNonRTBTORRButton").disabled = true;
 }
+
 function enablePushNonRTBToRRButton() {
     document.getElementById("pushNonRTBTORRButton").disabled = false;
 }
@@ -372,7 +376,7 @@ function updateHeadBranchInformation(headBranchInformation) {
     $("#headBranch-label")[0].textContent = headBranchInformation[0];
     if (headBranchInformation[1] === true) {
         disablePushNonRTBToRRButton();
-    }else {
+    } else {
         enablePushNonRTBToRRButton();
     }
 
@@ -446,10 +450,10 @@ function ajaxOtherBranchesInformation() {
     )
 }
 
-function createOtherBranchElement(singleBranchName, singleBranchCommitSha1,branchIndex) {
+function createOtherBranchElement(singleBranchName, singleBranchCommitSha1, branchIndex) {
     return "<div class=\"text-center\"><a class=\"btn btn-primary btn-sm text-white\" data-toggle=\"collapse\" aria-expanded=\"false\" aria-controls=\"branchesCollapse-" + branchIndex + "\" href=\"#branchesCollapse-" + branchIndex + "\" role=\"button\" style=\"height: 28px;font-size: 15px;margin-bottom: 4px;\">" + singleBranchName + "</a>" +
         "<div class=\"collapse text-center\" id=\"branchesCollapse-" + branchIndex + "\"><em class=\"text-white d-flex\" style=\"font-size: 10px;\">" + singleBranchCommitSha1 + "<br /></em>" +
-        "<div role=\"group\" class=\"btn-group\"><button id =\"delete-branch-" + singleBranchName + "\" class=\"btn btn-primary btn-sm\" type=\"button\" style=\"margin-right: 2px;font-size: 12px;height: 25px;\">Delete</button><button id =\"checkout-branch-" + singleBranchName + "\" class=\"btn btn-primary btn-sm\" type=\"button\" style=\"height: 25px;font-size: 12px;\">Checkout</button></div>" +
+        "<div role=\"group\" class=\"btn-group\"><button id =\"delete-branch-" + singleBranchName + "\" class=\"btn btn-primary btn-sm\" type=\"button\" style=\"margin-right: 2px;font-size: 12px;height: 25px;\">Delete</button><button name=\"" + singleBranchName + "\" id =\"checkout-branch-" + singleBranchName + "\" class=\"btn btn-primary btn-sm\" type=\"button\" style=\"height: 25px;font-size: 12px;\">Checkout</button></div>" +
         "</div>" +
         "</div>" +
         "<hr style=\"margin: 5px;\" />"
@@ -497,12 +501,45 @@ function ajaxCheckout(singleBranchName) {
     })
 }
 
-function addSingleOtherBranchItem(singleBranchName, singleBranchCommitSha1,branchIndex) {
-    var branchElement = createOtherBranchElement(singleBranchName, singleBranchCommitSha1,branchIndex);
+function addSingleOtherBranchItem(singleBranchName, singleBranchCommitSha1, singleBranchCommitIsRB, branchIndex) {
+    var branchElement = createOtherBranchElement(singleBranchName, singleBranchCommitSha1, singleBranchCommitIsRB, branchIndex);
     $("#otherBranchesList").append(branchElement);
-    document.getElementById("checkout-branch-" + singleBranchName).onclick = function (ev) {
-        ajaxCheckout(singleBranchName);
-    };
+
+    if (singleBranchCommitIsRB) {
+        var firstSlashIndex = singleBranchName.indexOf('\\') + 1;
+        var newRTBName = singleBranchName.substring(firstSlashIndex);
+        document.getElementById("checkout-branch-" + singleBranchName).innerText += " as RTB";
+
+        document.getElementById("checkout-branch-" + singleBranchName).onclick = function (ev) {
+            if (!document.getElementsByName(newRTBName)) {
+                $.ajax({
+                    url: CREATE_NEW_BRANCH_URL,
+                    data: {
+                        newBranchName: newRTBName,
+                        isRTB: true
+                    },
+                    success: function (message) {
+                        ajaxCreateNewBranchCallback(message);
+                        ajaxCheckout(newRTBName);
+                    }
+                });
+            } else {
+                if ($("#headBranch-label")[0].textContent === newRTBName) {
+                    ShowMessage("The RTB of this RB is already the head branch");
+                } else {
+                    ajaxCheckout(newRTBName);
+                }
+            }
+
+        }
+
+    } else {
+        document.getElementById("checkout-branch-" + singleBranchName).onclick = function (ev) {
+            ajaxCheckout(singleBranchName);
+        };
+    }
+
+
     document.getElementById("delete-branch-" + singleBranchName).onclick = function (ev) {
         ajaxDeleteBranch(singleBranchName);
     };
@@ -511,8 +548,8 @@ function addSingleOtherBranchItem(singleBranchName, singleBranchCommitSha1,branc
 function ajaxOtherBranchesInformationCallback(otherBranchesInformation) {
     $("#otherBranchesList").empty();
     var branchIndex = 1;
-    for (var i = 0; i < otherBranchesInformation.length; i += 2) {
-        addSingleOtherBranchItem(otherBranchesInformation[i], otherBranchesInformation[i + 1],branchIndex);
+    for (var i = 0; i < otherBranchesInformation.length; i += 3) {
+        addSingleOtherBranchItem(otherBranchesInformation[i], otherBranchesInformation[i + 1], otherBranchesInformation[i + 2], branchIndex);
         branchIndex++;
     }
 }
@@ -554,6 +591,7 @@ function initializeBranchNameModal() {
         }
     );
 }
+
 
 function initializeModals() {
     initializeBranchNameModal();
@@ -600,6 +638,39 @@ function BackToUserInformationPage() {
 
 }
 
+function refreshMessages() {
+    $.ajax({
+        url: MESSAGES_URL,
+        data: "messagesVersion=" + messagesVersion,
+        dataType: 'json',
+        success: function (data) {
+            if (data.version !== messagesVersion) {
+                messagesVersion = data.version;
+                appendMessagesToMessages(data.messages);
+            }
+        }
+
+    })
+}
+function appendMessagesToMessages(messages) {
+    for (var i = 0; i < messages.length; i++) {
+        addSingleMessageToMessagesDisplay(messages[i]);
+    }
+}
+
+function addSingleMessageToMessagesDisplay(message) {
+    var messageElement = createMessageElement(message);
+    $("#messagesList").append(messageElement);
+}
+
+function createMessageElement(message) {
+    return "<a class=\"d-flex align-items-center dropdown-item\" href=\"#\">"+
+        "<div class=\"font-weight-bold\">"+message+"</div>"+
+        "</a>"
+}
+
+
+
 $(function () {
     ajaxRepositoryNameAndRRData();
     ajaxHeadBranchInformation(function (headBranchInformation) {
@@ -607,4 +678,8 @@ $(function () {
         ajaxOtherBranchesInformation();
     });
     initializeModals();
+});
+
+$(function () {
+    setInterval(refreshMessages,2000);
 });

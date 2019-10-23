@@ -3,6 +3,7 @@ package servlets.repositoryInformationPageServlets;
 import com.google.gson.Gson;
 import constants.Constants;
 import engine.Commit;
+import engine.MagitManager;
 import engine.users.CommitData;
 import engine.users.RepositoryData;
 import engine.users.User;
@@ -31,9 +32,10 @@ public class DeleteBranchServlet extends HttpServlet {
         String branchToDeleteName = request.getParameter(Constants.BRANCH_TO_DELETE_NAME);
 
         try {
-            if(currentUser.getMagitManager().branchIsRB(branchToDeleteName)){
-
+            if(currentUser.getMagitManager().BranchIsRB(branchToDeleteName)){
+                //synchronized issues - multiple threads might access at the same time to the branches' list and file
             }
+
             currentUser.getMagitManager().DeleteBranch(branchToDeleteName);
             for (RepositoryData repositoryData : currentUser.getRepositoriesData()) {
                 if (repositoryData.getName().equals(currentRepositoryName)) {

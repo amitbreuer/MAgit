@@ -3,6 +3,7 @@ package servlets.repositoryInformationPageServlets;
 import com.google.gson.Gson;
 import constants.Constants;
 import engine.Folder;
+import engine.users.RepositoryData;
 import engine.users.User;
 import engine.users.UserManager;
 import utils.ServletUtils;
@@ -29,6 +30,15 @@ public class PushNoneRTBToRRServlet extends HttpServlet {
 
         String username = SessionUtils.getUsername(request);
         User user = userManager.getUser(username);
+        String RRName = user.getMagitManager().GetCurrentRepository().getRemoteRepositoryname();
+        String RRPath = user.getMagitManager().GetCurrentRepository().getRemoteRepositoryPath().toString();
+        String RRUser = RRPath.substring(12);// cut the user directory prefix
+
+        for (RepositoryData repositoryData :userManager.getUser(RRUser).getRepositoriesData()){
+            if (repositoryData.getName().equals(RRName)){
+                repositoryData.setNumberOfBranches(repositoryData.getNumberOfBranches()+1);
+            }
+        }
         try {
             user.getMagitManager().PushNoneRTBToRR();
             Gson gson = new Gson();

@@ -7,6 +7,7 @@ import engine.users.constants.Constants;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -18,6 +19,7 @@ public class User {
     private MagitManager magitManager;
     private List<String> messages = new ArrayList<>();
     private static final Object addMessageLock = new Object();
+
 
 
     public User(String username) {
@@ -50,7 +52,7 @@ public class User {
     }
 
     public void CreateRepositoryDataForNewRepository(String repositoryName) {
-        Integer numberOfBranches;
+        Integer numberOfBranches = 0;
         String activeBranchName = null;
         String lastCommitDate = null;
         String lastCommitMessage = null;
@@ -58,7 +60,16 @@ public class User {
         String repositoryPath = Constants.usersDirectoryPath + File.separator + username + File.separator + repositoryName;
         String repositoryBranchesPath = repositoryPath + File.separator + ".magit" + File.separator + "branches";
 
-        numberOfBranches = new File(repositoryBranchesPath).listFiles().length - 1;
+        File[] repositoryBranchesFiles = new File(repositoryBranchesPath).listFiles();
+        numberOfBranches = repositoryBranchesFiles.length - 1;
+
+        for (File file : repositoryBranchesFiles) {
+            if (file.isDirectory()){
+                numberOfBranches+= file.listFiles().length-1;
+                break;
+            }
+        }
+
 
 
         Commit lastCommit = magitManager.GetLastCommitOfRepository();

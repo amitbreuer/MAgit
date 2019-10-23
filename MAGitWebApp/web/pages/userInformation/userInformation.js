@@ -268,7 +268,6 @@ function refreshMessages() {
         data: "messagesVersion=" + messagesVersion,
         dataType: 'json',
         success: function (data) {
-            console.log("Server chat version: " + data.version + ", Current chat version: " +messagesVersion);
             if (data.version !== messagesVersion) {
                 messagesVersion = data.version;
                 appendMessagesToMessages(data.messages);

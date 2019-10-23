@@ -1718,7 +1718,9 @@ public class MagitManager {
         return this.repository.getHeadBranch();
     }
 
-    public boolean branchIsRB(String branchToDeleteName) {
+    public boolean BranchIsRB(String branchToDeleteName) {
         return this.repository.getBranches().get(branchToDeleteName).getIsRB();
     }
+
+
 }
