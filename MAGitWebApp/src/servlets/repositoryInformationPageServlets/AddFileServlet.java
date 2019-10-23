@@ -1,60 +1,63 @@
 package servlets.repositoryInformationPageServlets;
 
 import com.google.gson.Gson;
-import engine.Commit;
-import engine.users.CommitData;
+import engine.Blob;
+import engine.Folder;
 import engine.users.User;
 import engine.users.UserManager;
+import org.apache.commons.codec.digest.DigestUtils;
 import utils.ServletUtils;
 import utils.SessionUtils;
-
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
-public class HeadBranchInformationServlet extends HttpServlet {
-
+public class AddFileServlet extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
         response.setContentType("application/json");
         UserManager userManager = ServletUtils.getUserManager(getServletContext());
         String currentUserName = SessionUtils.getUsername(request);
+//        String filePath = Constants.usersDirectoryPath + File.separator + currentUserName + File.separator +
+//                request.getParameter("createFile-path");
+        String fixedFilePath = ServletUtils.getFixedFilePathForAddedFile(request.getParameter("createFile-path")
+                ,currentUserName);
+
+        String fileName = request.getParameter("createFile-name") + ".txt";
+        String content = request.getParameter("createFile-content");
         User currentUser = userManager.getUser(currentUserName);
-            List<Object> headBranchInformation = new ArrayList<>();
-        List<Commit>activeBranchCommits = currentUser.getMagitManager().GetAllCommitsOfActiveBranch();
 
-        headBranchInformation.add(currentUser.getMagitManager().GetHeadBranchName());
-        headBranchInformation.add(currentUser.getMagitManager().GetHeadBranch().getIsRTB());
+        String message = fileName + " was added";
+        Blob newBlob = new Blob(content);
+        Folder.ComponentData newFolderComponent = new Folder.ComponentData(fileName, DigestUtils.sha1Hex(newBlob.toString())
+                ,newBlob,currentUserName, LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss.SSS")));
 
-        for(Commit commit:activeBranchCommits){
+        List<Object> data = new ArrayList<>();
 
-            headBranchInformation.add(createCommitDataFromCommit(commit));
-        }
-
-
-        try (PrintWriter out = response.getWriter()) {
-            Gson gson = new Gson();
-            String json = gson.toJson(headBranchInformation);
-            out.println(json);
-            out.flush();
+        try {
+            currentUser.getMagitManager().createTextFile(fixedFilePath + File.separator + fileName,content);
+        } catch (IOException e) {
+            message = e.getMessage();
+        } finally {
+            try (PrintWriter out = response.getWriter()) {
+                data.add(message);
+                data.add(newFolderComponent);
+                Gson gson = new Gson();
+                String json = gson.toJson(data);
+                out.println(json);
+                out.flush();
+            }
         }
     }
-
-    private Object createCommitDataFromCommit(Commit commit) {
-        CommitData commitData = new CommitData();
-        commitData.setSha1(commit.getSha1());
-        commitData.setMessage(commit.getMessage());
-        commitData.setCreator(commit.getCreator());
-        commitData.setDateCreated(commit.getDateCreated());
-        return commitData;
-    }
-
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
 
@@ -95,6 +98,5 @@ public class HeadBranchInformationServlet extends HttpServlet {
     public String getServletInfo() {
         return "Short description";
     }// </editor-fold>
-
 
 }

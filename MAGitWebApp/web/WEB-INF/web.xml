@@ -55,8 +55,28 @@
     </servlet>
 
     <servlet>
-        <servlet-name>WCStatusServlet</servlet-name>
-        <servlet-class>servlets.repositoryInformationPageServlets.WCStatusServlet</servlet-class>
+        <servlet-name>WCFilesServlet</servlet-name>
+        <servlet-class>servlets.repositoryInformationPageServlets.WCFilesServlet</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>EditFileServlet</servlet-name>
+        <servlet-class>servlets.repositoryInformationPageServlets.EditFileServlet</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>DeleteFileServlet</servlet-name>
+        <servlet-class>servlets.repositoryInformationPageServlets.DeleteFileServlet</servlet-class>
+    </servlet>AddFileServlet
+
+    <servlet>
+        <servlet-name>AddFileServlet</servlet-name>
+        <servlet-class>servlets.repositoryInformationPageServlets.AddFileServlet</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>OpenChangesServlet</servlet-name>
+        <servlet-class>servlets.repositoryInformationPageServlets.OpenChangesServlet</servlet-class>
     </servlet>
 
     <servlet>
@@ -80,8 +100,8 @@
     </servlet>
 
     <servlet>
-        <servlet-name>PushServlet</servlet-name>
-        <servlet-class>servlets.repositoryInformationPageServlets.PushServlet</servlet-class>
+        <servlet-name>PushNoneRTBToRRServlet</servlet-name>
+        <servlet-class>servlets.repositoryInformationPageServlets.PushNoneRTBToRRServlet</servlet-class>
     </servlet>
 
     <servlet>
@@ -94,6 +114,10 @@
         <servlet-class>servlets.userInformationPageServlets.MessagesServlet</servlet-class>
     </servlet>
 
+    <servlet>
+        <servlet-name>CommitServlet</servlet-name>
+        <servlet-class>servlets.repositoryInformationPageServlets.CommitServlet</servlet-class>
+    </servlet>
 
     <servlet-mapping>
         <servlet-name>LoginServlet</servlet-name>
@@ -116,8 +140,8 @@
     </servlet-mapping>
 
     <servlet-mapping>
-        <servlet-name>WCStatusServlet</servlet-name>
-        <url-pattern>/wcStatus</url-pattern>
+        <servlet-name>WCFilesServlet</servlet-name>
+        <url-pattern>/wcFiles</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>
@@ -151,6 +175,31 @@
     </servlet-mapping>
 
     <servlet-mapping>
+    <servlet-name>EditFileServlet</servlet-name>
+    <url-pattern>/editFile</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>DeleteFileServlet</servlet-name>
+        <url-pattern>/deleteFile</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>AddFileServlet</servlet-name>
+        <url-pattern>/addFile</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>OpenChangesServlet</servlet-name>
+        <url-pattern>/openChanges</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>CommitServlet</servlet-name>
+        <url-pattern>/commit</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
         <servlet-name>OtherBranchesInformationServlet</servlet-name>
         <url-pattern>/otherBranchesInformation</url-pattern>
     </servlet-mapping>
@@ -171,8 +220,8 @@
     </servlet-mapping>
 
     <servlet-mapping>
-        <servlet-name>PushServlet</servlet-name>
-        <url-pattern>/push</url-pattern>
+        <servlet-name>PushNoneRTBToRRServlet</servlet-name>
+        <url-pattern>/pushNonRTBToRR</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>

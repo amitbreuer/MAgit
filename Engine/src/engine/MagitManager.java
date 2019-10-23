@@ -763,13 +763,13 @@ public class MagitManager {
         bos.close();
     }
 
-    private void createTextFile(String filePath, String content) throws Exception {
+    public void createTextFile(String filePath, String content) throws IOException {
         File newFile = new File(filePath);
         newFile.createNewFile();
         writeToFile(filePath, content);
     }
 
-    private void writeToFile(String filePath, String content) throws IOException {
+    public void writeToFile(String filePath, String content) throws IOException {
         File fileToEdit = new File(filePath);
         BufferedWriter writer = new BufferedWriter(new FileWriter(fileToEdit));
         writer.write("");
@@ -1712,5 +1712,13 @@ public class MagitManager {
             }
         });
         return allCommitsList.get(0);
+    }
+
+    public Branch GetHeadBranch() {
+        return this.repository.getHeadBranch();
+    }
+
+    public boolean branchIsRB(String branchToDeleteName) {
+        return this.repository.getBranches().get(branchToDeleteName).getIsRB();
     }
 }

@@ -22,10 +22,10 @@ public class LoginServlet extends HttpServlet {
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
      * methods.
      *
-     * @param request servlet request
+     * @param request  servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
+     * @throws IOException      if an I/O error occurs
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -61,12 +61,6 @@ public class LoginServlet extends HttpServlet {
                     if (userManager.isUserExists(usernameFromParameter)) {
 
                         String errorMessage = "Username " + usernameFromParameter + " already exists. Please enter a different username.";
-                        // username already exists, forward the request back to index.jsp
-                        // with a parameter that indicates that an error should be displayed
-                        // the request dispatcher obtained from the servlet context is one that MUST get an absolute path (starting with'/')
-                        // and is relative to the web app root
-                        // see this link for more details:
-                        // http://timjansen.github.io/jarfiller/guide/servlet25/requestdispatcher.xhtml
                         request.setAttribute(Constants.USER_NAME_ERROR, errorMessage);
                         getServletContext().getRequestDispatcher(LOGIN_ERROR_URL).forward(request, response);
                     } else {
@@ -90,13 +84,14 @@ public class LoginServlet extends HttpServlet {
     }
 
 // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
+
     /**
      * Handles the HTTP <code>GET</code> method.
      *
-     * @param request servlet request
+     * @param request  servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
+     * @throws IOException      if an I/O error occurs
      */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -107,10 +102,10 @@ public class LoginServlet extends HttpServlet {
     /**
      * Handles the HTTP <code>POST</code> method.
      *
-     * @param request servlet request
+     * @param request  servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
+     * @throws IOException      if an I/O error occurs
      */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)

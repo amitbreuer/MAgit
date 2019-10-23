@@ -35,7 +35,7 @@ public class ForkServlet extends HttpServlet {
             user.CreateRepositoryDataForNewRepository(otherUserRepositoryName);
         } catch (Exception e) {
             message = e.getMessage();
-        }finally {
+        } finally {
             try (PrintWriter out = response.getWriter()) {
                 Gson gson = new Gson();
                 String json = gson.toJson(message);

@@ -6,11 +6,6 @@
         <element id="module-output" name="Engine" />
         <element id="module-output" name="DesktopUI" />
       </element>
-      <element id="file-copy" path="$PROJECT_DIR$/../commons-io-2.6.jar" />
-      <element id="file-copy" path="$PROJECT_DIR$/../fxgraph-0.0.3.jar" />
-      <element id="file-copy" path="$PROJECT_DIR$/../commons-codec-1.12.jar" />
-      <element id="file-copy" path="$PROJECT_DIR$/../AncestorFinder.jar" />
-      <element id="file-copy" path="$PROJECT_DIR$/../commons-collections4-4.3.jar" />
     </root>
   </artifact>
 </component>

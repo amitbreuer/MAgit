@@ -9,6 +9,9 @@ public class Constants {
 
     public static final String OTHER_USERNAME = "otherUserName";
     public static final String OTHER_USER_REPOSITORY_NAME = "otherUserRepositoryName";
+    public static final String FileName = "fileFullName";
+    public static final String FileNewContent = "fileNewContent";
+    public static final String COMMIT_MESSAGE = "commitMessage";
 
     public static final String BRANCH_TO_DELETE_NAME = "branchToDeleteName";
     public static final String BRANCH_TO_CHECKOUT_NAME = "branchToCheckoutName";

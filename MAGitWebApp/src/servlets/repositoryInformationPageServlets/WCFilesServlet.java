@@ -1,8 +1,10 @@
 package servlets.repositoryInformationPageServlets;
 
 import com.google.gson.Gson;
-import engine.Commit;
-import engine.users.CommitData;
+import constants.Constants;
+import engine.Folder;
+import engine.MagitManager;
+import engine.users.FolderData;
 import engine.users.User;
 import engine.users.UserManager;
 import utils.ServletUtils;
@@ -12,48 +14,37 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.List;
+import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
-public class HeadBranchInformationServlet extends HttpServlet {
+public class WCFilesServlet extends HttpServlet {
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
         response.setContentType("application/json");
         UserManager userManager = ServletUtils.getUserManager(getServletContext());
-        String currentUserName = SessionUtils.getUsername(request);
-        User currentUser = userManager.getUser(currentUserName);
-            List<Object> headBranchInformation = new ArrayList<>();
-        List<Commit>activeBranchCommits = currentUser.getMagitManager().GetAllCommitsOfActiveBranch();
 
-        headBranchInformation.add(currentUser.getMagitManager().GetHeadBranchName());
-        headBranchInformation.add(currentUser.getMagitManager().GetHeadBranch().getIsRTB());
+        String username = SessionUtils.getUsername(request);
+        String repositoryName = request.getParameter(Constants.CURRENT_WATCHED_REPOSITORY);
+        User user = userManager.getUser(username);
+        String currentDate = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss.SSS"));;
+        Folder wcFolder = user.getMagitManager().createFolderFromWC(Paths.get(Constants.usersDirectoryPath +
+                File.separator + username + File.separator + repositoryName),currentDate);
 
-        for(Commit commit:activeBranchCommits){
-
-            headBranchInformation.add(createCommitDataFromCommit(commit));
-        }
-
+        Gson gson = new Gson();
+        String json = gson.toJson(wcFolder);
 
         try (PrintWriter out = response.getWriter()) {
-            Gson gson = new Gson();
-            String json = gson.toJson(headBranchInformation);
             out.println(json);
             out.flush();
         }
     }
 
-    private Object createCommitDataFromCommit(Commit commit) {
-        CommitData commitData = new CommitData();
-        commitData.setSha1(commit.getSha1());
-        commitData.setMessage(commit.getMessage());
-        commitData.setCreator(commit.getCreator());
-        commitData.setDateCreated(commit.getDateCreated());
-        return commitData;
-    }
 
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
@@ -95,6 +86,5 @@ public class HeadBranchInformationServlet extends HttpServlet {
     public String getServletInfo() {
         return "Short description";
     }// </editor-fold>
-
 
 }

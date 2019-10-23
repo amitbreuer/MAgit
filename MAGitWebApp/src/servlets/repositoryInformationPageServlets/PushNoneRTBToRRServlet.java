@@ -3,8 +3,6 @@ package servlets.repositoryInformationPageServlets;
 import com.google.gson.Gson;
 import constants.Constants;
 import engine.Folder;
-import engine.MagitManager;
-import engine.users.FolderData;
 import engine.users.User;
 import engine.users.UserManager;
 import utils.ServletUtils;
@@ -21,7 +19,7 @@ import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-public class WCStatusServlet extends HttpServlet {
+public class PushNoneRTBToRRServlet extends HttpServlet {
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -30,21 +28,31 @@ public class WCStatusServlet extends HttpServlet {
         UserManager userManager = ServletUtils.getUserManager(getServletContext());
 
         String username = SessionUtils.getUsername(request);
-        String repositoryName = request.getParameter(Constants.CURRENT_WATCHED_REPOSITORY);
         User user = userManager.getUser(username);
-        String currentDate = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss.SSS"));;
-        Folder wcFolder = user.getMagitManager().createFolderFromWC(Paths.get(Constants.usersDirectoryPath +
-                File.separator + username + File.separator + repositoryName),currentDate);
+        try {
+            user.getMagitManager().PushNoneRTBToRR();
+            Gson gson = new Gson();
+            String json = gson.toJson("push executed successfully");
 
-        Gson gson = new Gson();
-        String json = gson.toJson(wcFolder);
+            try (PrintWriter out = response.getWriter()) {
+                out.println(json);
+                out.flush();
+            }
 
-        try (PrintWriter out = response.getWriter()) {
-            out.println(json);
-            out.flush();
+        } catch (Exception e) {
+            e.printStackTrace();
+            Gson gson = new Gson();
+            String json = gson.toJson(e.getMessage());
+
+            try (PrintWriter out = response.getWriter()) {
+                out.println(json);
+                out.flush();
+            }
         }
-    }
 
+
+
+    }
 
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

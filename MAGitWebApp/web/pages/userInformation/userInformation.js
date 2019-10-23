@@ -73,7 +73,6 @@ function showCurrentUserRepositories() {
 function addNewRepositoryToCurrentUser(event) {
     var file = event.target.files[0];
     ajaxNewRepository(file, ShowMessage);
-
 }
 
 function ajaxNewRepository(file, callback) {

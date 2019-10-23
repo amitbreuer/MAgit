@@ -31,6 +31,9 @@ public class DeleteBranchServlet extends HttpServlet {
         String branchToDeleteName = request.getParameter(Constants.BRANCH_TO_DELETE_NAME);
 
         try {
+            if(currentUser.getMagitManager().branchIsRB(branchToDeleteName)){
+
+            }
             currentUser.getMagitManager().DeleteBranch(branchToDeleteName);
             for (RepositoryData repositoryData : currentUser.getRepositoriesData()) {
                 if (repositoryData.getName().equals(currentRepositoryName)) {

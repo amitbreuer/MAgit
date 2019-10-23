@@ -1,8 +1,8 @@
 package servlets.repositoryInformationPageServlets;
 
 import com.google.gson.Gson;
-import engine.Commit;
-import engine.users.CommitData;
+import constants.Constants;
+import engine.Delta;
 import engine.users.User;
 import engine.users.UserManager;
 import utils.ServletUtils;
@@ -12,50 +12,38 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.List;
 
-public class HeadBranchInformationServlet extends HttpServlet {
+public class CommitServlet extends HttpServlet {
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
         response.setContentType("application/json");
         UserManager userManager = ServletUtils.getUserManager(getServletContext());
-        String currentUserName = SessionUtils.getUsername(request);
-        User currentUser = userManager.getUser(currentUserName);
-            List<Object> headBranchInformation = new ArrayList<>();
-        List<Commit>activeBranchCommits = currentUser.getMagitManager().GetAllCommitsOfActiveBranch();
 
-        headBranchInformation.add(currentUser.getMagitManager().GetHeadBranchName());
-        headBranchInformation.add(currentUser.getMagitManager().GetHeadBranch().getIsRTB());
-
-        for(Commit commit:activeBranchCommits){
-
-            headBranchInformation.add(createCommitDataFromCommit(commit));
+        String username = SessionUtils.getUsername(request);
+        String commitMessage = request.getParameter(Constants.COMMIT_MESSAGE);
+        User user = userManager.getUser(username);
+        String message = "Commit was Executed successfully";
+        if(user.getMagitManager().GetWCDelta().isEmpty()) {
+            message = "There are no open changes";
         }
-
+        try {
+            user.getMagitManager().ExecuteCommit(commitMessage,null);
+        } catch (Exception e) {
+            message= e.getMessage();
+        }
 
         try (PrintWriter out = response.getWriter()) {
             Gson gson = new Gson();
-            String json = gson.toJson(headBranchInformation);
+            String json = gson.toJson(message);
             out.println(json);
             out.flush();
         }
     }
-
-    private Object createCommitDataFromCommit(Commit commit) {
-        CommitData commitData = new CommitData();
-        commitData.setSha1(commit.getSha1());
-        commitData.setMessage(commit.getMessage());
-        commitData.setCreator(commit.getCreator());
-        commitData.setDateCreated(commit.getDateCreated());
-        return commitData;
-    }
-
-
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
 
     /**
@@ -95,6 +83,4 @@ public class HeadBranchInformationServlet extends HttpServlet {
     public String getServletInfo() {
         return "Short description";
     }// </editor-fold>
-
-
 }
