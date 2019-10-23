@@ -47,9 +47,10 @@ function ajaxRepositoryNameAndRRDataCallback(repositoryNameAndRRData) {
         hideCollaborationButtons();
     }
     ajaxWCFiles();
+    ajaxOpenChanges();
 }
 
-function emptyOpenChanesLists() {
+function emptyOpenChangesLists() {
     $("#addedFiles-list").empty();
     $("#updatedFiles-list").empty();
     $("#deletedFiles-list").empty();
@@ -60,7 +61,7 @@ function showOpenChanges(delta) {
     var updatedFiles = delta.updatedFiles;
     var deletedFiles = delta.deletedFiles;
 
-    emptyOpenChanesLists();
+    emptyOpenChangesLists();
 
     for(var i=0;i<addedFiles.length;i++){
         addFileToOpenChanges(addedFiles[i].fullNameFromMainFolder,"addedFiles-list");

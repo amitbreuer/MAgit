@@ -45,11 +45,9 @@
                             <div class="modal-content">
                                 <div class="modal-header" style="height: 55px;">
                                     <h5 class="modal-title">New Branch</h5>
-                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span id="branchName-xbutton"
-                                                                                                                      aria-hidden="true">×</span></button>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span id="branchName-xbutton" aria-hidden="true">×</span></button>
                                 </div>
-                                <div class="modal-body"><input id="branchNameTextInput" type="text" style="height: 31px;"
-                                                               placeholder="Enter branch&#39;s name" name="newBranchName"/>
+                                <div class="modal-body"><input id="branchNameTextInput" type="text" style="height: 31px;" placeholder="Enter branch&#39;s name" name="newBranchName"/>
                                 </div>
                                 <div class="modal-footer" style="height: 51px;">
                                     <button class="btn btn-primary btn-sm" type="submit">Save</button>
@@ -59,7 +57,8 @@
                     </div>
                 </div>
 
-                <hr style="margin: 5px;" /><button class="btn btn-primary btn-sm" type="button"> New Branch<i class="typcn typcn-plus float-left"></i></button>
+                <hr style="margin: 5px;" />
+                <button id="newBranchButton" class="btn btn-primary btn-sm" type="button" onclick="showNewBranchModal()"> New Branch<i class="typcn typcn-plus float-left"></i></button>
                 <hr style="margin: 5px;" />
                 <div class="container" id="otherBranchesList" style="padding: 0px;">
                 </div>
@@ -164,6 +163,20 @@
                             <h5 style="margin-bottom: 15px;">Working Copy &nbsp;&nbsp;<button class="btn btn-success btn-sm" id="commit-button" type="button" onclick="showCommitMessageModal()" style="margin-left: 10px;">Commit</button><button class="btn btn-secondary btn-sm float-right" type="button" onclick='showCreateFileModal("wc-accordion","")' style="margin-right: 15px;"><i class="icon ion-plus-round"></i><em> Add File</em></button></h5>
                             <div role="tablist" Id="wc-accordion"></div>
                         </div>
+                        <div id="prModal" role="dialog" tabindex="-1" class="modal fade show" style="display: none;">
+                            <div class="modal-dialog" role="document">
+                                <form id="newPRForm">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h4 class="modal-title">New Pull Request</h4><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button></div>
+                                    <div class="modal-body"><strong style="margin-right: 5px;">Target Branch: </strong><select name="targetBranch"><optgroup label="target branch"></optgroup></select>
+                                        <hr class="invisible" style="margin-top: 3px;margin-bottom: 3px;" /><strong style="margin-right: 5px;">Base Branch: </strong><select name="baseBranch"><optgroup label="base branch"></optgroup></select>
+                                        <hr class="invisible" style="margin-top: 3px;margin-bottom: 3px;" /><textarea name="PRMessage" placeholder="Enter message" cols="56" form="newPRForm"></textarea></div>
+                                    <div class="modal-footer" style="height: 52px;"><button class="btn btn-primary btn-sm" type="button">Send</button></div>
+                                </div>
+                                </form>
+                            </div>
+                        </div>
                         <div id="commitMessageModal" role="dialog" tabindex="-1" class="modal fade show" style="display: none">
                             <div class="modal-dialog modal-sm" role="document">
                                 <form id="commitMessageForm">
@@ -181,8 +194,8 @@
                                 <form id="createFileForm">
                                 <div class="modal-content">
                                     <div class="modal-header"><input name="createFile-path" type="text" readonly /><span style="height: 30px;font-size: 20px;"> / </span><input name="createFile-name" type="text" placeholder="Enter file name" /><h4 style="height: 30px;font-size: 20px;">.txt</h4><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span id="createFile-xButton" aria-hidden="true">×</span></button></div>
-                                    <div class="modal-body" style="height: 170px;"><textarea name="createFile-content" placeholder="Enter content" form="createFileForm" cols="56" style="height: 140px;"></textarea></div>
-                                    <div class="modal-footer" style="height: 53px;"><button id="createFile-saveButton" class="btn btn-primary btn-sm" type="submit">Save</button></div>
+                                    <div class="modal-body" style="height: 120px;"><textarea name="createFile-content" placeholder="Enter content" form="createFileForm"  style="width: 464px;height: 90px;"></textarea></div>
+                                    <div class="modal-footer" style="height: 53px;"><button id="createFile-saveButton" class="btn btn-primary btn-sm" type="submit" >Save</button></div>
                                 </div>
                                 </form>
                             </div>
