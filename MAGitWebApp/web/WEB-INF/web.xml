@@ -9,6 +9,22 @@
         <servlet-class>servlets.loginPageServlet.LoginServlet</servlet-class>
     </servlet>
 
+
+    <servlet>
+        <servlet-name>SendChatServlet</servlet-name>
+        <servlet-class>chat.servlets.SendChatServlet</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>ChatServlet</servlet-name>
+        <servlet-class>chat.servlets.ChatServlet</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>UsersListServlet</servlet-name>
+        <servlet-class>chat.servlets.UsersListServlet</servlet-class>
+    </servlet>
+
     <servlet>
         <servlet-name>HeadBranchInformationServlet</servlet-name>
         <servlet-class>servlets.repositoryInformationPageServlets.HeadBranchInformationServlet</servlet-class>
@@ -273,4 +289,21 @@
         <servlet-name>PRResponseServlet</servlet-name>
         <url-pattern>/prResponse</url-pattern>
     </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>ChatServlet</servlet-name>
+        <url-pattern>/chat</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>UsersListServlet</servlet-name>
+        <url-pattern>/userslist</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>SendChatServlet</servlet-name>
+        <url-pattern>/sendChat</url-pattern>
+    </servlet-mapping>
+
+
 </web-app>

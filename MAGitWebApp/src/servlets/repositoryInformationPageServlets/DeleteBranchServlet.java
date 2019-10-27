@@ -15,8 +15,11 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,7 +36,24 @@ public class DeleteBranchServlet extends HttpServlet {
 
         try {
             if(currentUser.getMagitManager().BranchIsRB(branchToDeleteName)){
-                //synchronized issues - multiple threads might access at the same time to the branches' list and file
+                int index = branchToDeleteName.indexOf("\\");//removing the RRName from the branch name
+                String RBName = branchToDeleteName.substring(index+1);
+                String RRPath = currentUser.getMagitManager().getRRPath();
+                String RRUsername = ServletUtils.getRRUserNameFromOtherRepositoryPath(RRPath);
+                String RRName = currentUser.getMagitManager().GetCurrentRepository().getRemoteRepositoryname();
+
+                User RRUser = userManager.getUser(RRUsername);
+                if( RRUser.getMagitManager().getRepositoryName()!=null && RRUser.getMagitManager().getRepositoryName().equals(RRName)){
+                    RRUser.getMagitManager().DeleteBranch(RBName);
+                }else {
+                    Files.delete(Paths.get(RRPath+ File.separator+".magit"+File.separator+"branches"+File.separator+RBName+".txt"));
+                }
+
+                for (RepositoryData repositoryData : RRUser.getRepositoriesData()) {
+                    if (repositoryData.getName().equals(RRName)) {
+                        repositoryData.setNumberOfBranches(repositoryData.getNumberOfBranches() - 1);
+                    }
+                }
             }
 
             currentUser.getMagitManager().DeleteBranch(branchToDeleteName);

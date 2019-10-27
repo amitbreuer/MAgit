@@ -27,7 +27,8 @@ public class NewPullRequestServlet extends HttpServlet {
         String repositoryName = user.getMagitManager().GetCurrentRepository().getRemoteRepositoryname();
         String targetBranch = request.getParameter("targetBranchSelect");
         String baseBranch = request.getParameter("baseBranchSelect");
-        if(baseBranch.startsWith(repositoryName)) { // if the branch is RB in creator's repository
+
+        if(user.getMagitManager().BranchIsRB(baseBranch)) { // if the branch is RB in creator's repository
             int index = baseBranch.indexOf("\\");
             baseBranch = baseBranch.substring(index+1);
         }

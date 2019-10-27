@@ -17,6 +17,7 @@
 
     <script src="../../common/jquery-3.4.1.min.js"></script>
     <script src="../../common/context-path-helper.js"></script>
+    <script src="chatroom.js"></script>;
     <script src="repositoryInformation.js"></script>;
 </head>
 
@@ -70,7 +71,41 @@
                     <div class="container-fluid">
                         <h2 class="d-lg-flex justify-content-lg-center align-items-lg-end" id="repositoryName-label">Repository name</h2>
                         <ul class="nav navbar-nav flex-wrap ml-auto">
+                            <li role="presentation" class="nav-item align-self-center dropdown no-arrow">
+                                <div class="nav-item dropdown show no-arrow"><a data-toggle="dropdown" aria-expanded="true" class="dropdown-toggle nav-link" href="#"><i class="icon ion-chatboxes fa-fw"></i></a>
+                                    <div role="menu" class="dropdown-menu dropdown-menu-right show dropdown-list dropdown-menu-right animated--grow-in" style="max-height: 300px; min-width: 550px">
+                                        <h6 class="dropdown-header">Chat</h6>
+                                        <div class="container-fluid" style="max-height: 500px; min-width: 900px">
+                                            <div class="row">
+                                                <div class="col-xs-1">
+                                                    <div class="sidebar">
+                                                        <h4>Online</h4>
+                                                        <div class="clearfix">
+                                                            <div class="input">
+                                                                <ul id="userslist">
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-xs-4">
+                                                    <div class="content">
+                                                        <div id="chatwindow">
+                                                            <h4>Chat</h4>
+                                                            <div id="chatarea" class="span6"></div>
+                                                            <form id="chatform" method="POST" action="sendChat">
+                                                                <input type="text" id="userstring" name="userstring"/>
+                                                                <input type="submit" value="Send"/>
+                                                            </form>
+                                                        </div>
+                                                    </div>
 
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
                             <li class="nav-item align-self-center dropdown no-arrow" role="presentation">
                                 <div class="nav-item dropdown no-arrow"><a class="dropdown-toggle nav-link" data-toggle="dropdown" aria-expanded="false" href="#"><i class="fas fa-envelope fa-fw" style="font-size: 20px;"></i></a>
                                     <div id="messagesList" class="dropdown-menu dropdown-menu-right dropdown-list dropdown-menu-right animated--grow-in"

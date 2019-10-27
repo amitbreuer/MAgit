@@ -2,6 +2,7 @@ package utils;
 
 //import engine.chat.ChatManager;
 import constants.Constants;
+import engine.chat.ChatManager;
 import engine.users.UserManager;
 
 import javax.servlet.ServletContext;
@@ -22,6 +23,8 @@ public class ServletUtils {
 	the actual fetch of them is remained un-synchronized for performance POV
 	 */
 	private static final Object userManagerLock = new Object();
+	private static final Object chatManagerLock = new Object();
+
 
 	public static UserManager getUserManager(ServletContext servletContext) {
 		synchronized (userManagerLock) {
@@ -77,4 +80,14 @@ public class ServletUtils {
 
 		return otherUsersName;
 	}
+
+	public static ChatManager getChatManager(ServletContext servletContext) {
+		synchronized (chatManagerLock) {
+			if (servletContext.getAttribute(CHAT_MANAGER_ATTRIBUTE_NAME) == null) {
+				servletContext.setAttribute(CHAT_MANAGER_ATTRIBUTE_NAME, new ChatManager());
+			}
+		}
+		return (ChatManager) servletContext.getAttribute(CHAT_MANAGER_ATTRIBUTE_NAME);
+	}
+
 }

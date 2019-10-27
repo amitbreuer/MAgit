@@ -4,15 +4,12 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Repository {
     private Path path;
     private Map<String, Commit> recentlyUsedCommits;
-    private Map<String, Branch> branches;
+    private  Map<String, Branch> branches;
     private Branch headBranch;
     private Path remoteRepositoryPath;
     private String remoteRepositoryname;
@@ -20,7 +17,7 @@ public class Repository {
     public Repository(String path) {
         this.path = Paths.get(path);
         this.recentlyUsedCommits = new HashMap<>();
-        this.branches = new HashMap<>();
+        this.branches = Collections.synchronizedMap(new HashMap<>());
     }
 
     public void setRemoteRepositoryname(String remoteRepositoryname) {

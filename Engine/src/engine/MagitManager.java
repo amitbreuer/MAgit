@@ -33,6 +33,10 @@ public class MagitManager {
     private XmlManager xmlManager;
     private String repositoryName;
 
+    public void setRepositoryName(String repositoryName) {
+        this.repositoryName = repositoryName;
+    }
+
     public Repository GetCurrentRepository() {
         return repository;
     }
@@ -1661,7 +1665,7 @@ public class MagitManager {
         String RRPath = Constants.usersDirectoryPath + File.separator + otherUserName + File.separator + otherUserRepositoryName;
         String LRPath = Constants.usersDirectoryPath + File.separator + currentUserName + File.separator + otherUserRepositoryName;
 
-        CloneRepository(RRPath, LRPath, otherUserName);
+        CloneRepository(RRPath, LRPath, otherUserRepositoryName);
     }
 
     public String getRRPath() {

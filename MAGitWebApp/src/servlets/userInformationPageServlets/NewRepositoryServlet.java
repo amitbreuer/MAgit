@@ -33,6 +33,8 @@ public class NewRepositoryServlet extends HttpServlet {
             String repositoryName = user.getMagitManager().getRepositoryName();
             user.CreateRepositoryDataForNewRepository(repositoryName);
             user.getMagitManager().SetRepository(null);
+            user.getMagitManager().setRepositoryName(null);
+
         } catch (Exception e) {
             out.println(gson.toJson("error: "+ e.getMessage()+".\n the repository was not loaded") );
         }
