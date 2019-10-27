@@ -1,22 +1,21 @@
-package servlets.userInformationPageServlets;
+package servlets.repositoryInformationPageServlets;
 
 import com.google.gson.Gson;
-import constants.Constants;
+import engine.users.PullRequest;
 import engine.users.User;
 import engine.users.UserManager;
 import utils.ServletUtils;
 import utils.SessionUtils;
-
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
-public class ForkServlet extends HttpServlet {
+public class NewPullRequestServlet extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
@@ -24,37 +23,33 @@ public class ForkServlet extends HttpServlet {
         UserManager userManager = ServletUtils.getUserManager(getServletContext());
 
         String username = SessionUtils.getUsername(request);
-        String otherUserName = request.getParameter(Constants.OTHER_USERNAME);
-        String otherUserRepositoryName = request.getParameter(Constants.OTHER_USER_REPOSITORY_NAME);
-        userManager.getUser(otherUserName).AddMessage(username+" has forked your repository-"+otherUserRepositoryName+"\nAt: "+userManager.getDate());
-        String message = "Fork was executed successfully";
         User user = userManager.getUser(username);
-
-        try {
-            user.getMagitManager().Fork(username,otherUserName,otherUserRepositoryName);
-            user.CreateRepositoryDataForNewRepository(otherUserRepositoryName);
-            user.getMagitManager().SetRepository(null);
-
-        } catch (Exception e) {
-            message = e.getMessage();
-        } finally {
-            try (PrintWriter out = response.getWriter()) {
-                Gson gson = new Gson();
-                String json = gson.toJson(message);
-                out.println(json);
-                out.flush();
-            }
+        String repositoryName = user.getMagitManager().GetCurrentRepository().getRemoteRepositoryname();
+        String targetBranch = request.getParameter("targetBranchSelect");
+        String baseBranch = request.getParameter("baseBranchSelect");
+        if(baseBranch.startsWith(repositoryName)) { // if the branch is RB in creator's repository
+            int index = baseBranch.indexOf("\\");
+            baseBranch = baseBranch.substring(index+1);
         }
+        String prMessage = request.getParameter("PRMessage");
+        String otherUserName = ServletUtils.getRRUserNameFromOtherRepositoryPath(user.getMagitManager().GetCurrentRepository().getRemoteRepositoryPath().toString());
+        User otherUser = userManager.getUser(otherUserName);
+        otherUser.AddMessage("You got a new Pull Request from: " + username +",\nRepository: "+repositoryName+",\nTarget Branch: "+targetBranch
+                +",\nBase Branch:" +baseBranch + ",\nMessage: "+prMessage);
 
+        String dateCreated = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss.SSS"));
+        PullRequest newPR = new PullRequest(username,targetBranch,baseBranch,dateCreated, PullRequest.Status.OPEN);
+        otherUser.AddPR(repositoryName,newPR);
+
+        String message = "Pull Request was sent";
+        try (PrintWriter out = response.getWriter()) {
+            Gson gson = new Gson();
+            String json = gson.toJson(message);
+            out.println(json);
+            out.flush();
+        }
     }
 
-    private String getDate() {
-
-        SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yyyy-HH:mm:ss:SSS");
-        Date date = new Date();
-        return formatter.format(date);
-
-    }
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
 
     /**

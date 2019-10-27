@@ -17,15 +17,17 @@ public class User {
     private String username;
     private List<RepositoryData> repositoriesData;
     private MagitManager magitManager;
-    private List<String> messages = new ArrayList<>();
+    private List<String> messages;
+    private Map<String,List<PullRequest>> PRsMap;
     private static final Object addMessageLock = new Object();
-
-
+    private static final Object addPRLock = new Object();
 
     public User(String username) {
         this.username = username;
         this.repositoriesData = new ArrayList<>();
         this.magitManager = new MagitManager();
+        this.messages = new ArrayList<>();
+        this.PRsMap = new HashMap<>();
     }
 
     public String getUsername() {
@@ -46,6 +48,12 @@ public class User {
         }
     }
 
+    public void AddPR(String repositoryName,PullRequest newPR) {
+        synchronized (addPRLock) {
+            List<PullRequest> PRList = PRsMap.computeIfAbsent(repositoryName, k -> new ArrayList<>());
+            PRList.add(newPR);
+        }
+    }
 
     public void ClearMessages() {
         this.messages.clear();
@@ -87,6 +95,10 @@ public class User {
 
     public List<String> getMessages(int fromIndex) {
         return messages.subList(fromIndex, messages.size());
+    }
+
+    public List<PullRequest> getPRsOfRepository(String repositoryName) {
+        return PRsMap.get(repositoryName);
     }
 }
 

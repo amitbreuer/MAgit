@@ -30,8 +30,7 @@ public class CreateNewBranchServlet extends HttpServlet {
 
         try {
             currentUser.getMagitManager().CreateNewRegularBranch(branchToAddName, false, true, null);
-
-            currentUser.getMagitManager().GetCurrentRepository().FindBranchByName(branchToAddName).setIsRB(isRTB);
+            currentUser.getMagitManager().GetCurrentRepository().FindBranchByName(branchToAddName).setIsRTB(isRTB);
             for (RepositoryData repositoryData : currentUser.getRepositoriesData()) {
                 if (repositoryData.getName().equals(currentRepositoryName)) {
                     repositoryData.setNumberOfBranches(repositoryData.getNumberOfBranches() + 1);

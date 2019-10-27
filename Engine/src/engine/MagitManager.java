@@ -1723,4 +1723,7 @@ public class MagitManager {
     }
 
 
+//    public Delta getAggregationOfChangesBetweenTwoCommits(Commit targetBranchCommit, Commit baseBranchCommit) {
+//
+//    }
 }

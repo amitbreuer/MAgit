@@ -239,7 +239,6 @@ $(function () {
     initializeWindow();
 });
 
-
 function ajaxCurrentUserDataCallback(currentUserData) {
     CURRENT_USER_DATA = currentUserData;
 }
@@ -292,7 +291,6 @@ function addSingleMessageToMessagesDisplay(message) {
     var messageElement = createMessageElement(message);
     $("#messages").append(messageElement);
 }
-
 
 $(function () {
     setInterval(refreshOtherUsersDisplay, 5000);

@@ -67,7 +67,7 @@
     <servlet>
         <servlet-name>DeleteFileServlet</servlet-name>
         <servlet-class>servlets.repositoryInformationPageServlets.DeleteFileServlet</servlet-class>
-    </servlet>AddFileServlet
+    </servlet>
 
     <servlet>
         <servlet-name>AddFileServlet</servlet-name>
@@ -109,7 +109,7 @@
         <servlet-class>servlets.repositoryInformationPageServlets.PullServlet</servlet-class>
     </servlet>
 
-<servlet>
+    <servlet>
         <servlet-name>MessagesServlet</servlet-name>
         <servlet-class>servlets.userInformationPageServlets.MessagesServlet</servlet-class>
     </servlet>
@@ -117,6 +117,21 @@
     <servlet>
         <servlet-name>CommitServlet</servlet-name>
         <servlet-class>servlets.repositoryInformationPageServlets.CommitServlet</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>PossibleBranchesForPRServlet</servlet-name>
+        <servlet-class>servlets.repositoryInformationPageServlets.PossibleBranchesForPRServlet</servlet-class>
+    </servlet>
+
+    <servlet>
+    <servlet-name>NewPullRequestServlet</servlet-name>
+        <servlet-class>servlets.repositoryInformationPageServlets.NewPullRequestServlet</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>RepositoryPRsServlet</servlet-name>
+        <servlet-class>servlets.repositoryInformationPageServlets.RepositoryPRsServlet</servlet-class>
     </servlet>
 
     <servlet-mapping>
@@ -175,8 +190,8 @@
     </servlet-mapping>
 
     <servlet-mapping>
-    <servlet-name>EditFileServlet</servlet-name>
-    <url-pattern>/editFile</url-pattern>
+        <servlet-name>EditFileServlet</servlet-name>
+        <url-pattern>/editFile</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>
@@ -229,9 +244,23 @@
         <url-pattern>/pull</url-pattern>
     </servlet-mapping>
 
- <servlet-mapping>
+    <servlet-mapping>
         <servlet-name>MessagesServlet</servlet-name>
         <url-pattern>/messages</url-pattern>
     </servlet-mapping>
 
+    <servlet-mapping>
+        <servlet-name>PossibleBranchesForPRServlet</servlet-name>
+        <url-pattern>/branchesForPr</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>NewPullRequestServlet</servlet-name>
+        <url-pattern>/newPR</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>RepositoryPRsServlet</servlet-name>
+        <url-pattern>/repositoryPRs</url-pattern>
+    </servlet-mapping>
 </web-app>

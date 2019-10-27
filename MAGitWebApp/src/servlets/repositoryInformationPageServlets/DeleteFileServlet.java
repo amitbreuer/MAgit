@@ -21,11 +21,11 @@ public class DeleteFileServlet extends HttpServlet {
         String currentUserName = SessionUtils.getUsername(request);
         String repositoryName = request.getParameter(Constants.CURRENT_WATCHED_REPOSITORY);
         String fileNameFromParameter = request.getParameter(Constants.FileName);
-        String fileName = ServletUtils.getFixedFileName(fileNameFromParameter,currentUserName,repositoryName);
-
+        String fileFullName = ServletUtils.getFixedFileName(fileNameFromParameter,currentUserName,repositoryName);
+        String fileName = fileNameFromParameter.substring(13);
         String message = fileName + " was deleted";
 
-        MagitManager.deleteDirectory(Paths.get(fileName));
+        MagitManager.deleteDirectory(Paths.get(fileFullName));
 
         try (PrintWriter out = response.getWriter()) {
             Gson gson = new Gson();
