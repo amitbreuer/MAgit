@@ -69,4 +69,12 @@ public class ServletUtils {
 
 		return fileName.toString();
 	}
+
+	public static String getRRUserNameFromOtherRepositoryPath(String RRPath) {
+		String otherUsersName = RRPath.substring(13);
+		int endOfOtherUsersName = otherUsersName.indexOf(File.separator);
+		otherUsersName = otherUsersName.substring(0,endOfOtherUsersName);
+
+		return otherUsersName;
+	}
 }

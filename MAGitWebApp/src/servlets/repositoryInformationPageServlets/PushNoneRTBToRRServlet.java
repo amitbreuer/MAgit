@@ -32,7 +32,7 @@ public class PushNoneRTBToRRServlet extends HttpServlet {
         User user = userManager.getUser(username);
         String RRName = user.getMagitManager().GetCurrentRepository().getRemoteRepositoryname();
         String RRPath = user.getMagitManager().GetCurrentRepository().getRemoteRepositoryPath().toString();
-        String RRUser = RRPath.substring(12);// cut the user directory prefix
+        String RRUser = ServletUtils.getRRUserNameFromOtherRepositoryPath(RRPath);
 
         for (RepositoryData repositoryData :userManager.getUser(RRUser).getRepositoriesData()){
             if (repositoryData.getName().equals(RRName)){

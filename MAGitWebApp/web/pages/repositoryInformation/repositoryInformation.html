@@ -110,7 +110,7 @@
                                     </button>
                                     <button onclick="pull()"  class="btn btn-info btn-sm collaboration-buttons" type="button" style="margin-right: 3px;">Pull
                                     </button>
-                                    <button onclick="pullRequest()"  class="btn btn-info btn-sm collaboration-buttons" type="button">New Pull Request</button>
+                                    <button onclick="showPullRequestModal()"  class="btn btn-info btn-sm collaboration-buttons" type="button">New Pull Request</button>
                                 </div>
                             </h5>
                         </div>
@@ -132,11 +132,11 @@
                                 <form id="newPRForm">
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                        <h4 class="modal-title">New Pull Request</h4><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button></div>
-                                    <div class="modal-body"><strong style="margin-right: 5px;">Target Branch: </strong><select name="targetBranch"><optgroup label="target branch"></optgroup></select>
-                                        <hr class="invisible" style="margin-top: 3px;margin-bottom: 3px;" /><strong style="margin-right: 5px;">Base Branch: </strong><select name="baseBranch"><optgroup label="base branch"></optgroup></select>
+                                        <h4 class="modal-title">New Pull Request</h4><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span id="prModal-xButton" aria-hidden="true">×</span></button></div>
+                                    <div class="modal-body"><strong style="margin-right: 5px;">Target Branch: </strong><select id="targetBranchesSelect" name="targetBranchSelect"><optgroup label="target branch"></optgroup></select>
+                                        <hr class="invisible" style="margin-top: 3px;margin-bottom: 3px;" /><strong style="margin-right: 5px;">Base Branch: </strong><select id="baseBranchesSelect" name="baseBranchSelect"><optgroup label="base branch"></optgroup></select>
                                         <hr class="invisible" style="margin-top: 3px;margin-bottom: 3px;" /><textarea name="PRMessage" placeholder="Enter message" cols="56" form="newPRForm"></textarea></div>
-                                    <div class="modal-footer" style="height: 52px;"><button class="btn btn-primary btn-sm" type="button">Send</button></div>
+                                    <div class="modal-footer" style="height: 52px;"><button class="btn btn-primary btn-sm" type="submit">Send</button></div>
                                 </div>
                                 </form>
                             </div>
@@ -193,42 +193,25 @@
                     <div class="col">
                         <div class="container">
                             <h5 style="margin-bottom: 15px;">Pull Requests</h5>
-                            <div class="table-responsive">
-                                <table class="table">
-                                    <thead>
-                                        <tr>
-                                            <th>User</th>
-                                            <th>Target Branch</th>
-                                            <th>Base Branch</th>
-                                            <th>Date</th>
-                                            <th>Status</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>user 1</td>
-                                            <td>Cell 2</td>
-                                            <td>Cell 3</td>
-                                            <td>Cell 3</td>
-                                            <td>open</td>
-                                        </tr>
-                                        <tr>
-                                            <td>user 2</td>
-                                            <td>Cell 4</td>
-                                            <td>Cell 3</td>
-                                            <td>Cell 3</td>
-                                            <td>closed</td>
-                                        </tr>
-                                        <tr>
-                                            <td>user 3</td>
-                                            <td>Cell 2</td>
-                                            <td>Cell 3</td>
-                                            <td>Cell 4</td>
-                                            <td>denied</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                            <div id="prResponseModal" role="dialog" tabindex="-1" class="modal fade show" style="display: none;">
+                                <div class="modal-dialog modal-lg" role="document">
+                                    <form id="prResponseForm">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h4 class="modal-title">PR Response</h4><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button></div>
+                                        <div class="modal-body"><strong style="margin-right: 3px;">Target Branch: </strong><input type="text" class="form-control-sm" name="prResponse-targetBranchName" readonly />
+                                            <hr /><strong style="margin-right: 3px;">Base Branch: </strong><input type="text" class="form-control-sm" name="prResponse-baseBranchName" readonly />
+                                            <hr /><strong>Response:</strong>
+                                            <div class="form-check"><input type="radio" class="form-check-input" id="AcceptRadio" name="responseRadio" value="Accept" /><label class="form-check-label" for="AcceptRadio">Accept</label></div>
+                                            <div class="form-check"><input type="radio" class="form-check-input" id="RejectedRadio" name="responseRadio" value="Rejected"/><label class="form-check-label" for="RejectedRadio">Reject</label></div>
+                                            <textarea id="rejectionMessageTextArea" name="rejectionMessage" form="prResponseForm" cols="60" placeholder="Enter message for rejection" disabled></textarea>
+                                        </div>
+                                        <div class="modal-footer" style="padding: 8px;"><button class="btn btn-primary" type="submit" style="margin-right: 10px;">OK</button></div>
+                                    </div>
+                                    </form>
+                                </div>
                             </div>
+                            <div role="tablist" id="pr-accordion"></div>
                         </div>
                     </div>
                 </div>

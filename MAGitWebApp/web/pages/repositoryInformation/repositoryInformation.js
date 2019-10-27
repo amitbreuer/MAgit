@@ -15,9 +15,11 @@ var ADD_FILE_URL = buildUrlWithContextPath("addFile");
 var OPEN_CHANGES = buildUrlWithContextPath("openChanges");
 var COMMIT_URL = buildUrlWithContextPath("commit");
 var MESSAGES_URL = buildUrlWithContextPath("messages");
+var POSSIBLE_BRANCHES_FOR_PULL_REQUEST_URL = buildUrlWithContextPath("branchesForPr");
+var NEW_PULL_REQUEST_URL = buildUrlWithContextPath("newPR");
+var REPOSITORY_PRS = buildUrlWithContextPath("repositoryPRs");
 
 var messagesVersion = 0;
-
 
 function setRepositoryName(name) {
     REPOSITORY_NAME = name;
@@ -51,6 +53,8 @@ function ajaxRepositoryNameAndRRDataCallback(repositoryNameAndRRData) {
     }
     ajaxWCFiles();
     ajaxOpenChanges();
+    refreshPRs();
+
 }
 
 function emptyOpenChangesLists() {
@@ -98,7 +102,7 @@ function ajaxSaveNewContent(fileItemContentId, saveButtonId, fileID, content) {
         success: function (message) {
             document.getElementById(fileItemContentId).setAttribute("contentEditable", "false");
             document.getElementById(saveButtonId).setAttribute("class", "btn btn-secondary btn-sm d-none float-right");
-            console.log(message);
+            ShowMessage(message);
             ajaxOpenChanges();
         }
     })
@@ -118,7 +122,7 @@ function ajaxDeleteFile(fileID) {
         },
         success: function (message) {
             document.getElementById(fileID + "Item").remove();
-            console.log(message);
+            ShowMessage(message);
             ajaxOpenChanges();
         }
     })
@@ -258,13 +262,6 @@ function addFileToOpenChanges(fileFullName, changesList) {
 function createFileCallBack() {
     ajaxOpenChanges();
     ajaxWCFiles();
-
-    var modal = $("#createFileModal")[0];
-    var fileNameTextField = document.getElementsByName("createFile-name")[0];
-    var contentTextArea = document.getElementsByName("createFile-content")[0];
-    modal.style.display = "none";
-    fileNameTextField.value = "";
-    contentTextArea.value = "";
 }
 
 function showWCFiles(wcFolderData) {
@@ -389,11 +386,11 @@ function ajaxHeadBranchInformationCallback(headBranchInformation) {
 }
 
 function initializeAddFileModal() {
-    var modal = $("#createFileModal");
     var xButton = document.getElementById("createFile-xButton");
     var fileNameTextField = document.getElementsByName("createFile-name")[0];
     var contentTextArea = document.getElementsByName("createFile-content")[0];
     xButton.onclick = function () {
+        var modal = $("#createFileModal")[0];
         fileNameTextField.value = "";
         contentTextArea.value = "";
         modal.style.display = "none";
@@ -402,21 +399,24 @@ function initializeAddFileModal() {
         $.ajax({
             url: ADD_FILE_URL,
             data: $(this).serialize(),
-            success: function (message) {
-                console.log(message);
+            success: function (data) {
+                ShowMessage(data[0]);
                 createFileCallBack();
             }
         });
+        var modal = $("#createFileModal")[0];
+        var fileNameTextField = document.getElementsByName("createFile-name")[0];
+        var contentTextArea = document.getElementsByName("createFile-content")[0];
+        modal.style.display = "none";
+        fileNameTextField.value = "";
+        contentTextArea.value = "";
         return false;
     });
 }
 
 function commitCallBack() {
-    ajaxOpenChanges();
-    var commitsMessage = document.getElementsByName("commitMessage")[0];
-    var modal = $("#commitMessageModal")[0];
-    modal.style.display = "none";
-    commitsMessage.value = "";
+    //ajaxOpenChanges();
+    location.reload();
 }
 
 function initializeCommitMessageModal() {
@@ -432,10 +432,14 @@ function initializeCommitMessageModal() {
             url: COMMIT_URL,
             data: $(this).serialize(),
             success: function (message) {
-                console.log(message);
+                ShowMessage(message);
                 commitCallBack();
             }
         });
+        var commitsMessage = document.getElementsByName("commitMessage")[0];
+        var modal = $("#commitMessageModal")[0];
+        modal.style.display = "none";
+        commitsMessage.value = "";
         return false;
     });
 }
@@ -502,7 +506,7 @@ function ajaxCheckout(singleBranchName) {
 }
 
 function addSingleOtherBranchItem(singleBranchName, singleBranchCommitSha1, singleBranchCommitIsRB, branchIndex) {
-    var branchElement = createOtherBranchElement(singleBranchName, singleBranchCommitSha1, singleBranchCommitIsRB, branchIndex);
+    var branchElement = createOtherBranchElement(singleBranchName, singleBranchCommitSha1, branchIndex);
     $("#otherBranchesList").append(branchElement);
 
     if (singleBranchCommitIsRB) {
@@ -511,7 +515,7 @@ function addSingleOtherBranchItem(singleBranchName, singleBranchCommitSha1, sing
         document.getElementById("checkout-branch-" + singleBranchName).innerText += " as RTB";
 
         document.getElementById("checkout-branch-" + singleBranchName).onclick = function (ev) {
-            if (!document.getElementsByName(newRTBName)) {
+            if (document.getElementsByName(newRTBName).length === 0) {
                 $.ajax({
                     url: CREATE_NEW_BRANCH_URL,
                     data: {
@@ -561,7 +565,6 @@ function ajaxCreateNewBranchCallback(message) {
     } else {
         ajaxOtherBranchesInformation();
     }
-    $("#branchNameModal")[0].style.display = "none";
 }
 
 
@@ -571,11 +574,11 @@ function showNewBranchModal() {
 }
 
 function initializeBranchNameModal() {
-    var branchNameModal = $("#branchNameModal")[0];
     var span = $("#branchName-xbutton")[0];
     span.onclick = function () {
-        $("#branchNameTextInput").val("");
+        var branchNameModal = $("#branchNameModal")[0];
         branchNameModal.style.display = "none";
+        $("#branchNameTextInput").val("");
     };
 
     $("#branchNameForm").submit(function (event) {
@@ -585,18 +588,44 @@ function initializeBranchNameModal() {
                 data: $(this).serialize(),
                 success: ajaxCreateNewBranchCallback
             });
+            $("#branchNameModal")[0].style.display = "none";
             $("#branchNameTextInput").val("");
-
             return false;
         }
     );
 }
 
+function newPullRequestCallback(message) {
+    ShowMessage(message);
+}
+
+function initializePRModal() {
+    var xButton = $("#prModal-xButton")[0];
+    xButton.onclick = function() {
+        var prMessageTextArea = document.getElementsByName("PRMessage")[0];
+        prMessageTextArea.value = "";
+        var prModal = $("#prModal")[0];
+        prModal.style.display = "none";
+    };
+    $("#newPRForm").submit(function () {
+        $.ajax({
+            url: NEW_PULL_REQUEST_URL,
+            data: $(this).serialize(),
+            success: newPullRequestCallback
+        });
+        var prMessageTextArea = document.getElementsByName("PRMessage")[0];
+        prMessageTextArea.value = "";
+        var prModal = $("#prModal")[0];
+        prModal.style.display = "none";
+        return false;
+    })
+}
 
 function initializeModals() {
     initializeBranchNameModal();
     initializeAddFileModal();
     initializeCommitMessageModal();
+    initializePRModal();
 }
 
 function pushNonRTBTORR() {
@@ -610,6 +639,8 @@ function pushNonRTBTORR() {
 
 function pushNonRTBTORRCallback(message) {
     ShowMessage(message);
+
+    location.reload();
 }
 
 function pull() {
@@ -628,14 +659,45 @@ function pullCallback(message) {
     }
 }
 
-function pullRequest() {
+function addBranchesToSelectsLists(possibleBranches) {
+    var targetBranchesSelect = $("#targetBranchesSelect");
+    var baseBranchesSelect = $("#baseBranchesSelect");
+    targetBranchesSelect.empty();
+    baseBranchesSelect.empty();
 
+    var possibleTargetBranches = possibleBranches[0];
+    var possibleBaseBranches = possibleBranches[1];
+
+    for(var i=0;i<possibleTargetBranches.length;i++){
+        var targetBranchOption = document.createElement("option");
+        targetBranchOption.value = possibleTargetBranches[i];
+        targetBranchOption.textContent = possibleTargetBranches[i];
+        targetBranchesSelect.append(targetBranchOption);
+    }
+
+    for(var j=0;j<possibleBaseBranches.length;j++){
+        var baseBranchOption = document.createElement("option");
+        baseBranchOption.value = possibleBaseBranches[j];
+        baseBranchOption.textContent = possibleBaseBranches[j];
+        baseBranchesSelect.append(baseBranchOption);
+    }
+
+}
+
+function showPullRequestModal() {
+    $.ajax({
+        url: POSSIBLE_BRANCHES_FOR_PULL_REQUEST_URL,
+        success: function(possibleBranches) {
+            addBranchesToSelectsLists(possibleBranches);
+            var modal = $("#prModal")[0];
+            modal.style.display = "block";
+        }
+    });
 }
 
 function BackToUserInformationPage() {
     var fullUrl = buildUrlWithContextPath("pages/userInformation/userInformation.html");
     window.location.replace(fullUrl);
-
 }
 
 function refreshMessages() {
@@ -652,6 +714,112 @@ function refreshMessages() {
 
     })
 }
+
+
+function addPRDeltaFilesToPRItem(delta, index) {
+    var addedFiles = delta.addedFiles;
+    var updatedFiles = delta.updatedFiles;
+    var deletedFiles = delta.deletedFiles;
+    var prItemId = "pr-accordion-"+index;
+
+    for (var i = 0; i < addedFiles.length; i++) {
+        if(addedFiles[i].folderComponent.content) {
+            addTextFileItem(addedFiles[i],prItemId+"-tab-added",i);
+        } else {
+            addFolderItem(addedFiles[i],prItemId+"-tab-added",i);
+        }
+    }
+    for (var j = 0; j < updatedFiles.length; j++) {
+        if(updatedFiles[j].folderComponent.content) {
+            addTextFileItem(updatedFiles[j],prItemId+"-tab-updated",j);
+        } else {
+            addFolderItem(updatedFiles[j],prItemId+"-tab-updated",j);
+        }
+    }
+    for (var k = 0; k < deletedFiles.length; k++) {
+        if(deletedFiles[k].folderComponent.content) {
+            addTextFileItem(deletedFiles[k],prItemId+"-tab-deleted",k);
+        } else {
+            addFolderItem(deletedFiles[k],prItemId+"-tab-deleted",k);
+        }
+    }
+}
+
+function addSinglePRElementToTable(PR,delta,index) {
+    var prElement = "<div class=\"card\" id=\"prItem-"+index+"\">"+
+        "<div role=\"tab\" class=\"card-header\">"+
+        "<h6 id=\"prItem-"+index+"-header\" class=\"mb-0\"><a id=\"prItem-"+index+"-button\" data-toggle=\"collapse\" aria-expanded=\"true\" aria-controls=\"pr-accordion .item-"+index+"\" href=\"#pr-accordion .item-"+index+"\">" +
+        "From:  "+PR.creator+"   ,   Target:  "+PR.targetBranch+"   ,   Base:  "+PR.baseBranch+"   ,   On:  "+PR.dateCreated+"   ,   Status:  "+PR.status+"\"</a></h6></div>"+
+        "<div role=\"tabpanel\" data-parent=\"#pr-accordion\" class=\"collapse show item-"+index+"\">"+
+        "<div class=\"card-body\">"+
+        "<div>"+
+        "<ul class=\"nav nav-tabs\">"+
+        "<li class=\"nav-item\"><a role=\"tab\" data-toggle=\"tab\" class=\"nav-link active\" href=\"#pr-accordion-"+index+"-tab-added\">Added</a></li>"+
+        "<li class=\"nav-item\"><a role=\"tab\" data-toggle=\"tab\" class=\"nav-link\" href=\"#pr-accordion-"+index+"-tab-updated\">Updated</a></li>"+
+        "<li class=\"nav-item\"><a role=\"tab\" data-toggle=\"tab\" class=\"nav-link\" href=\"#pr-accordion-"+index+"-tab-deleted\">Deleted</a></li>"+
+        "</ul>"+
+        "<div class=\"tab-content\">"+
+        "<div role=\"tabpanel\" class=\"tab-pane active\" id=\"pr-accordion-"+index+"-tab-added\"></div>"+
+        "<div role=\"tabpanel\" class=\"tab-pane\" id=\"pr-accordion-"+index+"-tab-updated\"></div>"+
+        "<div role=\"tabpanel\" class=\"tab-pane\" id=\"pr-accordion-"+index+"-tab-deleted\"></div>"+
+        "</div>"+
+        "</div>"+
+        "</div>";
+
+
+    $("#pr-accordion").append(prElement);
+
+    if(PR.status === "OPEN") {
+        addPRDeltaFilesToPRItem(delta,index);
+        var openButton = document.createElement("button");
+        openButton.setAttribute("class","btn btn-success btn-sm float-right");
+        openButton.textContent = "Respond";
+        openButton.onclick = function() {
+            showPRResponseModal(PR.targetBranch,PR.baseBranch);
+        };
+        $("#prItem-"+index+"-header").append(openButton);
+    } else {
+        var button = document.getElementById("prItem-"+index+"-button");
+        button.disabled = true;
+    }
+}
+
+function showPRResponseModal(targetBranch,baseBranch) {
+
+    var targetBranchName = document.getElementsByName("prResponse-targetBranchName")[0];
+    targetBranchName.value = targetBranch;
+    var baseBranchName = document.getElementsByName("prResponse-baseBranchName")[0];
+    baseBranchName.value = baseBranch;
+
+    $("#AcceptRadio").onclick = function () {
+        $("#rejectionMessageTextArea").disabled = true;
+    };
+    $("#RejectedRadio").onclick = function () {
+        $("#rejectionMessageTextArea").disabled = false;
+    };
+
+    $("#prResponseModal")[0].style.display = "block";
+}
+
+
+function appendPRsOfRepository(data) {
+    for(var i=0;i<data.length;i+=2) {
+        addSinglePRElementToTable(data[i],data[i+1],i+1); //pr,delta
+    }
+}
+
+function refreshPRs() {
+    $.ajax({
+        url: REPOSITORY_PRS,
+        data: {
+            currentWatchedRepository: REPOSITORY_NAME
+        },
+        success: function (data) {
+            appendPRsOfRepository(data);
+        }
+    })
+}
+
 function appendMessagesToMessages(messages) {
     for (var i = 0; i < messages.length; i++) {
         addSingleMessageToMessagesDisplay(messages[i]);
@@ -669,8 +837,6 @@ function createMessageElement(message) {
         "</a>"
 }
 
-
-
 $(function () {
     ajaxRepositoryNameAndRRData();
     ajaxHeadBranchInformation(function (headBranchInformation) {
@@ -682,4 +848,5 @@ $(function () {
 
 $(function () {
     setInterval(refreshMessages,2000);
+    //setInterval(refreshPRs,10000);
 });

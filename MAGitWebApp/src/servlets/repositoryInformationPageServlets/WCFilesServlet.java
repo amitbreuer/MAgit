@@ -3,8 +3,6 @@ package servlets.repositoryInformationPageServlets;
 import com.google.gson.Gson;
 import constants.Constants;
 import engine.Folder;
-import engine.MagitManager;
-import engine.users.FolderData;
 import engine.users.User;
 import engine.users.UserManager;
 import utils.ServletUtils;
