@@ -26,7 +26,15 @@
             <div class="sidebar-brand-text mx-3"><span>M.A.git</span></div>
         </a>
         <h1>User's Page</h1>
-        <ul class="nav navbar-nav"></ul>
+        <ul class="nav navbar-nav">
+            <li role="presentation" class="nav-item align-self-center dropdown no-arrow">
+                <div class="nav-item dropdown no-arrow"><a data-toggle="dropdown" aria-expanded="false" class="dropdown-toggle border rounded-0 border-dark nav-link" href="#"><i class="icon ion-chatboxes fa-fw" style="font-size: 20px;"></i> Chat</a>
+                    <div role="menu" class="dropdown-menu dropdown-menu-right dropdown-list dropdown-menu-right animated--grow-in">
+                        <h6 class="dropdown-header">Chat</h6>
+                    </div>
+                </div>
+            </li>
+        </ul>
         <button id="logoutButton" onclick="location.href = '../../logout'"
                 class="btn btn-primary btn-sm text-secondary border rounded-0 border-secondary"
                 data-bs-hover-animate="pulse" type="button"
