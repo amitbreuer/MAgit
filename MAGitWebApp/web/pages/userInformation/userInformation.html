@@ -12,9 +12,12 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.1.1/aos.css">
     <link rel="stylesheet" href="assets/css/styles.css">
     <link rel="stylesheet" href="userInformation.css">
+    <link rel="stylesheet" href="../../common/chatroom.css">
 
     <script src="../../common/jquery-3.4.1.min.js"></script>
     <script src="../../common/context-path-helper.js"></script>
+    <script src="../../common/chatroom.js"></script>;
+
     <script src="userInformation.js"></script>
 
 </head>
@@ -27,11 +30,38 @@
             <div class="sidebar-brand-text mx-3"><span>M.A.git</span></div>
         </a>
         <h1>                  User's Page                  </h1>
-        <ul class="nav navbar-nav">
+        <ul class="nav navbar-nav ">
             <li role="presentation" class="nav-item text-secondary border-secondary align-self-center dropdown no-arrow">
                 <div class="nav-item dropdown no-arrow"><a data-toggle="dropdown" aria-expanded="false" class="dropdown-toggle border rounded-0 border-dark nav-link" href="#"><i class="icon ion-chatboxes fa-fw" style="font-size: 20px;"></i> Chat</a>
-                    <div role="menu" class="dropdown-menu dropdown-menu-right dropdown-list dropdown-menu-right animated--grow-in">
+                    <div role="menu" class="dropdown-menu dropdown-menu-right dropdown-list dropdown-menu-right animated--grow-in" style="max-height: 300px; min-width: 400px">
                         <h6 class="dropdown-header">Chat</h6>
+                        <div class="container-fluid" style="max-height: 300px; min-width: 400px">
+                            <div class="row">
+                                <div class="col-md-4" style="align-content: end">
+                                    <div class="sidebar">
+                                        <h4>Online</h4>
+                                        <div class="clearfix">
+                                            <div class="input">
+                                                <ul id="userslist">
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="content">
+                                        <div id="chatwindow">
+                                            <h4>Chat</h4>
+                                            <div id="chatarea" class="span6"></div>
+                                            <form id="chatform" method="POST" action="sendChat">
+                                                <input type="text" id="userstring" name="userstring"/>
+                                                <input type="submit" value="Send"/>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </li>
