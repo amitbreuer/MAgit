@@ -6,7 +6,8 @@ public class PullRequest {
         CLOSED,
         REJECTED
     }
-
+    private static Integer count=0;
+    private Integer id;
     private String creator;
     private String targetBranch;
     private String baseBranch;
@@ -19,6 +20,7 @@ public class PullRequest {
         this.baseBranch = baseBranch;
         this.dateCreated = dateCreated;
         this.status = status;
+        this.id = ++count;
     }
 
     public String getTargetBranch() {
@@ -31,5 +33,9 @@ public class PullRequest {
 
     public void setStatus(Status status) {
         this.status = status;
+    }
+
+    public Integer getId() {
+        return id;
     }
 }

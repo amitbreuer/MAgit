@@ -134,6 +134,11 @@
         <servlet-class>servlets.repositoryInformationPageServlets.RepositoryPRsServlet</servlet-class>
     </servlet>
 
+    <servlet>
+        <servlet-name>PRResponseServlet</servlet-name>
+        <servlet-class>servlets.repositoryInformationPageServlets.PRResponseServlet</servlet-class>
+    </servlet>
+
     <servlet-mapping>
         <servlet-name>LoginServlet</servlet-name>
         <url-pattern>/pages/login/login</url-pattern>
@@ -262,5 +267,10 @@
     <servlet-mapping>
         <servlet-name>RepositoryPRsServlet</servlet-name>
         <url-pattern>/repositoryPRs</url-pattern>
+    </servlet-mapping>prResponse
+
+    <servlet-mapping>
+        <servlet-name>PRResponseServlet</servlet-name>
+        <url-pattern>/prResponse</url-pattern>
     </servlet-mapping>
 </web-app>

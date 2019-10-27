@@ -2,12 +2,9 @@ package engine.users;
 
 import engine.Commit;
 import engine.MagitManager;
-import engine.Repository;
 import engine.users.constants.Constants;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -99,6 +96,16 @@ public class User {
 
     public List<PullRequest> getPRsOfRepository(String repositoryName) {
         return PRsMap.get(repositoryName);
+    }
+
+    public void ChangeStatusOfPR(String repositoryName, int prId, PullRequest.Status status) {
+        List<PullRequest> PRList = PRsMap.get(repositoryName);
+        for(PullRequest pr : PRList) {
+            if(pr.getId() == prId) {
+                pr.setStatus(status);
+                break;
+            }
+        }
     }
 }
 

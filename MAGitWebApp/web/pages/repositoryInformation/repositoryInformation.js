@@ -18,6 +18,7 @@ var MESSAGES_URL = buildUrlWithContextPath("messages");
 var POSSIBLE_BRANCHES_FOR_PULL_REQUEST_URL = buildUrlWithContextPath("branchesForPr");
 var NEW_PULL_REQUEST_URL = buildUrlWithContextPath("newPR");
 var REPOSITORY_PRS = buildUrlWithContextPath("repositoryPRs");
+var PR_RESPONSE_URL = buildUrlWithContextPath("prResponse");
 
 var messagesVersion = 0;
 
@@ -53,8 +54,7 @@ function ajaxRepositoryNameAndRRDataCallback(repositoryNameAndRRData) {
     }
     ajaxWCFiles();
     ajaxOpenChanges();
-    refreshPRs();
-
+    setInterval(refreshPRs,5000);
 }
 
 function emptyOpenChangesLists() {
@@ -621,11 +621,47 @@ function initializePRModal() {
     })
 }
 
+function PRResponseCallBack(message) {
+    ShowMessage(message);
+    location.reload();
+}
+
+function initializePRResponseModal() {
+    var xButton = $("#prResponse-xButton")[0];
+    xButton.onclick = function() {
+        var prMessageTextArea = document.getElementById("rejectionMessageTextArea");
+        prMessageTextArea.value = "";
+        var prModal = $("#prResponseModal")[0];
+        prModal.style.display = "none";
+    };
+
+    $("#AcceptRadio")[0].onclick = function () {
+        $("#rejectionMessageTextArea").disabled = true;
+    };
+    $("#RejectedRadio")[0].onclick = function () {
+        $("#rejectionMessageTextArea").disabled = false;
+    };
+
+    $("#prResponseForm").submit(function() {
+        $.ajax({
+            url: PR_RESPONSE_URL,
+            data: $(this).serialize(),
+            success: PRResponseCallBack
+        });
+        var prMessageTextArea = document.getElementById("rejectionMessageTextArea");
+        prMessageTextArea.value = "";
+        var prModal = $("#prResponseModal")[0];
+        prModal.style.display = "none";
+        return false;
+    })
+}
+
 function initializeModals() {
     initializeBranchNameModal();
     initializeAddFileModal();
     initializeCommitMessageModal();
     initializePRModal();
+    initializePRResponseModal();
 }
 
 function pushNonRTBTORR() {
@@ -748,9 +784,9 @@ function addPRDeltaFilesToPRItem(delta, index) {
 function addSinglePRElementToTable(PR,delta,index) {
     var prElement = "<div class=\"card\" id=\"prItem-"+index+"\">"+
         "<div role=\"tab\" class=\"card-header\">"+
-        "<h6 id=\"prItem-"+index+"-header\" class=\"mb-0\"><a id=\"prItem-"+index+"-button\" data-toggle=\"collapse\" aria-expanded=\"true\" aria-controls=\"pr-accordion .item-"+index+"\" href=\"#pr-accordion .item-"+index+"\">" +
-        "From:  "+PR.creator+"   ,   Target:  "+PR.targetBranch+"   ,   Base:  "+PR.baseBranch+"   ,   On:  "+PR.dateCreated+"   ,   Status:  "+PR.status+"\"</a></h6></div>"+
-        "<div role=\"tabpanel\" data-parent=\"#pr-accordion\" class=\"collapse show item-"+index+"\">"+
+        "<h6 id=\"prItem-"+index+"-header\" class=\"mb-0\"><a id=\"prItem-"+index+"-button\" data-toggle=\"collapse\" aria-expanded=\"false\" aria-controls=\"pr-accordion .item-"+index+"\" href=\"#pr-accordion .item-"+index+"\">" +
+        "From:  "+PR.creator+"   ,   Target:  "+PR.targetBranch+"   ,   Base:  "+PR.baseBranch+"   ,   On:  "+PR.dateCreated+"   ,   Status:  "+PR.status+"</a></h6></div>"+
+        "<div role=\"tabpanel\" data-parent=\"#pr-accordion\" class=\"collapse item-"+index+"\">"+
         "<div class=\"card-body\">"+
         "<div>"+
         "<ul class=\"nav nav-tabs\">"+
@@ -775,7 +811,7 @@ function addSinglePRElementToTable(PR,delta,index) {
         openButton.setAttribute("class","btn btn-success btn-sm float-right");
         openButton.textContent = "Respond";
         openButton.onclick = function() {
-            showPRResponseModal(PR.targetBranch,PR.baseBranch);
+            showPRResponseModal(PR.creator,PR.targetBranch,PR.baseBranch,PR.id);
         };
         $("#prItem-"+index+"-header").append(openButton);
     } else {
@@ -784,27 +820,26 @@ function addSinglePRElementToTable(PR,delta,index) {
     }
 }
 
-function showPRResponseModal(targetBranch,baseBranch) {
+function showPRResponseModal(creator,targetBranch,baseBranch,prNumber) {
 
     var targetBranchName = document.getElementsByName("prResponse-targetBranchName")[0];
     targetBranchName.value = targetBranch;
     var baseBranchName = document.getElementsByName("prResponse-baseBranchName")[0];
     baseBranchName.value = baseBranch;
-
-    $("#AcceptRadio").onclick = function () {
-        $("#rejectionMessageTextArea").disabled = true;
-    };
-    $("#RejectedRadio").onclick = function () {
-        $("#rejectionMessageTextArea").disabled = false;
-    };
+    var creatorsNameTextInput = document.getElementById("prResponse-creatorsNameTextInput");
+    creatorsNameTextInput.value = creator;
+    var prNumberTextInput = document.getElementsByName("PRNumber")[0];
+    prNumberTextInput.value = prNumber;
 
     $("#prResponseModal")[0].style.display = "block";
 }
 
 
 function appendPRsOfRepository(data) {
+    var index = 1;
     for(var i=0;i<data.length;i+=2) {
-        addSinglePRElementToTable(data[i],data[i+1],i+1); //pr,delta
+        addSinglePRElementToTable(data[i],data[i+1],index); //pr,delta
+        index++;
     }
 }
 
@@ -815,6 +850,7 @@ function refreshPRs() {
             currentWatchedRepository: REPOSITORY_NAME
         },
         success: function (data) {
+            $("#pr-accordion").empty();
             appendPRsOfRepository(data);
         }
     })
@@ -848,5 +884,4 @@ $(function () {
 
 $(function () {
     setInterval(refreshMessages,2000);
-    //setInterval(refreshPRs,10000);
 });

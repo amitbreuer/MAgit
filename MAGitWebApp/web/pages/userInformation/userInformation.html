@@ -7,6 +7,7 @@
     <title>Users page</title>
     <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="assets/fonts/fontawesome-all.min.css">
+    <link rel="stylesheet" href="assets/fonts/ionicons.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.1.1/aos.css">
     <link rel="stylesheet" href="assets/css/styles.css">
@@ -25,16 +26,21 @@
             <div class="sidebar-brand-icon rotate-n-15"><i class="fas fa-magic"></i></div>
             <div class="sidebar-brand-text mx-3"><span>M.A.git</span></div>
         </a>
-        <h1>User's Page</h1>
-        <ul class="nav navbar-nav"></ul>
+        <h1>                  User's Page                  </h1>
+        <ul class="nav navbar-nav">
+            <li role="presentation" class="nav-item text-secondary border-secondary align-self-center dropdown no-arrow">
+                <div class="nav-item dropdown no-arrow"><a data-toggle="dropdown" aria-expanded="false" class="dropdown-toggle border rounded-0 border-dark nav-link" href="#"><i class="icon ion-chatboxes fa-fw" style="font-size: 20px;"></i> Chat</a>
+                    <div role="menu" class="dropdown-menu dropdown-menu-right dropdown-list dropdown-menu-right animated--grow-in">
+                        <h6 class="dropdown-header">Chat</h6>
+                    </div>
+                </div>
+            </li>
+        </ul>
         <button id="logoutButton" onclick="location.href = '../../logout'"
                 class="btn btn-primary btn-sm text-secondary border rounded-0 border-secondary"
                 data-bs-hover-animate="pulse" type="button"
                 style="background-color: #72a3dd;color: rgba(65,65,65,0.95);filter: contrast(100%);">Logout
         </button>
-        <button
-                class="navbar-toggler" data-toggle="collapse"><span class="sr-only">Toggle navigation</span><span
-                class="navbar-toggler-icon"></span></button>
     </div>
 </nav>
 <div class="container-fluid" style="max-height: 500px;padding-top: 10px;">

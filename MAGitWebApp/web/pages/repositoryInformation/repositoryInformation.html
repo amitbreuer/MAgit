@@ -70,17 +70,9 @@
                     <div class="container-fluid">
                         <h2 class="d-lg-flex justify-content-lg-center align-items-lg-end" id="repositoryName-label">Repository name</h2>
                         <ul class="nav navbar-nav flex-wrap ml-auto">
-                            <li class="nav-item dropdown d-sm-none no-arrow"><a class="dropdown-toggle nav-link" data-toggle="dropdown" aria-expanded="false" href="#"><i class="fas fa-search"></i></a>
-                                <div class="dropdown-menu dropdown-menu-right p-3 animated--grow-in" role="menu" aria-labelledby="searchDropdown">
-                                    <form class="form-inline mr-auto navbar-search w-100">
-                                        <div class="input-group"><input class="bg-light form-control border-0 small" type="text" placeholder="Search for ...">
-                                            <div class="input-group-append"><button class="btn btn-primary py-0" type="button"><i class="fas fa-search"></i></button></div>
-                                        </div>
-                                    </form>
-                                </div>
-                            </li>
+
                             <li class="nav-item align-self-center dropdown no-arrow" role="presentation">
-                                <div class="nav-item dropdown no-arrow"><a class="dropdown-toggle nav-link" data-toggle="dropdown" aria-expanded="false" href="#"><i class="fas fa-envelope fa-fw"></i><span class="badge badge-danger badge-counter">7</span></a>
+                                <div class="nav-item dropdown no-arrow"><a class="dropdown-toggle nav-link" data-toggle="dropdown" aria-expanded="false" href="#"><i class="fas fa-envelope fa-fw" style="font-size: 20px;"></i></a>
                                     <div id="messagesList" class="dropdown-menu dropdown-menu-right dropdown-list dropdown-menu-right animated--grow-in"
                                         role="menu">
                                         <h6 class="dropdown-header">Messages center</h6>
@@ -198,8 +190,10 @@
                                     <form id="prResponseForm">
                                     <div class="modal-content">
                                         <div class="modal-header">
-                                            <h4 class="modal-title">PR Response</h4><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button></div>
-                                        <div class="modal-body"><strong style="margin-right: 3px;">Target Branch: </strong><input type="text" class="form-control-sm" name="prResponse-targetBranchName" readonly />
+                                            <h4 class="modal-title">Response for PR #</h4><input type="text" class="form-control-sm" name="PRNumber" readonly style="width: 40px;padding-right: 4px;padding-left: 4px;" /><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span id="prResponse-xButton" aria-hidden="true">×</span></button></div>
+                                        <div class="modal-body"><strong style="margin-right: 3px;">From: </strong>
+                                            <input id="prResponse-creatorsNameTextInput" type="text" class="form-control-sm" name="prResponse-creatorsName" readonly/><hr/>
+                                            <strong style="margin-right: 3px;">Target Branch: </strong><input type="text" class="form-control-sm" name="prResponse-targetBranchName" readonly />
                                             <hr /><strong style="margin-right: 3px;">Base Branch: </strong><input type="text" class="form-control-sm" name="prResponse-baseBranchName" readonly />
                                             <hr /><strong>Response:</strong>
                                             <div class="form-check"><input type="radio" class="form-check-input" id="AcceptRadio" name="responseRadio" value="Accept" /><label class="form-check-label" for="AcceptRadio">Accept</label></div>
@@ -212,6 +206,7 @@
                                 </div>
                             </div>
                             <div role="tablist" id="pr-accordion"></div>
+                            <hr>
                         </div>
                     </div>
                 </div>

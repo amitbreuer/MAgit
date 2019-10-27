@@ -1726,4 +1726,20 @@ public class MagitManager {
 //    public Delta getAggregationOfChangesBetweenTwoCommits(Commit targetBranchCommit, Commit baseBranchCommit) {
 //
 //    }
+
+    public void MergeTargetBranchIntoBaseBranch(String targetBranchName,String baseBranchName) {
+        Branch target = this.repository.FindBranchByName(targetBranchName);
+        Branch base = this.repository.FindBranchByName(baseBranchName);
+
+        base.setLastCommit(target.getLastCommit());
+
+        String baseBranchFilePath = this.repository.GetBranchesDirPath() + File.separator +
+                baseBranchName + ".txt";
+
+        try {
+            writeToFile(baseBranchFilePath,base.getLastCommit().getSha1());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }
