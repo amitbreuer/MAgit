@@ -20,7 +20,7 @@ public class LogoutServlet extends HttpServlet {
         String usernameFromSession = SessionUtils.getUsername(request);
 
         if (usernameFromSession != null) {
-            //SessionUtils.clearSession(request);
+            SessionUtils.clearSession(request);
 
             /*
             when sending redirect, tomcat has a shitty logic how to calculate the URL given, weather its relative or not

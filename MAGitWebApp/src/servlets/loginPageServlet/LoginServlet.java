@@ -18,7 +18,8 @@ public class LoginServlet extends HttpServlet {
     private final String USER_INFORMATION_URL = "../userInformation/userInformation.html";
     private final String SIGN_UP_URL = "../login/login.html";
     private final String LOGIN_ERROR_URL = "/pages/loginerror/login_attempt_after_error.html";
-     /**
+
+    /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
      * methods.
      *
@@ -58,27 +59,24 @@ public class LoginServlet extends HttpServlet {
                 do here other not related actions (such as request dispatcher\redirection etc. this is shown here in that manner just to stress this issue
                  */
                 synchronized (this) {
-                    if (userManager.isUserExists(usernameFromParameter)) {
-
-                        String errorMessage = "Username " + usernameFromParameter + " already exists. Please enter a different username.";
-                        request.setAttribute(Constants.USER_NAME_ERROR, errorMessage);
-                        getServletContext().getRequestDispatcher(LOGIN_ERROR_URL).forward(request, response);
-                    } else {
-                        //add the new user to the users list
+                    if (!userManager.isUserExists(usernameFromParameter)) {
                         userManager.addUser(usernameFromParameter);
-                        //set the username in a session so it will be available on each request
-                        //the true parameter means that if a session object does not exists yet
-                        //create a new one
-                        request.getSession(true).setAttribute(Constants.USERNAME, usernameFromParameter);
-
-                        //redirect the request to the chat room - in order to actually change the URL
-                        System.out.println("On login, request URI is: " + request.getRequestURI());
-                        response.sendRedirect(USER_INFORMATION_URL);
                     }
+
+                    request.getSession(true).setAttribute(Constants.USERNAME, usernameFromParameter);
+
+                    //redirect the request to the chat room - in order to actually change the URL
+                    System.out.println("On login, request URI is: " + request.getRequestURI());
+                    response.sendRedirect(USER_INFORMATION_URL);
                 }
             }
         } else {
             //user is already logged in
+
+                 /* String errorMessage = "Username " + usernameFromParameter + " already exists. Please enter a different username.";
+                   request.setAttribute(Constants.USER_NAME_ERROR, errorMessage);*/
+            //getServletContext().getRequestDispatcher(LOGIN_ERROR_URL).forward(request, response);
+
             response.sendRedirect(USER_INFORMATION_URL);
         }
     }
