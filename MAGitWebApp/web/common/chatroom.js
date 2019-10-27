@@ -38,7 +38,7 @@ function appendChatEntry(index, entry){
 }
 
 function createChatEntry (entry){
-    entry.chatString = entry.chatString.replace (":)", "<img class='smiley-image' src='../../common/images/smiley.png'/>");
+    entry.chatString = entry.chatString.replace (":)", "<img class='smiley-image' src='images/smiley.png'/>");
     return $("<span class=\"success\">").append(entry.username + "> " + entry.chatString);
 }
 
