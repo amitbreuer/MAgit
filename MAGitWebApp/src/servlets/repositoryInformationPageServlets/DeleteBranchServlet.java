@@ -33,7 +33,6 @@ public class DeleteBranchServlet extends HttpServlet {
 
         try {
             if(currentUser.getMagitManager().BranchIsRB(branchToDeleteName)){
-                //synchronized issues - multiple threads might access at the same time to the branches' list and file
             }
 
             currentUser.getMagitManager().DeleteBranch(branchToDeleteName);
