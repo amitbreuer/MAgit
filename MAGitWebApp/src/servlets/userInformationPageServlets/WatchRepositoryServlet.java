@@ -15,7 +15,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 public class WatchRepositoryServlet extends HttpServlet {
-    private static String WATCH_REPOSITORY_URL = "pages/repositoryInformation/repositoryInformation.html";
+   // private static String WATCH_REPOSITORY_URL = "pages/repositoryInformation/repositoryInformation.html";
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -24,9 +24,11 @@ public class WatchRepositoryServlet extends HttpServlet {
         UserManager userManager = ServletUtils.getUserManager(getServletContext());
         String currentUserName = SessionUtils.getUsername(request);
         User currentUser = userManager.getUser(currentUserName);
-        String repositoryName= request.getParameter("repositoryName");
+        String repositoryName = request.getParameter("repositoryName");
 
-        currentUser.getMagitManager().SwitchToRepositoryFromUsersDirectory(currentUserName,repositoryName);
+        if (currentUser.getMagitManager().getRepositoryName().equals(repositoryName)) {
+            currentUser.getMagitManager().SwitchToRepositoryFromUsersDirectory(currentUserName, repositoryName);
+        }
         request.getSession(true).setAttribute(Constants.CURRENT_WATCHED_REPOSITORY, repositoryName);
         String newUrl = "pages/repositoryInformation/repositoryInformation.html";
         try (PrintWriter out = response.getWriter()) {

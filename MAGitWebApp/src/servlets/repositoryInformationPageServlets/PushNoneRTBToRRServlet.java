@@ -2,6 +2,8 @@ package servlets.repositoryInformationPageServlets;
 
 import com.google.gson.Gson;
 import constants.Constants;
+import engine.Branch;
+import engine.Commit;
 import engine.Folder;
 import engine.users.RepositoryData;
 import engine.users.User;
@@ -34,6 +36,7 @@ public class PushNoneRTBToRRServlet extends HttpServlet {
         String RRPath = user.getMagitManager().GetCurrentRepository().getRemoteRepositoryPath().toString();
         String RRUser = ServletUtils.getRRUserNameFromOtherRepositoryPath(RRPath);
 
+
         for (RepositoryData repositoryData :userManager.getUser(RRUser).getRepositoriesData()){
             if (repositoryData.getName().equals(RRName)){
                 repositoryData.setNumberOfBranches(repositoryData.getNumberOfBranches()+1);
@@ -41,6 +44,12 @@ public class PushNoneRTBToRRServlet extends HttpServlet {
         }
         try {
             user.getMagitManager().PushNoneRTBToRR();
+            if(userManager.getUser(RRUser).getMagitManager().getRepositoryName().equals(RRName)){
+                Branch headBranch= userManager.getUser(RRUser).getMagitManager().GetHeadBranch();
+                Branch branchToAdd = new Branch(headBranch.getName(),headBranch.getLastCommit());
+
+                userManager.getUser(RRUser).getMagitManager().GetCurrentRepository().getBranches().put(branchToAdd.getName(),branchToAdd);
+            }
             Gson gson = new Gson();
             String json = gson.toJson("push executed successfully");
 
