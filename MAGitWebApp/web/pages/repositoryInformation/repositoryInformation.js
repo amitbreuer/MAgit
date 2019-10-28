@@ -179,9 +179,9 @@ function addEditableFolderItem(folderComponent, containingFolderId, index, conta
     for (var i = 0; i < components.length; i++) {
 
         if (components[i].folderComponent.content) { // blob
-            addEditableTextFileItem(components[i], containingFolderId + '-' + folderComponent.name, i + 1);
+            addEditableTextFileItem(components[i], containingFolderId + '-' + folderComponent.name, index*10 + i + 1);
         } else {
-            addEditableFolderItem(components[i], containingFolderId + '-' + folderComponent.name, i + 1, fixedFolderName);
+            addEditableFolderItem(components[i], containingFolderId + '-' + folderComponent.name, index*10 + i + 1, fixedFolderName);
         }
     }
 }
@@ -219,9 +219,9 @@ function addFolderItem(folderComponent, containingFolderId, index) {
     for (var i = 0; i < components.length; i++) {
 
         if (components[i].folderComponent.content) { // blob
-            addTextFileItem(components[i], containingFolderId + '-' + folderComponent.name, i + 1);
+            addTextFileItem(components[i], containingFolderId + '-' + folderComponent.name, index*10 + i + 1);
         } else {
-            addFolderItem(components[i], containingFolderId + '-' + folderComponent.name, i + 1);
+            addFolderItem(components[i], containingFolderId + '-' + folderComponent.name, index*10 + i + 1);
         }
     }
 }
@@ -301,10 +301,10 @@ function showCommitMessageModal() {
 function createHeadBranchSingleCommitElement(headBranchSingleCommitData, index) {
     return "<div class=\"card\">" +
         "<div class=\"card-header d-lg-flex align-items-lg-center\" role=\"tab\">" +
-        "<h5 class=\"d-none d-lg-flex align-items-center align-items-lg-center mb-0\"><a id=\"" + headBranchSingleCommitData.sha1 + "\" data-toggle=\"collapse\" aria-expanded=\"false\" aria-controls=\"headbranch-commits-accordion .item-" + index + "\" href=\"#headbranch-commits-accordion .item-" + index + "\" style=\"margin: 7px;font-size: 15px;\">" + headBranchSingleCommitData.sha1 + "</a><em style=\"margin: 7px;font-size: 15px;\">" + headBranchSingleCommitData.message + "</em><strong class=\"float-right d-lg-flex align-items-lg-end\"" +
+        "<h5 class=\"d-none d-lg-flex align-items-center align-items-lg-center mb-0\" style=\"width: 850px;\"><a id=\"" + headBranchSingleCommitData.sha1 + "\" data-toggle=\"collapse\" aria-expanded=\"false\" aria-controls=\"headbranch-commits-accordion .item-" + index + "\" href=\"#headbranch-commits-accordion .item-" + index + "\" style=\"margin: 7px;font-size: 15px;\">" + headBranchSingleCommitData.sha1 + "</a><em style=\"margin: 7px;font-size: 15px;\">" + headBranchSingleCommitData.message + "</em><strong class=\"float-right d-lg-flex align-items-lg-end\"" +
         " style=\"margin: 7px;font-size: 15px;\">" + headBranchSingleCommitData.creator + "</strong><code class=\"text-warning float-right\" style=\"font-size: 14px;margin: 7px;\">" + headBranchSingleCommitData.dateCreated + "</code>" +
-        "<div id=\""+headBranchSingleCommitData.sha1+"-"+index+"branches\" class=\"dropdown float-right\" style=\"width: 0px;\"><button class=\"btn btn-primary btn-sm dropdown-toggle float-right\" data-toggle=\"dropdown\" aria-expanded=\"false\" type=\"button\">Pointing Branches</button>"+
-        "<div role=\"menu\" class=\"dropdown-menu\"></div>"+
+        "<div class=\"dropdown float-right\" style=\"width: 175px;\"><button id=\""+headBranchSingleCommitData.sha1+"-"+index+"dropdown\" class=\"btn btn-primary btn-sm dropdown-toggle float-right\" data-toggle=\"dropdown\" aria-expanded=\"false\" type=\"button\">Pointing Branches</button>"+
+        "<div id=\""+headBranchSingleCommitData.sha1+"-"+index+"branches\" role=\"menu\" class=\"dropdown-menu\"></div>"+
         "</div>"+
         "</h5>" +
         "</div>" +
@@ -316,7 +316,7 @@ function createHeadBranchSingleCommitElement(headBranchSingleCommitData, index) 
         "</div>"
 }
 
-function addFileItemToCommitFilesDesplay(folderComponent, containingFolderId, index) {
+function addFileItemToCommitFilesDisplay(folderComponent, containingFolderId, index) {
     if (folderComponent.folderComponent.content) { // blob
         addTextFileItem(folderComponent, containingFolderId, index);
     } else { // folder
@@ -328,7 +328,7 @@ function addCommitMainFolderComponentsToCommitDisplay(commitSha1, commitMainFold
     var commitMainFolderElementId = "s-" + commitSha1 + "-main-folder";
 
     for (var i = 0; i < commitMainFolder.components.length; i++) {
-        addFileItemToCommitFilesDesplay(commitMainFolder.components[i], commitMainFolderElementId, i + 1);
+        addFileItemToCommitFilesDisplay(commitMainFolder.components[i], commitMainFolderElementId, i + 1);
     }
 }
 
@@ -351,13 +351,14 @@ function createPointingBranchItem(pointingBranchName) {
 }
 
 function addPointingBranchesToCommitItem(pointingBranches, pointingBranchesDropDownId) {
-    if(!pointingBranches) {
-        $("#"+pointingBranchesDropDownId)[0].style.display = "none";
+    if(pointingBranches.length === 0) {
+        var dropdown = document.getElementById(pointingBranchesDropDownId+"dropdown");
+        dropdown.disabled = true;
     }
     else {
         for(var i=0;i<pointingBranches.length;i++) {
             var pointingBranchItem = createPointingBranchItem(pointingBranches[i]);
-            $("#"+pointingBranchesDropDownId).append(pointingBranchItem);
+            $("#"+pointingBranchesDropDownId+"branches").append(pointingBranchItem);
         }
     }
 }
@@ -366,7 +367,7 @@ function addSingleCommitToHeadBranchCommitsDisplay(headBranchSingleCommitData, i
     var commitSha1 = headBranchSingleCommitData.sha1;
     var singleCommitElement = createHeadBranchSingleCommitElement(headBranchSingleCommitData, index);
     $("#headbranch-commits-accordion").append(singleCommitElement);
-    addPointingBranchesToCommitItem(headBranchSingleCommitData.pointingBranches,headBranchSingleCommitData.sha1+"-"+index+"branches");
+    addPointingBranchesToCommitItem(headBranchSingleCommitData.pointingBranches,headBranchSingleCommitData.sha1+"-"+index);
 
     document.getElementById(commitSha1).onclick = function () {
         if (!document.getElementById("s-" + commitSha1 + "-main-folder").hasChildNodes()) {
@@ -435,7 +436,6 @@ function initializeAddFileModal() {
 }
 
 function commitCallBack() {
-    //ajaxOpenChanges();
     location.reload();
 }
 
@@ -870,8 +870,10 @@ function refreshPRs() {
             currentWatchedRepository: REPOSITORY_NAME
         },
         success: function (data) {
-            $("#pr-accordion").empty();
-            appendPRsOfRepository(data);
+            if(data.length !== 0) {
+                $("#pr-accordion").empty();
+                appendPRsOfRepository(data);
+            }
         }
     })
 }

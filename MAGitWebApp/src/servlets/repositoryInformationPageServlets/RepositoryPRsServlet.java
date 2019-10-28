@@ -28,14 +28,15 @@ public class RepositoryPRsServlet extends HttpServlet {
         String repositoryName = request.getParameter(Constants.CURRENT_WATCHED_REPOSITORY);
         List<PullRequest> PRs = user.getPRsOfRepository(repositoryName);
         List<Object> data = new ArrayList<>();
-        for(PullRequest pr : PRs) {
-            Branch targetBranch = user.getMagitManager().GetCurrentRepository().FindBranchByName(pr.getTargetBranch());
-            Branch baseBranch = user.getMagitManager().GetCurrentRepository().FindBranchByName(pr.getBaseBranch());
-            Delta delta = user.getMagitManager().GetDeltaBetweenTwoCommitSha1s(targetBranch.getLastCommit().getSha1(),baseBranch.getLastCommit().getSha1());
-            data.add(pr);
-            data.add(delta);
 
-            //Delta delta = user.getMagitManager().getAggregationOfChangesBetweenTwoCommits(targetBranch.getLastCommit(),baseBranch.getLastCommit());
+        if(PRs != null) {
+            for(PullRequest pr : PRs) {
+                Branch targetBranch = user.getMagitManager().GetCurrentRepository().FindBranchByName(pr.getTargetBranch());
+                Branch baseBranch = user.getMagitManager().GetCurrentRepository().FindBranchByName(pr.getBaseBranch());
+                Delta delta = user.getMagitManager().GetDeltaBetweenTwoCommitSha1s(targetBranch.getLastCommit().getSha1(),baseBranch.getLastCommit().getSha1());
+                data.add(pr);
+                data.add(delta);
+            }
         }
 
         try (PrintWriter out = response.getWriter()) {
