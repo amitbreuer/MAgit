@@ -1455,7 +1455,7 @@ public class MagitManager {
         }
     }
 
-    private void copyCommitsObjectFilesBetweenRepositories(String commitSha1, Path srcRepoPath, Path destRepoPath) {
+    public void copyCommitsObjectFilesBetweenRepositories(String commitSha1, Path srcRepoPath, Path destRepoPath) {
         if (Files.exists(Paths.get(destRepoPath + File.separator + ".magit" + File.separator +
                 "objects" + File.separator + commitSha1 + ".zip"))) {
             return;
@@ -1726,10 +1726,6 @@ public class MagitManager {
         return this.repository.getBranches().get(branchToDeleteName).getIsRB();
     }
 
-
-//    public Delta getAggregationOfChangesBetweenTwoCommits(Commit targetBranchCommit, Commit baseBranchCommit) {
-//
-//    }
 
     public void MergeTargetBranchIntoBaseBranch(String targetBranchName,String baseBranchName) {
         Branch target = this.repository.FindBranchByName(targetBranchName);

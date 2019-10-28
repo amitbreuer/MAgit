@@ -54,7 +54,7 @@ function ajaxRepositoryNameAndRRDataCallback(repositoryNameAndRRData) {
     }
     ajaxWCFiles();
     ajaxOpenChanges();
-    setInterval(refreshPRs,5000);
+    setInterval(refreshPRs,6000);
 }
 
 function emptyOpenChangesLists() {
@@ -300,9 +300,13 @@ function showCommitMessageModal() {
 
 function createHeadBranchSingleCommitElement(headBranchSingleCommitData, index) {
     return "<div class=\"card\">" +
-        "<div class=\"card-header\" role=\"tab\">" +
+        "<div class=\"card-header d-lg-flex align-items-lg-center\" role=\"tab\">" +
         "<h5 class=\"d-none d-lg-flex align-items-center align-items-lg-center mb-0\"><a id=\"" + headBranchSingleCommitData.sha1 + "\" data-toggle=\"collapse\" aria-expanded=\"false\" aria-controls=\"headbranch-commits-accordion .item-" + index + "\" href=\"#headbranch-commits-accordion .item-" + index + "\" style=\"margin: 7px;font-size: 15px;\">" + headBranchSingleCommitData.sha1 + "</a><em style=\"margin: 7px;font-size: 15px;\">" + headBranchSingleCommitData.message + "</em><strong class=\"float-right d-lg-flex align-items-lg-end\"" +
-        " style=\"margin: 7px;font-size: 15px;\">" + headBranchSingleCommitData.creator + "</strong><code class=\"text-warning float-right\" style=\"font-size: 14px;margin: 7px;\">" + headBranchSingleCommitData.dateCreated + "</code></h5>" +
+        " style=\"margin: 7px;font-size: 15px;\">" + headBranchSingleCommitData.creator + "</strong><code class=\"text-warning float-right\" style=\"font-size: 14px;margin: 7px;\">" + headBranchSingleCommitData.dateCreated + "</code>" +
+        "<div id=\""+headBranchSingleCommitData.sha1+"-"+index+"branches\" class=\"dropdown float-right\" style=\"width: 0px;\"><button class=\"btn btn-primary btn-sm dropdown-toggle float-right\" data-toggle=\"dropdown\" aria-expanded=\"false\" type=\"button\">Pointing Branches</button>"+
+        "<div role=\"menu\" class=\"dropdown-menu\"></div>"+
+        "</div>"+
+        "</h5>" +
         "</div>" +
         "<div role=\"tabpanel\" data-parent=\"#headbranch-commits-accordion\" class=\"collapse item-" + index + "\">" +
         "<div class=\"card-body\" >" +
@@ -342,10 +346,27 @@ function ajaxMainFolderOfCommit(commitSha1) {
     )
 }
 
+function createPointingBranchItem(pointingBranchName) {
+    return "<a role=\"presentation\" class=\"dropdown-item\" href=\"#\">"+pointingBranchName+"</a>";
+}
+
+function addPointingBranchesToCommitItem(pointingBranches, pointingBranchesDropDownId) {
+    if(!pointingBranches) {
+        $("#"+pointingBranchesDropDownId)[0].style.display = "none";
+    }
+    else {
+        for(var i=0;i<pointingBranches.length;i++) {
+            var pointingBranchItem = createPointingBranchItem(pointingBranches[i]);
+            $("#"+pointingBranchesDropDownId).append(pointingBranchItem);
+        }
+    }
+}
+
 function addSingleCommitToHeadBranchCommitsDisplay(headBranchSingleCommitData, index) {
     var commitSha1 = headBranchSingleCommitData.sha1;
     var singleCommitElement = createHeadBranchSingleCommitElement(headBranchSingleCommitData, index);
     $("#headbranch-commits-accordion").append(singleCommitElement);
+    addPointingBranchesToCommitItem(headBranchSingleCommitData.pointingBranches,headBranchSingleCommitData.sha1+"-"+index+"branches");
 
     document.getElementById(commitSha1).onclick = function () {
         if (!document.getElementById("s-" + commitSha1 + "-main-folder").hasChildNodes()) {
@@ -359,7 +380,6 @@ function updateHeadBranchCommitsDisplay(headBranchInformation) {
         addSingleCommitToHeadBranchCommitsDisplay(headBranchInformation[i], i + 1);
     }
 }
-
 
 function disablePushNonRTBToRRButton() {
     document.getElementById("pushNonRTBTORRButton").disabled = true;
@@ -636,10 +656,10 @@ function initializePRResponseModal() {
     };
 
     $("#AcceptRadio")[0].onclick = function () {
-        $("#rejectionMessageTextArea").disabled = true;
+        $("#rejectionMessageTextArea")[0].disabled = true;
     };
     $("#RejectedRadio")[0].onclick = function () {
-        $("#rejectionMessageTextArea").disabled = false;
+        $("#rejectionMessageTextArea")[0].disabled = false;
     };
 
     $("#prResponseForm").submit(function() {

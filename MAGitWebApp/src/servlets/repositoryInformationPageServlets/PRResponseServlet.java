@@ -39,7 +39,7 @@ public class PRResponseServlet extends HttpServlet {
             user.ChangeStatusOfPR(user.getMagitManager().getRepositoryName(),Integer.parseInt(prId),PullRequest.Status.CLOSED);
         } else {
             otherUser.AddMessage(username + " has rejected your pull request for repository: " + user.getMagitManager().getRepositoryName()+
-                    "and responded: " + "\""+rejectionMessage+"\"");
+                    " and responded: " + "\""+rejectionMessage+"\"");
             user.ChangeStatusOfPR(user.getMagitManager().getRepositoryName(),Integer.parseInt(prId),PullRequest.Status.REJECTED);
         }
 
