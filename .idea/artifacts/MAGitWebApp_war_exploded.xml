@@ -8,14 +8,15 @@
           <element id="module-output" name="Engine" />
         </element>
         <element id="directory" name="lib">
-          <element id="artifact" artifact-name="Engine:jar" />
-          <element id="file-copy" path="$PROJECT_DIR$/../jars/gson-2.8.2.jar" />
-          <element id="file-copy" path="$PROJECT_DIR$/../jars/commons-codec-1.12.jar" />
-          <element id="file-copy" path="$PROJECT_DIR$/../jars/commons-io-2.6.jar" />
-          <element id="file-copy" path="$PROJECT_DIR$/../jars/AncestorFinder.jar" />
-          <element id="file-copy" path="$PROJECT_DIR$/../jars/commons-collections4-4.3.jar" />
+          <element id="file-copy" path="$PROJECT_DIR$/../AncestorFinder.jar" />
+          <element id="file-copy" path="$PROJECT_DIR$/../commons-codec-1.12.jar" />
+          <element id="file-copy" path="$PROJECT_DIR$/../commons-io-2.6.jar" />
+          <element id="file-copy" path="$PROJECT_DIR$/../commons-collections4-4.3.jar" />
+          <element id="file-copy" path="$PROJECT_DIR$/../fxgraph-0.0.3.jar" />
+          <element id="file-copy" path="$PROJECT_DIR$/../gson-2.8.2.jar" />
         </element>
       </element>
+      <element id="library" level="project" name="jars" />
       <element id="javaee-facet-resources" facet="MAGitWebApp/web/Web" />
     </root>
   </artifact>

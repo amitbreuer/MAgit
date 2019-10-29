@@ -26,6 +26,7 @@ public class CurrentUserInformationServlet extends HttpServlet {
 
         //SingleUserData currentUserData = userManager.GetCurrentUserData(currentUserName);
         User currentUser = userManager.getUser(currentUserName);
+        currentUser.getMagitManager().SetRepository(null);
         SingleUserData currentUserData = new SingleUserData(currentUser.getUsername());
         currentUserData.getRepositoriesDataList().addAll(currentUser.getRepositoriesData());
 

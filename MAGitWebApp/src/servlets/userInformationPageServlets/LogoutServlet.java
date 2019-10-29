@@ -32,7 +32,7 @@ public class LogoutServlet extends HttpServlet {
           UserManager userManager = ServletUtils.getUserManager(getServletContext());
           userManager.getUser(usernameFromSession).ClearMessages();
 
-            response.sendRedirect(request.getContextPath() + "/pages/login/login.html");
+            response.sendRedirect(request.getContextPath() + "/index.html");
 
         }
     }

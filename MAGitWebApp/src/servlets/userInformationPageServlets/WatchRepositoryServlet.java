@@ -26,9 +26,8 @@ public class WatchRepositoryServlet extends HttpServlet {
         User currentUser = userManager.getUser(currentUserName);
         String repositoryName = request.getParameter("repositoryName");
 
-        if (currentUser.getMagitManager().GetCurrentRepository() == null || !currentUser.getMagitManager().getRepositoryName().equals(repositoryName)) {
             currentUser.getMagitManager().SwitchToRepositoryFromUsersDirectory(currentUserName, repositoryName);
-        }
+
         request.getSession(true).setAttribute(Constants.CURRENT_WATCHED_REPOSITORY, repositoryName);
         String newUrl = "pages/repositoryInformation/repositoryInformation.html";
         try (PrintWriter out = response.getWriter()) {

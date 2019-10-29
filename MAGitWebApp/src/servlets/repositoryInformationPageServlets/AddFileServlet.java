@@ -27,8 +27,6 @@ public class AddFileServlet extends HttpServlet {
         response.setContentType("application/json");
         UserManager userManager = ServletUtils.getUserManager(getServletContext());
         String currentUserName = SessionUtils.getUsername(request);
-//        String filePath = Constants.usersDirectoryPath + File.separator + currentUserName + File.separator +
-//                request.getParameter("createFile-path");
         String fixedFilePath = ServletUtils.getFixedFilePathForAddedFile(request.getParameter("createFile-path")
                 ,currentUserName);
 

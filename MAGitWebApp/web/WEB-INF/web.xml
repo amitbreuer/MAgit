@@ -157,7 +157,7 @@
 
     <servlet-mapping>
         <servlet-name>LoginServlet</servlet-name>
-        <url-pattern>/pages/login/login</url-pattern>
+        <url-pattern>/login</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>
@@ -283,7 +283,7 @@
     <servlet-mapping>
         <servlet-name>RepositoryPRsServlet</servlet-name>
         <url-pattern>/repositoryPRs</url-pattern>
-    </servlet-mapping>prResponse
+    </servlet-mapping>
 
     <servlet-mapping>
         <servlet-name>PRResponseServlet</servlet-name>

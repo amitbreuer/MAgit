@@ -10,6 +10,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 
@@ -22,14 +23,16 @@ public class EditFileServlet extends HttpServlet {
         String currentUserName = SessionUtils.getUsername(request);
         String repositoryName = request.getParameter(Constants.CURRENT_WATCHED_REPOSITORY);
         String fileNameFromParameter = request.getParameter(Constants.FileName);
-        String fileName = ServletUtils.getFixedFileName(fileNameFromParameter,currentUserName,repositoryName);
+        String fileFulName = ServletUtils.getFixedFileName(fileNameFromParameter,currentUserName,repositoryName);
         String content = request.getParameter(Constants.FileNewContent);
         User currentUser = userManager.getUser(currentUserName);
+        int lastSlashIndex = fileFulName.lastIndexOf(File.separator);
+        String fileName = fileFulName.substring(lastSlashIndex+1);
 
         String message = fileName + " was updated";
 
         try {
-            currentUser.getMagitManager().writeToFile(fileName,content);
+            currentUser.getMagitManager().writeToFile(fileFulName,content);
         } catch (IOException e) {
             message = e.getMessage();
         } finally {

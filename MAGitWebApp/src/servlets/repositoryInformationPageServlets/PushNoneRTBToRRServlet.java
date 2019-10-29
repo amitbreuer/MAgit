@@ -44,8 +44,8 @@ public class PushNoneRTBToRRServlet extends HttpServlet {
         }
         try {
             user.getMagitManager().PushNoneRTBToRR();
-            if(userManager.getUser(RRUser).getMagitManager().getRepositoryName().equals(RRName)){
-                Branch headBranch= userManager.getUser(RRUser).getMagitManager().GetHeadBranch();
+            if(userManager.getUser(RRUser).getMagitManager().GetCurrentRepository()!=null && userManager.getUser(RRUser).getMagitManager().getRepositoryName().equals(RRName)){
+                Branch headBranch= user.getMagitManager().GetHeadBranch();
                 Branch branchToAdd = new Branch(headBranch.getName(),headBranch.getLastCommit());
 
                 userManager.getUser(RRUser).getMagitManager().GetCurrentRepository().getBranches().put(branchToAdd.getName(),branchToAdd);
