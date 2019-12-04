@@ -27,13 +27,17 @@ public class CheckoutBranchServlet extends HttpServlet {
         User currentUser = userManager.getUser(currentUserName);
 
         String branchToCheckoutName = request.getParameter(Constants.BRANCH_TO_CHECKOUT_NAME);
-
+        String checkoutResponse ;
         try {
-            currentUser.getMagitManager().CheckOut(branchToCheckoutName);
-            String newUrl = "pages/repositoryInformation/repositoryInformation.html";
+            if (currentUser.getMagitManager().thereAreUncommittedChanges()) {
+                checkoutResponse = "Checkout failed. There are open changes.";
+            } else {
+                currentUser.getMagitManager().CheckOut(branchToCheckoutName);
+                checkoutResponse = "pages/repositoryInformation/repositoryInformation.html";
+            }
             try (PrintWriter out = response.getWriter()) {
                 Gson gson = new Gson();
-                String json = gson.toJson(newUrl);
+                String json = gson.toJson(checkoutResponse);
                 out.println(json);
                 out.flush();
             }

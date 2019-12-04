@@ -519,8 +519,12 @@ function ajaxCheckout(singleBranchName) {
             branchToCheckoutName: singleBranchName
         },
         success: function (newUrl) {
-            var fullUrl = buildUrlWithContextPath(newUrl);
-            window.location.replace(fullUrl);
+            if(newUrl === "Checkout failed. There are open changes.") {
+                ShowMessage(newUrl);
+            } else {
+                var fullUrl = buildUrlWithContextPath(newUrl);
+                window.location.replace(fullUrl);
+            }
         }
     })
 }
